@@ -116,6 +116,19 @@ class Electron:
     #     # deleting function information
     #     print("Deleting electron: " + str(self._id) + " on coordinates, x: " + str(self.__x) + " y: " + str(self.__y))
 
+class Plate_negative:
+    # this is a class which represents one negative plate
+    # this plate is filled with electrons which can move freely
+    None
+
+class Plate_positive:
+    # this is a class which represents one positive plate
+    # here are all the protons fixed anc can't move
+    None
+
+class Plate_Capacitor:
+    # this capacitor represents two plates which interact together
+    None
 
 if __name__ == "__main__":
     # printing class info
@@ -128,5 +141,5 @@ if __name__ == "__main__":
     print("Coordinates: x: ", e.get_x(), "| y: ", e.get_y())
     print("ID of electron: ", e.get_id(), " , charge: ", e.get_charge())
     # checking if cal works
-    e2 = Electron(x=5, y=3)
+    e2 = Electron(x=5.5, y=3)
     print(e.cal_force(particle=e2))
