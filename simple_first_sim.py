@@ -11,7 +11,9 @@ class Electron:
         # setting coordinates
         self.__x = x
         self.__y = y
+        # setting charge
         self.__charge = -1 * elementary_charge
+        # setting id for identification
         self._id = uuid.uuid4()
 
     def __repr__(self):
@@ -27,7 +29,7 @@ class Electron:
 
     def __del__(self):
         # deleting function information
-        return "Deleting instance: " + self
+        print("Deleting electron: " + str(self._id) + " on coordinates, x: " + str(self.__x) + " y: " + str(self.__y))
 
 
 if __name__ == "__main__":
@@ -36,3 +38,5 @@ if __name__ == "__main__":
     # setting the first single electron
     e = Electron(x=5, y=2)
     # printing all information about it
+    print(e)
+
