@@ -1,6 +1,7 @@
 # this file is simulating a simple grid model with two parallel capacitors
 # loading in modules
 import uuid
+import math
 import numpy as np
 from scipy.constants import pi
 # physical_constants[name] = (value, unit, uncertainty)
@@ -14,6 +15,9 @@ class Electron:
         # setting coordinates
         self.__x = x
         self.__y = y
+        # setting i-hat and ^j
+        self._i = 1
+        self._j = 1
         # setting charge
         self.__charge = -1 * physical_constants["elementary charge"][0]
         # setting id for identification
@@ -34,7 +38,42 @@ class Electron:
         # returning angle
         return angle
 
-    def cal_force(self):
+    def cal_force(self, particle):
+        # finding out the force between the two particles
+        force = (self.__k * self.__charge * particle.__charge) / (
+                    (((particle.__x - self.__x) ** 2 + (particle.__y - self.__y) ** 2) ** 0.5) ** 2)
+        print(force)
+        # finding the vector for the force
+        # setting unit vector for force
+        unit_force_vector = np.array([particle.__x - self.__x, particle.__y - self.__y]) / np.linalg.norm(
+            np.array([particle.__x - self.__x, particle.__y - self.__y]))
+        print(unit_force_vector)
+        # setting the force vector
+        force_vector = unit_force_vector * force
+        print(force_vector)
+        # getting angle for vx and vy cal
+        ang_rad = self.convert_vector_degrees(vector=force_vector)
+        print(ang_rad * (180 / pi))
+        # checking if 90° so no more movement
+        if ang_rad == 90 * (pi / 180):
+            # fixed position
+            force_vector_x = np.array([force_vector[0], 0])
+            force_vector_y = np.array([0, force_vector[1]])
+        # else calculation the part vectors x and y
+        else:
+            # checking if vector is up or down
+            if ang_rad > 90 * (pi / 180):
+                # vector pointing down
+                cal_ang = pi - ang_rad
+                force_vector_x = np.array([math.sin(cal_ang) * force, 0])
+                force_vector_y = np.array([0, -1 * math.cos(cal_ang) * force])
+            elif ang_rad < 90 * (pi / 180):
+                # vector pointing up
+                cal_ang = ang_rad
+                force_vector_x = np.array([math.sin(cal_ang) * force, 0])
+                force_vector_y = np.array([0, math.cos(cal_ang) * force])
+        # returning all vectors
+        return force, force_vector, force_vector_x, force_vector_y
 
     def get_x(self):
         # getting x coordinate
@@ -71,9 +110,9 @@ class Electron:
                                                                                                             self.__x,
                                                                                                             self.__y)
 
-    def __del__(self):
-        # deleting function information
-        print("Deleting electron: " + str(self._id) + " on coordinates, x: " + str(self.__x) + " y: " + str(self.__y))
+    # def __del__(self):
+    #     # deleting function information
+    #     print("Deleting electron: " + str(self._id) + " on coordinates, x: " + str(self.__x) + " y: " + str(self.__y))
 
 
 if __name__ == "__main__":
@@ -86,3 +125,6 @@ if __name__ == "__main__":
     # getting values
     print("Coordinates: x: ", e.get_x(), "| y: ", e.get_y())
     print("ID of electron: ", e.get_id(), " , charge: ", e.get_charge())
+    # checking if cal works
+    e2 = Electron(x=5, y=3)
+    print(e.cal_force(particle=e2))
