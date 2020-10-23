@@ -42,18 +42,20 @@ class Electron:
         # finding out the force between the two particles
         force = (self.__k * self.__charge * particle.__charge) / (
                     (((particle.__x - self.__x) ** 2 + (particle.__y - self.__y) ** 2) ** 0.5) ** 2)
-        print(force)
+        # print("Force: ", force)
         # finding the vector for the force
         # setting unit vector for force
         unit_force_vector = np.array([particle.__x - self.__x, particle.__y - self.__y]) / np.linalg.norm(
             np.array([particle.__x - self.__x, particle.__y - self.__y]))
-        print(unit_force_vector)
+        # print("Unit Vector force: ", unit_force_vector)
         # setting the force vector
         force_vector = unit_force_vector * force
-        print(force_vector)
+        # print("Full force vector: ", force_vector)
         # getting angle for vx and vy cal
         ang_rad = self.convert_vector_degrees(vector=force_vector)
-        print(ang_rad * (180 / pi))
+        # print("Angle to horizontal in deg: ", ang_rad * (180 / pi))
+        # setting values
+        force_vector_x, force_vector_y = 0, 0
         # checking if 90° so no more movement
         if ang_rad == 90 * (pi / 180):
             # fixed position
