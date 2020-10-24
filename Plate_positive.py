@@ -29,20 +29,23 @@ class Plate_Positive:
         if not random:
             x_ps = np.linspace(min(self._p1, self._p2)[0], max(self._p1, self._p2)[0], self._n)
             y_ps = np.linspace(min(self._p1, self._p2)[1], max(self._p1, self._p2)[1], self._n)
-            # print("The positions for the spacing particles: ", x_ps, y_ps)
-            # iterating through positions
-            for x in x_ps:
-                row = []
-                data = []
-                for y in y_ps:
-                    # print("coordinates: ", x, y)
-                    self.matrix_pos.append([x, y])
-                    data.append(Particle(x=x, y=y, z=self.z_plane, type_c='+'))
-                # adding the data into the matrix
-                self.matrix.append(data)
-            # setting the list in array
-            self.matrix = np.array(self.matrix)
-            self.matrix_pos = np.array(self.matrix_pos)
+        else:
+            x_ps = np.random.uniform(low=min(self._p1, self._p2)[0], high=max(self._p1, self._p2)[0], size=(self._n,))
+            y_ps = np.random.uniform(low=min(self._p1, self._p2)[1], high=max(self._p1, self._p2)[1], size=(self._n,))
+        print("The positions for the spacing particles: ", x_ps, y_ps)
+        # iterating through positions
+        for x in x_ps:
+            row = []
+            data = []
+            for y in y_ps:
+                # print("coordinates: ", x, y)
+                self.matrix_pos.append([x, y])
+                data.append(Particle(x=x, y=y, z=self.z_plane, type_c='+'))
+            # adding the data into the matrix
+            self.matrix.append(data)
+        # setting the list in array
+        self.matrix = np.array(self.matrix)
+        self.matrix_pos = np.array(self.matrix_pos)
         # print(self.matrix, '\n\n', self.matrix_pos)
 
     def get_info_of_particles(self):
@@ -61,7 +64,7 @@ class Plate_Positive:
         # plotting the density of the points
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         x, y = np.meshgrid(self.matrix_pos[:, 0], self.matrix_pos[:, 1])
-        nbins = 2
+        nbins = 50
         k = kde.gaussian_kde(self.matrix_pos.T)
         xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
         zi = k(np.vstack([xi.flatten(), yi.flatten()]))
@@ -84,7 +87,7 @@ if __name__ == "__main__":
     # getting class information
     print(Plate_Positive)
     # setting instance of single plate
-    plate_pos = Plate_Positive(n=5, p1=[0, 0, 0], p2=[1, 1, 0])
+    plate_pos = Plate_Positive(n=20, p1=[0, 0, 0], p2=[1, 1, 0], random=True)
     # printing all information about it
     print(plate_pos)
     # getting values
