@@ -8,9 +8,9 @@ from scipy.constants import pi
 from scipy.constants import physical_constants as physical_constants
 
 
-class Electron:
-    # the class will handle the electrons and their movement
-    def __init__(self, x, y, z):
+class Particle:
+    # the class will handle the Particles and their movement
+    def __init__(self, x, y, z, type):
         # setting the values for the single classes
         # setting coordinates
         self.__x = x
@@ -19,8 +19,13 @@ class Electron:
         # setting i-hat and ^j
         self._i = 1
         self._j = 1
+        self.type = type
         # setting charge
-        self.__charge = -1 * physical_constants["elementary charge"][0]
+        if self.type == '-':
+            self.fac = -1
+        elif self.type == '+':
+            self.fac = 1
+        self.__charge = self.fac * physical_constants["elementary charge"][0]
         # setting id for identification
         self._id = uuid.uuid4()
         # setting factor k for force cal
@@ -73,25 +78,25 @@ class Electron:
         self.__z = z
 
     def get_id(self):
-        # getting the id from the electron
+        # getting the id from the Particle
         return self._id
 
     def get_charge(self):
-        # get the charge of the electron
+        # get the charge of the Particle
         return self.__charge
 
     def __repr__(self):
         # printing name of class
-        return "The class handles all actions of electrons"
+        return "The class handles all actions of Particles"
 
     def __str__(self):
         # printing th object out for information
-        return "This is electron: {0}, with the charge: {1}, and the coordinates, x: {2} and y: {3} and z: {4}".format(
+        return "This is Particle: {0}, with the charge: {1}, and the coordinates, x: {2} and y: {3} and z: {4}".format(
             self._id, self.__charge, self.__x, self.__y, self.__z)
 
     # def __del__(self):
     #     # deleting function information
-    #     print("Deleting electron: " + str(self._id) + " on coordinates, x: " + str(self.__x) + " y: " + str(self.__y))
+    #     print("Deleting Particle: " + str(self._id) + " on coordinates, x: " + str(self.__x) + " y: " + str(self.__y))
 
 
 class Plate_negative:
@@ -114,17 +119,16 @@ class Plate_Capacitor:
 if __name__ == "__main__":
     # TODO split classes in diffrent files
     # TODO remoake Electrone to Particle in gernael
-    # TODO make also z axis in Particle because 2D not enoiugh
     # TODO build postive plate with random and none random distribuation
     # printing class info
-    print(Electron)
+    print(Particle)
     # setting the first single electron
-    e = Electron(x=5, y=2, z=8)
+    e = Particle(x=5, y=2, z=8, type='-')
     # printing all information about it
     print(e)
     # getting values
     print("Coordinates: x: ", e.get_x(), "| y: ", e.get_y(), "| z: ", e.get_z())
     print("ID of electron: ", e.get_id(), " , charge: ", e.get_charge())
     # checking if cal works
-    e2 = Electron(x=5.5, y=3, z=8)
+    e2 = Particle(x=5.5, y=3, z=8, type='-')
     print(e.cal_force(particle=e2))
