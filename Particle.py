@@ -103,9 +103,6 @@ class Particle:
     #     print("Deleting Particle: " + str(self._id) + " on coordinates, x: " + str(self.__x) + " y: " + str(self.__y))
 
 if __name__ == "__main__":
-    # TODO split classes in diffrent files
-    # TODO remoake Electrone to Particle in gernael
-    # TODO build postive plate with random and none random distribuation
     # printing class info
     print(Particle)
     # setting the first single electron
