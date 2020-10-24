@@ -91,7 +91,8 @@ class Particle:
 
     def __repr__(self):
         # printing name of class
-        return "The class handles all actions of Particles"
+        return "This is Particle: {0}, with the charge: {1}, and the coordinates, x: {2} and y: {3} and z: {4}".format(
+            self._id, self.__charge, self.__x, self.__y, self.__z)
 
     def __str__(self):
         # printing th object out for information

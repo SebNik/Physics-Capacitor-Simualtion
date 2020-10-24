@@ -2,6 +2,7 @@
 import uuid
 import numpy as np
 from Particle import Particle
+import matplotlib.pyplot as plt
 
 
 class Plate_Positive:
@@ -34,16 +35,25 @@ class Plate_Positive:
                 data = []
                 for y in y_ps:
                     # print("coordinates: ", x, y)
-                    row.append([x, y])
+                    self.matrix_pos.append([x, y])
                     data.append(Particle(x=x, y=y, z=self.z_plane, type_c='+'))
                 # adding the data into the matrix
                 self.matrix.append(data)
-                self.matrix_pos.append(row)
             # setting the list in array
             self.matrix = np.array(self.matrix)
             self.matrix_pos = np.array(self.matrix_pos)
-
         # print(self.matrix, '\n\n', self.matrix_pos)
+
+    def get_info_of_particles(self):
+        # printing out all ethe information of the particles
+        for p in self.matrix:
+            print(p)
+
+    def plot_matrix_particles(self):
+        # plotting the particles
+        x, y = np.meshgrid(self.matrix_pos[:, 0], self.matrix_pos[:, 1])
+        plt.scatter(x, y, c='r')
+        plt.show()
 
     def __repr__(self):
         # printing name of class
@@ -58,7 +68,10 @@ if __name__ == "__main__":
     # getting class information
     print(Plate_Positive)
     # setting instance of single plate
-    plate_pos = Plate_Positive(n=3, p1=[0, 0, 0], p2=[1, 1, 0])
+    plate_pos = Plate_Positive(n=5, p1=[0, 0, 0], p2=[1, 1, 0])
     # printing all information about it
     print(plate_pos)
     # getting values
+    # plate_pos.get_info_of_particles()
+    # plotting out particles
+    plate_pos.plot_matrix_particles()
