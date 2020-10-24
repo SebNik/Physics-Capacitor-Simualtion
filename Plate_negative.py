@@ -53,13 +53,16 @@ class Plate_Negative:
         for p in self.matrix:
             print(p)
 
-    def get_inner_forces(self):
+    def get_inner_forces(self, n=False):
+        if not n:
+            n = len(self.matrix.flatten())
         # getting the inner force of the plate
         forces_list = []
         forces_dic = {}
         # iterating through electrons
         for e_cal in self.matrix.flatten():
             force_sum = np.array([0.0, 0.0, 0.0])
+            count = 0
             for e_check in self.matrix.flatten():
                 if e_cal != e_check:
                     force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_cal.cal_force(
@@ -67,6 +70,9 @@ class Plate_Negative:
                     print("Forces: from: ", str(e_cal.get_id()), 'to: ', str(e_check.get_id()), '--->', force,
                           force_vector, force_vector_x, force_vector_y, force_vector_z)
                     force_sum += force_vector
+                    count += 1
+                    if count >= n:
+                        break
             forces_list.append(force_sum)
             forces_dic[str(e_cal.get_id())] = force_sum
         # returning values
@@ -79,17 +85,21 @@ class Plate_Negative:
         plt.scatter(x, y, c='r')
         plt.show()
 
-    def plot_matrix_particles_vector(self):
+    def plot_matrix_particles_vector(self, n=False):
         # plotting the particles and inner force vectors
         # setting figure
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         # getting forces data
-        f_list, f_dic = self.get_inner_forces()
+        f_list, f_dic = self.get_inner_forces(n=n)
+        print(f_dic)
+        for e in self.matrix.flatten():
+            plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0], f_dic[str(e.get_id())][1], hatch='o',
+                       width=0.01)
         # getting x,y for particles plot
         x, y = np.meshgrid(self.matrix_pos[:, 0], self.matrix_pos[:, 1])
         # plotting particles
         plt.scatter(x, y, c='r')
-
+        # showing the plot
         plt.show()
 
     def plot_density(self):
@@ -120,7 +130,7 @@ if __name__ == "__main__":
     # getting class information
     print(Plate_Negative)
     # setting instance of single plate
-    plate_neg = Plate_Negative(n=3, p1=[0, 0, 0], p2=[0.01, 0.01, 0], random=False)
+    plate_neg = Plate_Negative(n=3, p1=[0, 0, 0], p2=[0.001, 0.001, 0], random=False)
     # printing all information about it
     # print(plate_neg)
     # getting values
@@ -130,4 +140,6 @@ if __name__ == "__main__":
     # plotting the density of the points
     # plate_neg.plot_density()
     # getting the inner forces
-    print(plate_neg.get_inner_forces())
+    # print(plate_neg.get_inner_forces())
+    # plotting inner forces
+    plate_neg.plot_matrix_particles_vector(n=2)
