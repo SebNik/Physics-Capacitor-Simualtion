@@ -1,6 +1,7 @@
 # this file is working with the positive plate
 import uuid
 import numpy as np
+from scipy.stats import kde
 from Particle import Particle
 import matplotlib.pyplot as plt
 
@@ -51,8 +52,22 @@ class Plate_Positive:
 
     def plot_matrix_particles(self):
         # plotting the particles
+        plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         x, y = np.meshgrid(self.matrix_pos[:, 0], self.matrix_pos[:, 1])
         plt.scatter(x, y, c='r')
+        plt.show()
+
+    def plot_density(self):
+        # plotting the density of the points
+        plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
+        x, y = np.meshgrid(self.matrix_pos[:, 0], self.matrix_pos[:, 1])
+        nbins = 2
+        k = kde.gaussian_kde(self.matrix_pos.T)
+        xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
+        zi = k(np.vstack([xi.flatten(), yi.flatten()]))
+        # plot a density
+        # pcolormesh(xi, yi, zi.reshape(xi.shape), shading='gouraud', cmap=plt.cm.BuGn_r)
+        plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.viridis)
         plt.show()
 
     def __repr__(self):
@@ -61,7 +76,8 @@ class Plate_Positive:
 
     def __str__(self):
         # printing th object out for information
-        return "This is a Plate : {0}, with a positive charge. The bounding box coordinates are: p1: {1}, p2: {2}, p3: {3}, p4: {4}, on the z-plane: {5}".format(self._id, self._p1, self._p2, self._p3, self._p4, self.z_plane)
+        return "This is a Plate : {0}, with a positive charge. The bounding box coordinates are: p1: {1}, p2: {2}, p3: {3}, p4: {4}, on the z-plane: {5}".format(
+            self._id, self._p1, self._p2, self._p3, self._p4, self.z_plane)
 
 
 if __name__ == "__main__":
@@ -74,4 +90,6 @@ if __name__ == "__main__":
     # getting values
     # plate_pos.get_info_of_particles()
     # plotting out particles
-    plate_pos.plot_matrix_particles()
+    # plate_pos.plot_matrix_particles()
+    # plotting the density of the points
+    plate_pos.plot_density()
