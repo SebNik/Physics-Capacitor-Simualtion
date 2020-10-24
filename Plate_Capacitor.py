@@ -18,12 +18,20 @@ class Plate_Capacitor:
         ax = plt.axes(projection='3d')
         # plotting points of pos plate
         for e_p in self.plate_pos.matrix.flatten():
-            print(e_p)
-        # ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens');
+            ax.scatter3D(e_p.get_x(), e_p.get_y(), e_p.get_z(), c='r')
+        # plotting points of neg plate
+        for e_n in self.plate_neg.matrix.flatten():
+            ax.scatter3D(e_n.get_x(), e_n.get_y(), e_n.get_z(), c='b')
+        # setting labels
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        # plotting out the room
+        plt.show()
 
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n=5, p1=[0, 0], p2=[0.001, 0.001], plane_z_pos=0, plane_z_neg=0.001, random=False)
+    cap = Plate_Capacitor(n=2, p1=[0, 0], p2=[0.001, 0.001], plane_z_pos=[0], plane_z_neg=[0.001], random=False)
     # plotting the room
     cap.plotting_plates()
