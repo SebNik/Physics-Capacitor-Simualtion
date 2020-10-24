@@ -32,7 +32,7 @@ class Plate_Positive:
         else:
             x_ps = np.random.uniform(low=min(self._p1, self._p2)[0], high=max(self._p1, self._p2)[0], size=(self._n,))
             y_ps = np.random.uniform(low=min(self._p1, self._p2)[1], high=max(self._p1, self._p2)[1], size=(self._n,))
-        print("The positions for the spacing particles: ", x_ps, y_ps)
+        # print("The positions for the spacing particles: ", x_ps, y_ps)
         # iterating through positions
         for x in x_ps:
             row = []
@@ -71,6 +71,7 @@ class Plate_Positive:
         # plot a density
         # pcolormesh(xi, yi, zi.reshape(xi.shape), shading='gouraud', cmap=plt.cm.BuGn_r)
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.viridis)
+        # plt.colorbar()
         plt.show()
 
     def __repr__(self):
@@ -85,11 +86,11 @@ class Plate_Positive:
 
 if __name__ == "__main__":
     # getting class information
-    print(Plate_Positive)
+    # print(Plate_Positive)
     # setting instance of single plate
-    plate_pos = Plate_Positive(n=20, p1=[0, 0, 0], p2=[1, 1, 0], random=True)
+    plate_pos = Plate_Positive(n=20, p1=[0, 0, 0], p2=[1, 1, 0], random=False)
     # printing all information about it
-    print(plate_pos)
+    # print(plate_pos)
     # getting values
     # plate_pos.get_info_of_particles()
     # plotting out particles
