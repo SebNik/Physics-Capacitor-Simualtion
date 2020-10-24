@@ -25,18 +25,6 @@ class Electron:
         # setting factor k for force cal
         self.__k = 14 * pi * physical_constants['vacuum electric permittivity'][0]
 
-    def convert_vector_degrees(self, vector):
-        # converting vector  into degrees by calculating degrees in radians from horizontal vector
-        horizontal_vector = np.array([0, 1])
-        vector = np.array(vector)
-        # calculating a vector for unit
-        unit_vector_horizontal = horizontal_vector / np.linalg.norm(horizontal_vector)
-        unit_vector = vector / np.linalg.norm(vector)
-        dot_product = np.dot(unit_vector_horizontal, unit_vector)
-        # finding angles in vectors
-        angle = np.arccos(dot_product)
-        # returning angle
-        return angle
 
     def cal_force(self, particle):
         # finding out the force between the two particles
@@ -52,28 +40,9 @@ class Electron:
         force_vector = unit_force_vector * force
         # print("Full force vector: ", force_vector)
         # getting angle for vx and vy cal
-        ang_rad = self.convert_vector_degrees(vector=force_vector)
-        # print("Angle to horizontal in deg: ", ang_rad * (180 / pi))
         # setting values
-        force_vector_x, force_vector_y = 0, 0
-        # checking if 90° so no more movement
-        if ang_rad == 90 * (pi / 180):
-            # fixed position
-            force_vector_x = np.array([force_vector[0], 0])
-            force_vector_y = np.array([0, force_vector[1]])
-        # else calculation the part vectors x and y
-        else:
-            # checking if vector is up or down
-            if ang_rad > 90 * (pi / 180):
-                # vector pointing down
-                cal_ang = pi - ang_rad
-                force_vector_x = np.array([math.sin(cal_ang) * force, 0])
-                force_vector_y = np.array([0, -1 * math.cos(cal_ang) * force])
-            elif ang_rad < 90 * (pi / 180):
-                # vector pointing up
-                cal_ang = ang_rad
-                force_vector_x = np.array([math.sin(cal_ang) * force, 0])
-                force_vector_y = np.array([0, math.cos(cal_ang) * force])
+        force_vector_x = np.array([force_vector[0], 0])
+        force_vector_y = np.array([0, force_vector[1]])
         # returning all vectors
         return force, force_vector, force_vector_x, force_vector_y
 
@@ -131,6 +100,10 @@ class Plate_Capacitor:
     None
 
 if __name__ == "__main__":
+    #TODO split classes in diffrent files
+    # TODO remoake Electrone to Particle in gernael
+    # TODO make also z axis in Particle because 2D not enoiugh
+    # TODO build postive plate with random and none random distribuation
     # printing class info
     print(Electron)
     # setting the first single electron
