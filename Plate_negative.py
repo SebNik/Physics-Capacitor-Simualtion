@@ -6,7 +6,7 @@ from Particle import Particle
 import matplotlib.pyplot as plt
 
 
-class Plate_negative:
+class Plate_Negative:
     # this is a class which represents one negative plate
     # this plate is filled with electrons which can move freely
     def __init__(self, n, p1, p2, random=False):
@@ -85,4 +85,15 @@ class Plate_negative:
 
 
 if __name__ == "__main__":
-    None
+    # getting class information
+    print(Plate_Negative)
+    # setting instance of single plate
+    plate_neg = Plate_Negative(n=7, p1=[0, 0, 0], p2=[1, 1, 0], random=False)
+    # printing all information about it
+    # print(plate_neg)
+    # getting values
+    # plate_neg.get_info_of_particles()
+    # plotting out particles
+    plate_neg.plot_matrix_particles()
+    # plotting the density of the points
+    # plate_neg.plot_density()
