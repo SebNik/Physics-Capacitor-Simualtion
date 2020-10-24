@@ -102,6 +102,7 @@ class Particle:
     #     # deleting function information
     #     print("Deleting Particle: " + str(self._id) + " on coordinates, x: " + str(self.__x) + " y: " + str(self.__y))
 
+
 if __name__ == "__main__":
     # printing class info
     print(Particle)
@@ -111,7 +112,7 @@ if __name__ == "__main__":
     print(e)
     # getting values
     print("Coordinates: x: ", e.get_x(), "| y: ", e.get_y(), "| z: ", e.get_z())
-    print("ID of electron: ", e.get_id(), " , charge: ", e.get_charge())
+    print("ID of electron: ", e.get_id(), " , charge: ", e.get_charge(), " , type: ", e.get_type())
     # checking if cal works
     e2 = Particle(x=5.5, y=3, z=8, type_c='-')
     print(e.cal_force(particle=e2))
