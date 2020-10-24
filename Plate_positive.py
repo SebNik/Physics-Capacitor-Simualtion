@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # getting class information
     # print(Plate_Positive)
     # setting instance of single plate
-    plate_pos = Plate_Positive(n=20, p1=[0, 0, 0], p2=[1, 1, 0], random=False)
+    plate_pos = Plate_Positive(n=7, p1=[0, 0, 0], p2=[1, 1, 0], random=False)
     # printing all information about it
     # print(plate_pos)
     # getting values
