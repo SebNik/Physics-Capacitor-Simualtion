@@ -53,6 +53,9 @@ class Plate_Negative:
         for p in self.matrix:
             print(p)
 
+    def get_inner_forces(self):
+        None
+
     def plot_matrix_particles(self):
         # plotting the particles
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
@@ -88,7 +91,7 @@ if __name__ == "__main__":
     # getting class information
     print(Plate_Negative)
     # setting instance of single plate
-    plate_neg = Plate_Negative(n=7, p1=[0, 0, 0], p2=[1, 1, 0], random=False)
+    plate_neg = Plate_Negative(n=3, p1=[0, 0, 0], p2=[1, 1, 0], random=False)
     # printing all information about it
     # print(plate_neg)
     # getting values

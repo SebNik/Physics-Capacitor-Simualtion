@@ -33,7 +33,7 @@ class Particle:
 
     def cal_force(self, particle):
         # finding out the force between the two particles
-        force = (self.__k * self.__charge * particle.__charge) / ((((particle.__x - self.__x) ** 2 + (
+        force = (self.__k * abs(self.__charge) * abs(particle.__charge)) / ((((particle.__x - self.__x) ** 2 + (
                 particle.__y - self.__y) ** 2 + (particle.__z - self.__z) ** 2) ** 0.5) ** 2)
         # print("Force: ", force)
         # finding the vector for the force
@@ -42,6 +42,9 @@ class Particle:
             [particle.__x - self.__x, particle.__y - self.__y, particle.__z - self.__z]) / np.linalg.norm(
             np.array([particle.__x - self.__x, particle.__y - self.__y, particle.__z - self.__z]))
         # print("Unit Vector force: ", unit_force_vector)
+        # setting the direction
+        if particle.type == self.type:
+            unit_force_vector = unit_force_vector * -1
         # setting the force vector
         force_vector = unit_force_vector * force
         # print("Full force vector: ", force_vector)
