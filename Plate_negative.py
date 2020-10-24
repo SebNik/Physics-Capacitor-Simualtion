@@ -67,12 +67,13 @@ class Plate_Negative:
                 if e_cal != e_check:
                     force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_cal.cal_force(
                         particle=e_check)
-                    print("Forces: from: ", str(e_cal.get_id()), 'to: ', str(e_check.get_id()), '--->', force,
-                          force_vector, force_vector_x, force_vector_y, force_vector_z)
+                    # print("Forces: from: ", str(e_cal.get_id()), 'to: ', str(e_check.get_id()), '--->', force,
+                    #       force_vector, force_vector_x, force_vector_y, force_vector_z)
                     force_sum += force_vector
                     count += 1
                     if count >= n:
                         break
+            # print("Force sum: from: ", str(e_cal.get_id()), ' to: ', str(e_check.get_id()), ' --->', force_sum)
             forces_list.append(force_sum)
             forces_dic[str(e_cal.get_id())] = force_sum
         # returning values
@@ -130,7 +131,7 @@ if __name__ == "__main__":
     # getting class information
     print(Plate_Negative)
     # setting instance of single plate
-    plate_neg = Plate_Negative(n=3, p1=[0, 0, 0], p2=[0.001, 0.001, 0], random=False)
+    plate_neg = Plate_Negative(n=5, p1=[0, 0, 0], p2=[0.001, 0.001, 0], random=True)
     # printing all information about it
     # print(plate_neg)
     # getting values
@@ -142,4 +143,4 @@ if __name__ == "__main__":
     # getting the inner forces
     # print(plate_neg.get_inner_forces())
     # plotting inner forces
-    plate_neg.plot_matrix_particles_vector(n=2)
+    plate_neg.plot_matrix_particles_vector()
