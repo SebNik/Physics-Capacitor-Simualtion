@@ -10,7 +10,7 @@ from scipy.constants import physical_constants as physical_constants
 
 class Particle:
     # the class will handle the Particles and their movement
-    def __init__(self, x, y, z, type):
+    def __init__(self, x, y, z, type_c):
         # setting the values for the single classes
         # setting coordinates
         self.__x = x
@@ -19,7 +19,7 @@ class Particle:
         # setting i-hat and ^j
         self._i = 1
         self._j = 1
-        self.type = type
+        self.type = type_c
         # setting charge
         if self.type == '-':
             self.fac = -1
@@ -81,6 +81,10 @@ class Particle:
         # getting the id from the Particle
         return self._id
 
+    def get_type(self):
+        # getting the type from the Particle
+        return self.type
+
     def get_charge(self):
         # get the charge of the Particle
         return self.__charge
@@ -98,24 +102,6 @@ class Particle:
     #     # deleting function information
     #     print("Deleting Particle: " + str(self._id) + " on coordinates, x: " + str(self.__x) + " y: " + str(self.__y))
 
-
-class Plate_negative:
-    # this is a class which represents one negative plate
-    # this plate is filled with electrons which can move freely
-    None
-
-
-class Plate_positive:
-    # this is a class which represents one positive plate
-    # here are all the protons fixed anc can't move
-    None
-
-
-class Plate_Capacitor:
-    # this capacitor represents two plates which interact together
-    None
-
-
 if __name__ == "__main__":
     # TODO split classes in diffrent files
     # TODO remoake Electrone to Particle in gernael
@@ -123,12 +109,12 @@ if __name__ == "__main__":
     # printing class info
     print(Particle)
     # setting the first single electron
-    e = Particle(x=5, y=2, z=8, type='-')
+    e = Particle(x=5, y=2, z=8, type_c='-')
     # printing all information about it
     print(e)
     # getting values
     print("Coordinates: x: ", e.get_x(), "| y: ", e.get_y(), "| z: ", e.get_z())
     print("ID of electron: ", e.get_id(), " , charge: ", e.get_charge())
     # checking if cal works
-    e2 = Particle(x=5.5, y=3, z=8, type='-')
+    e2 = Particle(x=5.5, y=3, z=8, type_c='-')
     print(e.cal_force(particle=e2))
