@@ -142,12 +142,11 @@ class Plate_Negative:
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         x = np.array([e.get_x() for e in self.matrix.flatten()])
         y = np.array([e.get_y() for e in self.matrix.flatten()])
-        nbins = 150
-        k = kde.gaussian_kde(self.matrix_pos.T)
+        nbins = 300
+        k = kde.gaussian_kde([x, y])
         xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
         zi = k(np.vstack([xi.flatten(), yi.flatten()]))
-        # # plot a density
-        # # pcolormesh(xi, yi, zi.reshape(xi.shape), shading='gouraud', cmap=plt.cm.BuGn_r)
+        # plot a density
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.viridis)
         plt.scatter(x, y, c='r', alpha=0.1)
         # plt.colorbar()
