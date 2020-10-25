@@ -58,13 +58,15 @@ class Plate_Capacitor:
         # getting p for the multiplication with the forces
         p = self.find_p()
         # starting sim
-        for i in range(0, 12):
+        for i in range(0, 10):
             # getting the forces for all the particles
             forces_list, forces_dic = self.cal_forces()
             # moving all the particles by their force
             for e_n in self.plate_neg.matrix.flatten():
                 # moving the particle
-                self.plate_neg.move(id=e_n.get_id(), force=forces_dic[str(e_n.get_id())], p=p)
+                self.plate_neg.move_by_force_vector(id=str(e_n.get_id()), force=forces_dic[str(e_n.get_id())], p=1)
+            # self.plate_neg.plot_matrix_particles()
+            # self.plate_neg.plot_density()
 
 
     def plotting_plates_vectors_force(self):
@@ -141,3 +143,7 @@ if __name__ == "__main__":
     # finding p
     # print(cap.find_p())
     # starting sim
+    cap.sim()
+    # plotting density to heck sim
+    cap.plate_neg.plot_matrix_particles()
+    cap.plate_neg.plot_density()
