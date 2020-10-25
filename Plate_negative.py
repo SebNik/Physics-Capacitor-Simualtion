@@ -84,7 +84,6 @@ class Plate_Negative:
         for e in self.matrix.flatten():
             # found the right particle
             if str(e.get_id()) == id:
-                print('Found e')
                 # setting old position
                 x_old = e.get_x()
                 y_old = e.get_y()
@@ -93,6 +92,15 @@ class Plate_Negative:
                 # setting new position
                 x_new = x_old + new_force_vector[0]
                 y_new = y_old + new_force_vector[1]
+                # checking if bigger than boundaries
+                if x_new > self._p2[0]:
+                    x_new = self._p2[0]
+                elif x_new < self._p1[0]:
+                    x_new = self._p1[0]
+                if y_new > self._p2[0]:
+                    y_new = self._p2[0]
+                elif y_new < self._p1[0]:
+                    y_new = self._p1[0]
                 # moving the particle
                 e.set_x(x=x_new)
                 e.set_y(y=y_new)
@@ -165,9 +173,9 @@ if __name__ == "__main__":
     # plotting inner forces
     # plate_neg.plot_matrix_particles_vector()
     # moving the particle by a force vector
-    id = str(plate_neg.matrix.flatten()[0].get_id())
-    print(id)
-    plate_neg.move_by_force_vector(id=id, force=np.array([0.2, 0.5, 0]))
+    i = str(plate_neg.matrix.flatten()[1].get_id())
+    print(i)
+    plate_neg.move_by_force_vector(id=i, force=np.array([0.23, 0.2, 0]))
     # checking via plot
     plate_neg.plot_matrix_particles()
     print(plate_neg.matrix.flatten()[0].get_x())
