@@ -79,10 +79,30 @@ class Plate_Negative:
         # returning values
         return forces_list, forces_dic
 
+    def move_by_force_vector(self, id, force, p=1):
+        # this function is moving the particle with the id by the force vector in p
+        for e in self.matrix.flatten():
+            # found the right particle
+            if str(e.get_id()) == id:
+                print('Found e')
+                # setting old position
+                x_old = e.get_x()
+                y_old = e.get_y()
+                # setting new force vector
+                new_force_vector = force * p
+                # setting new position
+                x_new = x_old + new_force_vector[0]
+                y_new = y_old + new_force_vector[1]
+                # moving the particle
+                e.set_x(x=x_new)
+                e.set_y(y=y_new)
+                print(x_old, y_old, e.get_x(), e.get_y())
+
     def plot_matrix_particles(self):
         # plotting the particles
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
-        x, y = np.meshgrid(self.matrix_pos[:, 0], self.matrix_pos[:, 1])
+        x = [e.get_x() for e in self.matrix.flatten()]
+        y = [e.get_y() for e in self.matrix.flatten()]
         plt.scatter(x, y, c='r')
         plt.show()
 
@@ -131,7 +151,7 @@ if __name__ == "__main__":
     # getting class information
     print(Plate_Negative)
     # setting instance of single plate
-    plate_neg = Plate_Negative(n=5, p1=[0, 0, 0], p2=[1, 1, 0], random=True)
+    plate_neg = Plate_Negative(n=3, p1=[0, 0, 0], p2=[1, 1, 0], random=False)
     # printing all information about it
     # print(plate_neg)
     # getting values
@@ -144,5 +164,10 @@ if __name__ == "__main__":
     # print(plate_neg.get_inner_forces())
     # plotting inner forces
     # plate_neg.plot_matrix_particles_vector()
-    # moving
-    plate_neg.matrix.flatten()[0].get_id()
+    # moving the particle by a force vector
+    id = str(plate_neg.matrix.flatten()[0].get_id())
+    print(id)
+    plate_neg.move_by_force_vector(id=id, force=np.array([0.2, 0.5, 0]))
+    # checking via plot
+    plate_neg.plot_matrix_particles()
+    print(plate_neg.matrix.flatten()[0].get_x())
