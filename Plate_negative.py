@@ -17,6 +17,9 @@ class Plate_Negative:
         self._p2 = p2
         self._p3 = [p1[0], p2[1], p1[2]]
         self._p4 = [p2[0], p1[1], p1[2]]
+        # getting length for plate
+        self._x_length = abs(p2[0] - p1[0])
+        self._y_length = abs(p2[1] - p1[1])
         # print("Bounding box point: ", self._p1, self._p2, self._p3, self._p4)
         # setting the z plane
         self.z_plane = self._p1[2]
@@ -30,8 +33,10 @@ class Plate_Negative:
             x_ps = np.linspace(min(self._p1, self._p2)[0], max(self._p1, self._p2)[0], self._n)
             y_ps = np.linspace(min(self._p1, self._p2)[1], max(self._p1, self._p2)[1], self._n)
         else:
-            x_ps = np.random.uniform(low=min(self._p1, self._p2)[0], high=max(self._p1, self._p2)[0], size=(self._n,))
-            y_ps = np.random.uniform(low=min(self._p1, self._p2)[1], high=max(self._p1, self._p2)[1], size=(self._n,))
+            # x_ps = np.random.uniform(low=min(self._p1, self._p2)[0], high=max(self._p1, self._p2)[0], size=(self._n,))
+            # y_ps = np.random.uniform(low=min(self._p1, self._p2)[1], high=max(self._p1, self._p2)[1], size=(self._n,))
+            x_ps = [np.random.random_sample() * self._x_length + min(self._p1, self._p2)[0] for i in range(n)]
+            y_ps = [np.random.random_sample() * self._y_length + min(self._p1, self._p2)[1] for i in range(n)]
         # print("The positions for the spacing particles: ", x_ps, y_ps)
         # iterating through positions
         for x in x_ps:
@@ -135,14 +140,16 @@ class Plate_Negative:
     def plot_density(self):
         # plotting the density of the points
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
-        x, y = np.meshgrid(self.matrix_pos[:, 0], self.matrix_pos[:, 1])
-        nbins = 50
+        x = np.array([e.get_x() for e in self.matrix.flatten()])
+        y = np.array([e.get_y() for e in self.matrix.flatten()])
+        nbins = 150
         k = kde.gaussian_kde(self.matrix_pos.T)
         xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
         zi = k(np.vstack([xi.flatten(), yi.flatten()]))
-        # plot a density
-        # pcolormesh(xi, yi, zi.reshape(xi.shape), shading='gouraud', cmap=plt.cm.BuGn_r)
+        # # plot a density
+        # # pcolormesh(xi, yi, zi.reshape(xi.shape), shading='gouraud', cmap=plt.cm.BuGn_r)
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.viridis)
+        plt.scatter(x, y, c='r', alpha=0.1)
         # plt.colorbar()
         plt.show()
 
@@ -160,13 +167,13 @@ if __name__ == "__main__":
     # getting class information
     print(Plate_Negative)
     # setting instance of single plate
-    plate_neg = Plate_Negative(n=3, p1=[0, 0, 0], p2=[1, 1, 0], random=False)
+    plate_neg = Plate_Negative(n=20, p1=[0, 0, 0], p2=[1, 1, 0], random=True)
     # printing all information about it
     # print(plate_neg)
     # getting values
     # plate_neg.get_info_of_particles()
     # plotting out particles
-    # plate_neg.plot_matrix_particles()
+    plate_neg.plot_matrix_particles()
     # plotting the density of the points
     plate_neg.plot_density()
     # getting the inner forces
