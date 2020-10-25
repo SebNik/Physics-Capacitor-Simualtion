@@ -15,6 +15,29 @@ class Plate_Capacitor:
         self.plate_pos = Plate_Positive(n=n, p1=p1 + plane_z_pos, p2=p2 + plane_z_pos, random=random)
         self.plate_neg = Plate_Negative(n=n, p1=p1 + plane_z_neg, p2=p2 + plane_z_neg, random=random)
 
+    def cal_forces(self):
+        # this function is calculating all the forces for the particles
+        # setting lists with force vectors and dic
+        force_list = []
+        force_dic = {}
+        # getting inner forces
+        inner_list, inner_dic = self.plate_neg.get_inner_forces()
+        # getting forces for each electron with the positive charge and then adding it to inner forces
+        for e_n in self.plate_neg.matrix.flatten():
+            force_sum = np.array([0.0, 0.0, 0.0])
+            # now going through positive plane
+            for e_p in self.plate_pos.matrix.flatten():
+                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_n.cal_force(particle=e_p)
+                force_sum += force_vector
+            # adding force_sum and inner force together
+            force_sum += inner_dic[str(e_n.get_id())]
+            # adding the force sum of all in list and dic
+            force_list.append(force_sum)
+            force_dic[str(e_n.get_id())] = force_sum
+        # returning all vales
+        return force_list, force_dic
+
+
     def plotting_plates(self):
         # plotting the 3D room of the electrons
         # setting up space
@@ -48,4 +71,7 @@ if __name__ == "__main__":
     cap = Plate_Capacitor(n=3, p1=[0, 0], p2=[0.001, 0.001], plane_z_pos=[0], plane_z_neg=[0.001], random=False)
     # cap.plate_neg.get_inner_forces()
     # plotting the room
-    cap.plotting_plates()
+    # cap.plotting_plates()
+    # getting the forces for the particles
+    print(cap.cal_forces())
+    # print(cap.plate_neg.matrix[0][0].get_id())
