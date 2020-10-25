@@ -8,6 +8,8 @@ from Plate_negative import Plate_Negative
 class Plate_Capacitor:
     # this capacitor represents two plates which interact together
     def __init__(self, n, p1, p2, plane_z_pos, plane_z_neg, random):
+        # setting the points n
+        self._n = n
         # setting the points
         self._p1 = p1
         self._p2 = p2
@@ -36,6 +38,20 @@ class Plate_Capacitor:
             force_dic[str(e_n.get_id())] = force_sum
         # returning all vales
         return force_list, force_dic
+
+    def find_p(self):
+        # this function is going to find the right factor p for the movement in the forces
+        # finding the max force in the first iteration
+        f_l, f_d = self.cal_forces()
+        f_l_filter = [(f[0] ** 2 + f[1] ** 2) ** 0.5 for f in f_l]
+        # setting the max value
+        f_max = max(np.array(f_l_filter))
+        # finding out the max distance to travel
+        d = (self._p2[0] / self._n) * 0.02
+        # getting p
+        p = d / f_max
+        # return p
+        return p
 
     def plotting_plates_vectors_force(self):
         # plotting the 3D room of the electrons and their vectors
@@ -98,12 +114,15 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n=3, p1=[0, 0], p2=[1e-15, 1e-15], plane_z_pos=[0], plane_z_neg=[1e-15], random=False)
+    cap = Plate_Capacitor(n=4, p1=[0, 0], p2=[1e-15, 1e-15], plane_z_pos=[0], plane_z_neg=[1e-15], random=False)
     # cap.plate_neg.get_inner_forces()
     # plotting the room
     # cap.plotting_plates()
     # getting the forces for the particles
-    print(cap.cal_forces())
+    # print(cap.cal_forces())
     # print(cap.plate_neg.matrix[0][0].get_id())
     # plotting forces
-    cap.plotting_plates_vectors_force()
+    # cap.plate_neg.plot_density()
+    # cap.plotting_plates_vectors_force()
+    # finding p
+    print(cap.find_p())
