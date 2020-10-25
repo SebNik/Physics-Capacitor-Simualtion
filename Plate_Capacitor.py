@@ -53,6 +53,20 @@ class Plate_Capacitor:
         # return p
         return p
 
+    def sim(self):
+        # this function is simulating the sates and stopping with stable state
+        # getting p for the multiplication with the forces
+        p = self.find_p()
+        # starting sim
+        for i in range(0, 12):
+            # getting the forces for all the particles
+            forces_list, forces_dic = self.cal_forces()
+            # moving all the particles by their force
+            for e_n in self.plate_neg.matrix.flatten():
+                # moving the particle
+                self.plate_neg.move(id=e_n.get_id(), force=forces_dic[str(e_n.get_id())], p=p)
+
+
     def plotting_plates_vectors_force(self):
         # plotting the 3D room of the electrons and their vectors
         # getting force vectors
@@ -125,4 +139,5 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_density()
     # cap.plotting_plates_vectors_force()
     # finding p
-    print(cap.find_p())
+    # print(cap.find_p())
+    # starting sim

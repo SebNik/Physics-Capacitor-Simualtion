@@ -131,7 +131,7 @@ if __name__ == "__main__":
     # getting class information
     print(Plate_Negative)
     # setting instance of single plate
-    plate_neg = Plate_Negative(n=5, p1=[0, 0, 0], p2=[0.001, 0.001, 0], random=True)
+    plate_neg = Plate_Negative(n=5, p1=[0, 0, 0], p2=[1, 1, 0], random=True)
     # printing all information about it
     # print(plate_neg)
     # getting values
@@ -143,4 +143,6 @@ if __name__ == "__main__":
     # getting the inner forces
     # print(plate_neg.get_inner_forces())
     # plotting inner forces
-    plate_neg.plot_matrix_particles_vector()
+    # plate_neg.plot_matrix_particles_vector()
+    # moving
+    plate_neg.matrix.flatten()[0].get_id()
