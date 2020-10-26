@@ -85,29 +85,22 @@ class Plate_Capacitor:
         os.mkdir(path_particles_pos)
         os.mkdir(path_density_neg_3d)
         # starting sim and setting status list for overview in moved particles in iterations
-        s_list = []
         rel_list = []
-        x_rel_list = []
-        y_rel_list = []
         # iterating through sim
         i = 0
         rel_avg_sum = [1, 1]
-        s_sum = 100
-        while abs(sum(rel_avg_sum) / len(rel_avg_sum)) > 0.0001:
+        while abs(sum(rel_avg_sum) / len(rel_avg_sum)) > 0.0002:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
             s_sum = 0
-            x_rel_sum, y_rel_sum, rel_avg_sum = [], [], []
+            rel_avg_sum = []
             # moving all the particles by their force on the neg plate
             for e_n in self.plate_neg.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
                                                                              delta_t=400)
-                s_sum += s
-                x_rel_sum.append(x_rel)
-                y_rel_sum.append(y_rel)
                 rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
@@ -115,15 +108,9 @@ class Plate_Capacitor:
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
                                                                              delta_t=400)
-                s_sum += s
-                x_rel_sum.append(x_rel)
-                y_rel_sum.append(y_rel)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
             rel_list.append(sum(rel_avg_sum) / len(rel_avg_sum))
-            x_rel_list.append(sum(x_rel_sum) / len(x_rel_sum))
-            y_rel_list.append(sum(y_rel_sum) / len(y_rel_sum))
-            s_list.append(s_sum)
             i += 1
             # checking if every 10th sav image of plot
             if i % 10 == 0:
@@ -143,11 +130,6 @@ class Plate_Capacitor:
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', abs(sum(rel_avg_sum) / len(rel_avg_sum)))
         plt.plot(rel_list, label='Relative Sum Avg', c='r')
         plt.show()
-        # plt.plot(rel_list, label='Relative Sum Avg', c='r')
-        # plt.plot(x_rel_list, label='X Avg', c='b')
-        # plt.plot(y_rel_list, label='Y Avg', c='g')
-        # plt.legend()
-        # plt.show()
 
     def plotting_plates_vectors_force(self):
         # plotting the 3D room of the electrons and their vectors
@@ -210,8 +192,8 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=14, n_pos=10, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
-                          plane_z_neg=[0.002],
+    cap = Plate_Capacitor(n_neg=14, n_pos=10, p1=[0.01, 0.01], p2=[0.011, 0.011], plane_z_pos=[0.001],
+                          plane_z_neg=[0.0011],
                           random=False)
     # plotting the room
     # cap.plotting_plates()
