@@ -82,26 +82,38 @@ class Plate_Capacitor:
         os.mkdir(path_particles_pos)
         # starting sim and setting status list for overview in moved particles in iterations
         s_list = []
+        rel_list = []
+        x_rel_list=[]
+        y_rel_list = []
         # iterating through sim
         i = 0
         s_sum = 100
-        while s_sum > int(self._n_neg * 0.05):
+        while i > 800:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
             s_sum = 0
+            x_rel_sum, y_rel_sum, rel_avg_sum = [],[],[]
             # moving all the particles by their force on the neg plate
             for e_n in self.plate_neg.matrix.flatten():
                 # moving the particle
-                s = self.plate_neg.move_by_force_time(id=str(e_n.get_id()), force=force_dic_neg[str(e_n.get_id())],
-                                                      delta_t=2000)
+                s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()), force=force_dic_neg[str(e_n.get_id())],delta_t=2000)
                 s_sum += s
+                x_rel_sum.append(x_rel)
+                y_rel_sum.append(y_rel)
+                rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
-                s = self.plate_pos.move_by_force_time(id=str(e_p.get_id()), force=force_dic_pos[str(e_p.get_id())],
-                                                      delta_t=2000)
+                s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()), force=force_dic_pos[str(e_p.get_id())],delta_t=2000)
                 s_sum += s
+                x_rel_sum.append(x_rel)
+                y_rel_sum.append(y_rel)
+                rel_avg_sum.append(rel_avg)
+            # setting indicators
+            rel_list.append(sum(rel_avg_sum)/len(rel_avg_sum))
+            x_rel_list.append(sum(x_rel_sum)/len(x_rel_sum))
+            y_rel_list.append(sum(y_rel_sum) / len(y_rel_sum))
             s_list.append(s_sum)
             i += 1
             # checking if every 10th sav image of plot
@@ -117,7 +129,9 @@ class Plate_Capacitor:
                     i) + '_Particles.png', show=False)
             # print out
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', s_sum)
-        plt.plot(s_list)
+        plt.plot(rel_list)
+        plt.plot(x_rel_list)
+        plt.plot(y_rel_list)
         plt.show()
 
     def plotting_plates_vectors_force(self):

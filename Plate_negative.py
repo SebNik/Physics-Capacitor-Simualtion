@@ -129,6 +129,8 @@ class Plate_Negative:
 
     def move_by_force_time(self, id, force, delta_t=0.001):
         # this function is moving the particle with the id by the force vector in the time t
+        # setting vars for case
+        s, x_rel, y_rel, rel_avg = 0, 0, 0, 0
         for e in self.matrix.flatten():
             # found the right particle
             if str(e.get_id()) == id:
@@ -171,8 +173,12 @@ class Plate_Negative:
                     e.set_y(y=y_new)
                 else:
                     s = 0
+                # getting the relative change
+                x_rel = x_new * 100 / x_old
+                y_rel = y_new * 100 / y_old
+                rel_avg = (x_rel + y_rel) / 2
                 # print(x_old, y_old, e.get_x(), e.get_y())
-        return s
+        return s, x_rel, y_rel, rel_avg
 
     def plot_matrix_particles(self, save=False, path=None, show=True):
         # plotting the particles
