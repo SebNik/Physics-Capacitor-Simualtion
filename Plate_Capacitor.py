@@ -87,7 +87,7 @@ class Plate_Capacitor:
         y_rel_list = []
         # iterating through sim
         i = 0
-        rel_avg_sum = [1,1]
+        rel_avg_sum = [1, 1]
         s_sum = 100
         while abs(sum(rel_avg_sum) / len(rel_avg_sum)) > 0.0001:
             # getting the forces for all the particles
