@@ -30,11 +30,12 @@ class Particle:
         self._id = uuid.uuid4()
         # setting factor k for force cal
         self.__k = 14 * pi * physical_constants['vacuum electric permittivity'][0]
+        # setting constant k
+        self.k = self.__k * self.__charge * 2
 
     def cal_force(self, particle):
         # finding out the force between the two particles
-        force = (self.__k * abs(self.__charge) * abs(particle.__charge)) / ((((particle.__x - self.__x) ** 2 + (
-                particle.__y - self.__y) ** 2 + (particle.__z - self.__z) ** 2) ** 0.5) ** 2)
+        force = self.k / ((particle.__x - self.__x) ** 2 + (particle.__y - self.__y) ** 2 + (particle.__z - self.__z) ** 2)
         # print("Force: ", force)
         # finding the vector for the force
         # setting unit vector for force

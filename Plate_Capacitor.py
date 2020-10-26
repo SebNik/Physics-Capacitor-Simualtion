@@ -104,7 +104,7 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=200)
+                                                                             delta_t=400)
                 s_sum += s
                 x_rel_sum.append(x_rel)
                 y_rel_sum.append(y_rel)
@@ -114,7 +114,7 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=200)
+                                                                             delta_t=400)
                 s_sum += s
                 x_rel_sum.append(x_rel)
                 y_rel_sum.append(y_rel)
