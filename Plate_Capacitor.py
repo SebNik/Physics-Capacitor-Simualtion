@@ -129,9 +129,10 @@ class Plate_Capacitor:
                     i) + '_Particles.png', show=False)
             # print out
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', s_sum)
-        plt.plot(rel_list)
-        plt.plot(x_rel_list)
-        plt.plot(y_rel_list)
+        plt.plot(rel_list, label='Relative Sum Avg')
+        plt.plot(x_rel_list, label='X Avg')
+        plt.plot(y_rel_list, label='Y Avg')
+        plt.legend()
         plt.show()
 
     def plotting_plates_vectors_force(self):
