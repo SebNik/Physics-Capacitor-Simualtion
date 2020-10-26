@@ -133,7 +133,7 @@ class Plate_Capacitor:
                 self.plate_pos.plot_matrix_particles(save=True, path=path_particles_pos + '\\Plate_Pos_' + str(
                     i) + '_Particles.png', show=False)
             # print out
-            print("OUTPUT: Iteration: ", i, ' electrons moved: ', sum(rel_avg_sum) / len(rel_avg_sum))
+            print("OUTPUT: Iteration: ", i, ' electrons moved: ', abs(sum(rel_avg_sum) / len(rel_avg_sum)))
         # plt.plot(rel_list, label='Relative Sum Avg', c='r')
         # plt.show()
         # plt.plot(rel_list, label='Relative Sum Avg', c='r')
