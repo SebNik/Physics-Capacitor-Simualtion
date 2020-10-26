@@ -166,7 +166,7 @@ class Plate_Negative:
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         x = [e.get_x() for e in self.matrix.flatten()]
         y = [e.get_y() for e in self.matrix.flatten()]
-        plt.scatter(x, y, c='r')
+        plt.scatter(x, y, c='r', alpha=0.1)
         plt.show()
 
     def plot_matrix_particles_vector(self, n=False):

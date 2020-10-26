@@ -57,40 +57,28 @@ class Plate_Capacitor:
         # returning all vales
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
-    def find_p(self):
-        # this function is going to find the right factor p for the movement in the forces
-        # finding the max force in the first iteration
-        f_l, f_d = self.cal_forces()
-        f_l_filter = [(f[0] ** 2 + f[1] ** 2) ** 0.5 for f in f_l]
-        # setting the max value
-        f_max = max(np.array(f_l_filter))
-        print(f_max)
-        # finding out the max distance to travel
-        d = (self._p2[0] / self._n)
-        print(d)
-        # getting p
-        p = f_max / d
-        # return p
-        return p
-
     def sim(self):
         # this function is simulating the sates and stopping with stable state
-        # getting p for the multiplication with the forces
-        p = self.find_p()
-        print(p)
-        # starting sim
+        # starting sim adn setting status list for overview in moved particles in iterations
         s_list = []
-        for i in range(0, 20):
+        # iterating through sim
+        for i in range(0, 250):
             # getting the forces for all the particles
-            forces_list, forces_dic = self.cal_forces()
+            force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
+            # setting status sim to 0
             s_sum = 0
-            # moving all the particles by their force
+            # moving all the particles by their force on the neg plate
             for e_n in self.plate_neg.matrix.flatten():
                 # moving the particle
-                s = self.plate_neg.move_by_force_vector(id=str(e_n.get_id()), force=forces_dic[str(e_n.get_id())], p=1)
+                s = self.plate_neg.move_by_force_time(id=str(e_n.get_id()), force=force_dic_neg[str(e_n.get_id())],
+                                                      delta_t=1000)
                 s_sum += s
-            # self.plate_neg.plot_matrix_particles()
-            # self.plate_neg.plot_density()
+            # moving all the particles by their force on the pos plate
+            for e_p in self.plate_pos.matrix.flatten():
+                # moving the particle
+                s = self.plate_pos.move_by_force_time(id=str(e_p.get_id()), force=force_dic_pos[str(e_p.get_id())],
+                                                      delta_t=1)
+                s_sum += s
             s_list.append(s_sum)
         plt.plot(s_list)
         plt.show()
@@ -161,7 +149,7 @@ if __name__ == "__main__":
     # plotting the room
     # cap.plotting_plates()
     # getting the forces for the particles
-    print(cap.cal_forces())
+    # print(cap.cal_forces())
     # print(cap.plate_neg.matrix[0][0].get_id())
     # plotting forces
     # cap.plate_neg.plot_density()
@@ -171,7 +159,7 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
     # starting sim
-    # cap.sim()
+    cap.sim()
     # plotting density to heck sim
-    # cap.plate_neg.plot_matrix_particles()
-    # cap.plate_neg.plot_density()
+    cap.plate_neg.plot_matrix_particles()
+    cap.plate_neg.plot_density()
