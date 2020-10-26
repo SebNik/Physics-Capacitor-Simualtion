@@ -178,7 +178,7 @@ class Plate_Negative:
                 y_rel = y_new * 100 / y_old
                 rel_avg = (x_rel + y_rel) / 2
                 # print(x_old, y_old, e.get_x(), e.get_y())
-        return s, x_rel, y_rel, rel_avg
+        return s, x_rel, y_rel, rel_avg-100
 
     def plot_matrix_particles(self, save=False, path=None, show=True):
         # plotting the particles
