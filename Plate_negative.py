@@ -154,7 +154,7 @@ class Plate_Negative:
         xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
         zi = k(np.vstack([xi.flatten(), yi.flatten()]))
         # plot a density
-        plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.viridis)
+        plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.viridis, shading='auto')
         plt.scatter(x, y, c='r', alpha=0.1)
         # plt.colorbar()
         plt.show()

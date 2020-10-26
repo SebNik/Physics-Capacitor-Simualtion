@@ -7,15 +7,16 @@ from Plate_negative import Plate_Negative
 
 class Plate_Capacitor:
     # this capacitor represents two plates which interact together
-    def __init__(self, n, p1, p2, plane_z_pos, plane_z_neg, random):
+    def __init__(self, n_neg, n_pos, p1, p2, plane_z_pos, plane_z_neg, random):
         # setting the points n
-        self._n = n
+        self._n_neg = n_neg
+        self._n_neg = n_pos
         # setting the points
         self._p1 = p1
         self._p2 = p2
         # setting up a plane negative and positive
-        self.plate_pos = Plate_Positive(n=n, p1=p1 + plane_z_pos, p2=p2 + plane_z_pos, random=random)
-        self.plate_neg = Plate_Negative(n=n, p1=p1 + plane_z_neg, p2=p2 + plane_z_neg, random=random)
+        self.plate_pos = Plate_Negative(n=n_pos, p1=p1 + plane_z_pos, p2=p2 + plane_z_pos, random=random)
+        self.plate_neg = Plate_Negative(n=n_neg, p1=p1 + plane_z_neg, p2=p2 + plane_z_neg, random=random)
 
     def cal_forces(self):
         # this function is calculating all the forces for the particles
@@ -138,12 +139,11 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n=10, p1=[0, 0], p2=[000.1, 000.1], plane_z_pos=[0], plane_z_neg=[0.000001], random=False)
-    # cap.plate_neg.get_inner_forces()
+    cap = Plate_Capacitor(n_neg=7, n_pos=5, p1=[0, 0], p2=[0.01, 0.01], plane_z_pos=[0], plane_z_neg=[0.001], random=False)
     # plotting the room
     # cap.plotting_plates()
     # getting the forces for the particles
-    # print(cap.cal_forces())
+    print(cap.cal_forces())
     # print(cap.plate_neg.matrix[0][0].get_id())
     # plotting forces
     # cap.plate_neg.plot_density()
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
     # starting sim
-    cap.sim()
+    # cap.sim()
     # plotting density to heck sim
     # cap.plate_neg.plot_matrix_particles()
-    cap.plate_neg.plot_density()
+    # cap.plate_neg.plot_density()
