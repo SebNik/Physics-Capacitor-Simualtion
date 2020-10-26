@@ -178,7 +178,7 @@ class Plate_Negative:
                 y_rel = y_new * 100 / y_old
                 rel_avg = (x_rel + y_rel) / 2
                 # print(x_old, y_old, e.get_x(), e.get_y())
-        return s, x_rel, y_rel, rel_avg-100
+        return s, x_rel, y_rel, rel_avg - 100
 
     def plot_matrix_particles(self, save=False, path=None, show=True):
         # plotting the particles
@@ -221,10 +221,29 @@ class Plate_Negative:
         xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
         zi = k(np.vstack([xi.flatten(), yi.flatten()]))
         # plot a density
-        plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.viridis, shading='auto')
+        plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap='viridis', shading='auto')
         if points:
             plt.scatter(x, y, c='r', alpha=0.1)
         # plt.colorbar()
+        if save:
+            plt.savefig(path, dpi=100)
+        if show:
+            plt.show()
+        plt.close()
+        plt.clf()
+
+    def plot_density_3d(self, save=False, path=None, show=True):
+        # plotting the density of the points in 3d
+        fig = plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
+        ax = plt.axes(projection='3d')
+        x = np.array([e.get_x() for e in self.matrix.flatten()])
+        y = np.array([e.get_y() for e in self.matrix.flatten()])
+        nbins = 100
+        k = kde.gaussian_kde([x, y])
+        xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
+        zi = k(np.vstack([xi.flatten(), yi.flatten()]))
+        # plot a density
+        ax.plot_surface(xi, yi, zi.reshape(xi.shape), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
         if save:
             plt.savefig(path, dpi=100)
         if show:

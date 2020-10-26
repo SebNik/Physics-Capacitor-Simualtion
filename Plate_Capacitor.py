@@ -74,12 +74,16 @@ class Plate_Capacitor:
         path_particles_pos = os.path.abspath(
             os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"),
                          'Pos_Particles'))
+        path_density_neg_3d = os.path.abspath(
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"),
+                         'Neg_Density_3D'))
         # create folder for today
         os.mkdir(path)
         os.mkdir(path_density_neg)
         os.mkdir(path_particles_neg)
         os.mkdir(path_density_pos)
         os.mkdir(path_particles_pos)
+        os.mkdir(path_density_neg_3d)
         # starting sim and setting status list for overview in moved particles in iterations
         s_list = []
         rel_list = []
@@ -100,7 +104,7 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=2000)
+                                                                             delta_t=200)
                 s_sum += s
                 x_rel_sum.append(x_rel)
                 y_rel_sum.append(y_rel)
@@ -110,7 +114,7 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=2000)
+                                                                             delta_t=200)
                 s_sum += s
                 x_rel_sum.append(x_rel)
                 y_rel_sum.append(y_rel)
@@ -124,6 +128,9 @@ class Plate_Capacitor:
             # checking if every 10th sav image of plot
             if i % 10 == 0:
                 # plotting particles and density and saving them
+                self.plate_neg.plot_density_3d(save=True,
+                                               path=path_density_neg_3d + '\\Plate_Neg_' + str(i) + '_3D_Density.png',
+                                               show=False)
                 self.plate_neg.plot_density(save=True, path=path_density_neg + '\\Plate_Neg_' + str(i) + '_Density.png',
                                             show=False, points=False)
                 self.plate_neg.plot_matrix_particles(save=True, path=path_particles_neg + '\\Plate_Neg_' + str(
@@ -134,8 +141,8 @@ class Plate_Capacitor:
                     i) + '_Particles.png', show=False)
             # print out
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', abs(sum(rel_avg_sum) / len(rel_avg_sum)))
-        # plt.plot(rel_list, label='Relative Sum Avg', c='r')
-        # plt.show()
+        plt.plot(rel_list, label='Relative Sum Avg', c='r')
+        plt.show()
         # plt.plot(rel_list, label='Relative Sum Avg', c='r')
         # plt.plot(x_rel_list, label='X Avg', c='b')
         # plt.plot(y_rel_list, label='Y Avg', c='g')
@@ -203,7 +210,8 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=7, n_pos=5, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001], plane_z_neg=[0.002],
+    cap = Plate_Capacitor(n_neg=14, n_pos=10, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
+                          plane_z_neg=[0.002],
                           random=False)
     # plotting the room
     # cap.plotting_plates()
