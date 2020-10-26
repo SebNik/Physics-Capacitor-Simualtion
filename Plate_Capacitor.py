@@ -64,10 +64,16 @@ class Plate_Capacitor:
         # creating the path for saving the data
         path = os.path.abspath(
             os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S")))
-        path_density = os.path.abspath(
-            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"), 'Density'))
-        path_particles = os.path.abspath(
-            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"), 'Particles'))
+        path_density_neg = os.path.abspath(
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"), 'Neg_Density'))
+        path_particles_neg = os.path.abspath(
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"),
+                         'Neg_Particles'))
+        path_density_pos = os.path.abspath(
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"), 'Pos_Density'))
+        path_particles_pos = os.path.abspath(
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"),
+                         'Pos_Particles'))
         # create folder for today
         os.mkdir(path)
         os.mkdir(path_density)
@@ -99,11 +105,14 @@ class Plate_Capacitor:
             # checking if every 10th sav image of plot
             if i % 10 == 0:
                 # plotting particles and density and saving them
-                self.plate_neg.plot_density(save=True, path=path_density + '\\Plate_Neg_' + str(i) + '_Density.png',
+                self.plate_neg.plot_density(save=True, path=path_density_neg + '\\Plate_Neg_' + str(i) + '_Density.png',
                                             show=False, points=False)
-                self.plate_neg.plot_matrix_particles(save=True,
-                                                     path=path_particles + '\\Plate_Neg_' + str(i) + '_Particles.png',
-                                                     show=False)
+                self.plate_neg.plot_matrix_particles(save=True, path=path_particles_neg + '\\Plate_Neg_' + str(
+                    i) + '_Particles.png', show=False)
+                self.plate_pos.plot_density(save=True, path=path_density_pos + '\\Plate_Pos_' + str(i) + '_Density.png',
+                                            show=False, points=False)
+                self.plate_pos.plot_matrix_particles(save=True, path=path_particles_pos + '\\Plate_Pos_' + str(
+                    i) + '_Particles.png', show=False)
             # print out
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', s_sum)
         plt.plot(s_list)
