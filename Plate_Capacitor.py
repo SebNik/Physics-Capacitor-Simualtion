@@ -64,8 +64,14 @@ class Plate_Capacitor:
         # creating the path for saving the data
         path = os.path.abspath(
             os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S")))
+        path_density = os.path.abspath(
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"), 'Density'))
+        path_particles = os.path.abspath(
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"), 'Particles'))
         # create folder for today
         os.mkdir(path)
+        os.mkdir(path_density)
+        os.mkdir(path_particles)
         # starting sim and setting status list for overview in moved particles in iterations
         s_list = []
         # iterating through sim
@@ -93,8 +99,10 @@ class Plate_Capacitor:
             # checking if every 10th sav image of plot
             if i % 10 == 0:
                 # plotting particles and density and saving them
-                self.plate_neg.plot_density(save=True, path=path + '\\Plate_Neg_' + str(i) + '_Density.png', show=False)
-                self.plate_neg.plot_matrix_particles(save=True, path=path + '\\Plate_Neg_' + str(i) + '_Particles.png',
+                self.plate_neg.plot_density(save=True, path=path_density + '\\Plate_Neg_' + str(i) + '_Density.png',
+                                            show=False)
+                self.plate_neg.plot_matrix_particles(save=True,
+                                                     path=path_particles + '\\Plate_Neg_' + str(i) + '_Particles.png',
                                                      show=False)
             # print out
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', s_sum)
