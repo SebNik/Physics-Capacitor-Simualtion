@@ -46,10 +46,12 @@ class Plate_Capacitor:
         f_l_filter = [(f[0] ** 2 + f[1] ** 2) ** 0.5 for f in f_l]
         # setting the max value
         f_max = max(np.array(f_l_filter))
+        print(f_max)
         # finding out the max distance to travel
-        d = (self._p2[0] / self._n) * 0.02
+        d = (self._p2[0] / self._n)
+        print(d)
         # getting p
-        p = d / f_max
+        p = f_max /d
         # return p
         return p
 
@@ -57,17 +59,23 @@ class Plate_Capacitor:
         # this function is simulating the sates and stopping with stable state
         # getting p for the multiplication with the forces
         p = self.find_p()
+        print(p)
         # starting sim
+        s_list =  []
         for i in range(0, 20):
             # getting the forces for all the particles
             forces_list, forces_dic = self.cal_forces()
+            s_sum = 0
             # moving all the particles by their force
             for e_n in self.plate_neg.matrix.flatten():
                 # moving the particle
-                self.plate_neg.move_by_force_vector(id=str(e_n.get_id()), force=forces_dic[str(e_n.get_id())], p=p)
+                s = self.plate_neg.move_by_force_vector(id=str(e_n.get_id()), force=forces_dic[str(e_n.get_id())], p=1)
+                s_sum += s
             # self.plate_neg.plot_matrix_particles()
             # self.plate_neg.plot_density()
-
+            s_list.append(s_sum)
+        plt.plot(s_list)
+        plt.show()
 
     def plotting_plates_vectors_force(self):
         # plotting the 3D room of the electrons and their vectors
@@ -130,7 +138,7 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n=10, p1=[0, 0], p2=[1e-15, 1e-15], plane_z_pos=[0], plane_z_neg=[1e-20], random=False)
+    cap = Plate_Capacitor(n=10, p1=[0, 0], p2=[000.1, 000.1], plane_z_pos=[0], plane_z_neg=[0.000001], random=False)
     # cap.plate_neg.get_inner_forces()
     # plotting the room
     # cap.plotting_plates()
@@ -142,10 +150,10 @@ if __name__ == "__main__":
     # cap.plotting_plates_vectors_force()
     # finding p
     # print(cap.find_p())
-    cap.plate_neg.plot_matrix_particles()
-    cap.plate_neg.plot_density()
+    # cap.plate_neg.plot_matrix_particles()
+    # cap.plate_neg.plot_density()
     # starting sim
     cap.sim()
     # plotting density to heck sim
-    cap.plate_neg.plot_matrix_particles()
+    # cap.plate_neg.plot_matrix_particles()
     cap.plate_neg.plot_density()

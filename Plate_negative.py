@@ -98,19 +98,26 @@ class Plate_Negative:
                 # setting new position
                 x_new = x_old + new_force_vector[0]
                 y_new = y_old + new_force_vector[1]
+                # setting state
+                s = 1
                 # checking if bigger than boundaries
                 if x_new > self._p2[0]:
                     x_new = self._p2[0]
+                    s = 0
                 elif x_new < self._p1[0]:
                     x_new = self._p1[0]
+                    s = 0
                 if y_new > self._p2[0]:
                     y_new = self._p2[0]
+                    s = 0
                 elif y_new < self._p1[0]:
                     y_new = self._p1[0]
+                    s = 0
                 # moving the particle
                 e.set_x(x=x_new)
                 e.set_y(y=y_new)
                 # print(x_old, y_old, e.get_x(), e.get_y())
+        return s
 
     def plot_matrix_particles(self):
         # plotting the particles
