@@ -171,6 +171,7 @@ class Plate_Negative:
             plt.savefig(path, dpi=100)
         if show:
             plt.show()
+        plt.clf()
 
     def plot_matrix_particles_vector(self, n=False):
         # plotting the particles and inner force vectors
@@ -189,7 +190,7 @@ class Plate_Negative:
         # showing the plot
         plt.show()
 
-    def plot_density(self, save=False, path=None, show=True):
+    def plot_density(self, save=False, path=None, show=True, points=True):
         # plotting the density of the points
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         x = np.array([e.get_x() for e in self.matrix.flatten()])
@@ -200,12 +201,14 @@ class Plate_Negative:
         zi = k(np.vstack([xi.flatten(), yi.flatten()]))
         # plot a density
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.viridis, shading='auto')
-        plt.scatter(x, y, c='r', alpha=0.1)
+        if points:
+            plt.scatter(x, y, c='r', alpha=0.1)
         # plt.colorbar()
         if save:
             plt.savefig(path, dpi=100)
         if show:
             plt.show()
+        plt.clf()
 
     def __repr__(self):
         # printing name of class

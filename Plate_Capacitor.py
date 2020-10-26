@@ -77,7 +77,7 @@ class Plate_Capacitor:
         # iterating through sim
         i = 0
         s_sum = 100
-        while s_sum > 10:
+        while s_sum > int(self._n_neg * 0.05):
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
@@ -100,7 +100,7 @@ class Plate_Capacitor:
             if i % 10 == 0:
                 # plotting particles and density and saving them
                 self.plate_neg.plot_density(save=True, path=path_density + '\\Plate_Neg_' + str(i) + '_Density.png',
-                                            show=False)
+                                            show=False, points=False)
                 self.plate_neg.plot_matrix_particles(save=True,
                                                      path=path_particles + '\\Plate_Neg_' + str(i) + '_Particles.png',
                                                      show=False)
