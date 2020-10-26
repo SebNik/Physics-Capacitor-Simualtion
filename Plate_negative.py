@@ -4,6 +4,7 @@ import numpy as np
 from scipy.stats import kde
 from Particle import Particle
 import matplotlib.pyplot as plt
+from scipy.constants import electron_mass
 
 
 class Plate_Negative:
@@ -95,6 +96,47 @@ class Plate_Negative:
                 y_old = e.get_y()
                 # setting new force vector
                 new_force_vector = force * p
+                # setting new position
+                x_new = x_old + new_force_vector[0]
+                y_new = y_old + new_force_vector[1]
+                # setting state
+                s = 1
+                # checking if bigger than boundaries
+                if x_new > self._p2[0]:
+                    x_new = self._p2[0]
+                    s = 0
+                elif x_new < self._p1[0]:
+                    x_new = self._p1[0]
+                    s = 0
+                if y_new > self._p2[0]:
+                    y_new = self._p2[0]
+                    s = 0
+                elif y_new < self._p1[0]:
+                    y_new = self._p1[0]
+                    s = 0
+                # moving the particle
+                e.set_x(x=x_new)
+                e.set_y(y=y_new)
+                # print(x_old, y_old, e.get_x(), e.get_y())
+        return s
+
+    def move_by_force_time(self, id, force, delta_t=0.001):
+        # this function is moving the particle with the id by the force vector in the time t
+        for e in self.matrix.flatten():
+            # found the right particle
+            if str(e.get_id()) == id:
+                # setting old position
+                x_old = e.get_x()
+                y_old = e.get_y()
+                # setting new unit force vector
+                unit_force = force / np.linalg.norm(force)
+                # setting the abs distance
+                d_abs = (force[0]**2 + force[1]**2)**0.5
+                # finding out the s and the acceleration
+                a = d_abs / electron_mass
+                s = 0.5 * a * (delta_t**2)
+                # setting the new force vector
+                new_force_vector = unit_force * s
                 # setting new position
                 x_new = x_old + new_force_vector[0]
                 y_new = y_old + new_force_vector[1]
