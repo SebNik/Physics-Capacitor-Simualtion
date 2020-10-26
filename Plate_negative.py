@@ -171,6 +171,7 @@ class Plate_Negative:
             plt.savefig(path, dpi=100)
         if show:
             plt.show()
+        plt.close()
         plt.clf()
 
     def plot_matrix_particles_vector(self, n=False):
@@ -208,6 +209,7 @@ class Plate_Negative:
             plt.savefig(path, dpi=100)
         if show:
             plt.show()
+        plt.close()
         plt.clf()
 
     def __repr__(self):
