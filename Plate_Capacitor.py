@@ -21,24 +21,41 @@ class Plate_Capacitor:
     def cal_forces(self):
         # this function is calculating all the forces for the particles
         # setting lists with force vectors and dic
-        force_list = []
-        force_dic = {}
+        force_list_neg = []
+        force_dic_neg = {}
+        force_list_pos = []
+        force_dic_pos = {}
         # getting inner forces
-        inner_list, inner_dic = self.plate_neg.get_inner_forces()
+        inner_list_neg, inner_dic_neg = self.plate_neg.get_inner_forces()
+        inner_list_pos, inner_dic_pos = self.plate_pos.get_inner_forces()
+        # -------------------------- Negative Plane -------------------------
         # getting forces for each electron with the positive charge and then adding it to inner forces
         for e_n in self.plate_neg.matrix.flatten():
-            force_sum = np.array([0.0, 0.0, 0.0])
+            force_sum_neg = np.array([0.0, 0.0, 0.0])
             # now going through positive plane
             for e_p in self.plate_pos.matrix.flatten():
                 force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_n.cal_force(particle=e_p)
-                force_sum += force_vector
+                force_sum_neg += force_vector
             # adding force_sum and inner force together
-            force_sum += inner_dic[str(e_n.get_id())]
+            force_sum_neg += inner_dic_neg[str(e_n.get_id())]
             # adding the force sum of all in list and dic
-            force_list.append(force_sum)
-            force_dic[str(e_n.get_id())] = force_sum
+            force_list_neg.append(force_sum_neg)
+            force_dic_neg[str(e_n.get_id())] = force_sum_neg
+        # -------------------------- Positive Plane -------------------------
+        # getting forces for each electron with the positive charge and then adding it to inner forces
+        for e_n in self.plate_pos.matrix.flatten():
+            force_sum_pos = np.array([0.0, 0.0, 0.0])
+            # now going through positive plane
+            for e_p in self.plate_neg.matrix.flatten():
+                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_n.cal_force(particle=e_p)
+                force_sum_pos += force_vector
+            # adding force_sum and inner force together
+            force_sum_pos += inner_dic_pos[str(e_n.get_id())]
+            # adding the force sum of all in list and dic
+            force_list_pos.append(force_sum_pos)
+            force_dic_pos[str(e_n.get_id())] = force_sum_pos
         # returning all vales
-        return force_list, force_dic
+        return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
     def find_p(self):
         # this function is going to find the right factor p for the movement in the forces
@@ -52,7 +69,7 @@ class Plate_Capacitor:
         d = (self._p2[0] / self._n)
         print(d)
         # getting p
-        p = f_max /d
+        p = f_max / d
         # return p
         return p
 
@@ -62,7 +79,7 @@ class Plate_Capacitor:
         p = self.find_p()
         print(p)
         # starting sim
-        s_list =  []
+        s_list = []
         for i in range(0, 20):
             # getting the forces for all the particles
             forces_list, forces_dic = self.cal_forces()
@@ -139,7 +156,8 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=7, n_pos=5, p1=[0, 0], p2=[0.01, 0.01], plane_z_pos=[0], plane_z_neg=[0.001], random=False)
+    cap = Plate_Capacitor(n_neg=7, n_pos=5, p1=[0, 0], p2=[0.01, 0.01], plane_z_pos=[0], plane_z_neg=[0.001],
+                          random=False)
     # plotting the room
     # cap.plotting_plates()
     # getting the forces for the particles
