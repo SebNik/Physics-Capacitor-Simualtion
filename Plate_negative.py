@@ -131,10 +131,10 @@ class Plate_Negative:
                 # setting new unit force vector
                 unit_force = force / np.linalg.norm(force)
                 # setting the abs distance
-                d_abs = (force[0]**2 + force[1]**2)**0.5
+                d_abs = (force[0] ** 2 + force[1] ** 2) ** 0.5
                 # finding out the s and the acceleration
                 a = d_abs / electron_mass
-                s = 0.5 * a * (delta_t**2)
+                s = 0.5 * a * (delta_t ** 2)
                 # setting the new force vector
                 new_force_vector = unit_force * s
                 # setting new position
@@ -161,13 +161,16 @@ class Plate_Negative:
                 # print(x_old, y_old, e.get_x(), e.get_y())
         return s
 
-    def plot_matrix_particles(self):
+    def plot_matrix_particles(self, save=False, path=None, show=True):
         # plotting the particles
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         x = [e.get_x() for e in self.matrix.flatten()]
         y = [e.get_y() for e in self.matrix.flatten()]
         plt.scatter(x, y, c='r', alpha=0.1)
-        plt.show()
+        if save:
+            plt.savefig(path, dpi=100)
+        if show:
+            plt.show()
 
     def plot_matrix_particles_vector(self, n=False):
         # plotting the particles and inner force vectors
@@ -186,7 +189,7 @@ class Plate_Negative:
         # showing the plot
         plt.show()
 
-    def plot_density(self):
+    def plot_density(self, save=False, path=None, show=True):
         # plotting the density of the points
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         x = np.array([e.get_x() for e in self.matrix.flatten()])
@@ -199,7 +202,10 @@ class Plate_Negative:
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.viridis, shading='auto')
         plt.scatter(x, y, c='r', alpha=0.1)
         # plt.colorbar()
-        plt.show()
+        if save:
+            plt.savefig(path, dpi=100)
+        if show:
+            plt.show()
 
     def __repr__(self):
         # printing name of class

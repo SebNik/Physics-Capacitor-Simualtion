@@ -1,4 +1,6 @@
 # this file is working with two plate capacitors
+import os
+import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 from Plate_positive import Plate_Positive
@@ -59,10 +61,17 @@ class Plate_Capacitor:
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state
-        # starting sim adn setting status list for overview in moved particles in iterations
+        # creating the path for saving the data
+        path = os.path.abspath(
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S")))
+        # create folder for today
+        os.mkdir(path)
+        # starting sim and setting status list for overview in moved particles in iterations
         s_list = []
         # iterating through sim
-        for i in range(0, 250):
+        i = 0
+        s_sum = 100
+        while s_sum > 10:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
@@ -71,15 +80,23 @@ class Plate_Capacitor:
             for e_n in self.plate_neg.matrix.flatten():
                 # moving the particle
                 s = self.plate_neg.move_by_force_time(id=str(e_n.get_id()), force=force_dic_neg[str(e_n.get_id())],
-                                                      delta_t=1000)
+                                                      delta_t=2000)
                 s_sum += s
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
                 s = self.plate_pos.move_by_force_time(id=str(e_p.get_id()), force=force_dic_pos[str(e_p.get_id())],
-                                                      delta_t=1)
+                                                      delta_t=2000)
                 s_sum += s
             s_list.append(s_sum)
+            i += 1
+            # checking if every 10th sav image of plot
+            if i % 10 == 0:
+                # plotting particles and density and saving them
+                self.plate_neg.plot_density(save=True, path=path + '\\Plate_Neg_' + str(i) + '_Density.png', show=False)
+                self.plate_neg.plot_matrix_particles(save=True, path=path + '\\Plate_Neg_' + str(i) + '_Particles.png', show=False)
+            # print out
+            print("OUTPUT: Iteration: ", i, ' electrons moved: ', s_sum)
         plt.plot(s_list)
         plt.show()
 
