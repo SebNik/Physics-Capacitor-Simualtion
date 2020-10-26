@@ -94,7 +94,8 @@ class Plate_Capacitor:
             if i % 10 == 0:
                 # plotting particles and density and saving them
                 self.plate_neg.plot_density(save=True, path=path + '\\Plate_Neg_' + str(i) + '_Density.png', show=False)
-                self.plate_neg.plot_matrix_particles(save=True, path=path + '\\Plate_Neg_' + str(i) + '_Particles.png', show=False)
+                self.plate_neg.plot_matrix_particles(save=True, path=path + '\\Plate_Neg_' + str(i) + '_Particles.png',
+                                                     show=False)
             # print out
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', s_sum)
         plt.plot(s_list)
