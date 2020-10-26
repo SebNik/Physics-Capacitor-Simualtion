@@ -76,8 +76,10 @@ class Plate_Capacitor:
                          'Pos_Particles'))
         # create folder for today
         os.mkdir(path)
-        os.mkdir(path_density)
-        os.mkdir(path_particles)
+        os.mkdir(path_density_neg)
+        os.mkdir(path_particles_neg)
+        os.mkdir(path_density_pos)
+        os.mkdir(path_particles_pos)
         # starting sim and setting status list for overview in moved particles in iterations
         s_list = []
         # iterating through sim
