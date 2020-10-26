@@ -88,7 +88,7 @@ class Plate_Capacitor:
         # iterating through sim
         i = 0
         s_sum = 100
-        while i > 800:
+        while i < 800:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
@@ -195,7 +195,7 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=7, n_pos=5, p1=[0, 0], p2=[0.01, 0.01], plane_z_pos=[0], plane_z_neg=[0.001],
+    cap = Plate_Capacitor(n_neg=7, n_pos=5, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001], plane_z_neg=[0.002],
                           random=False)
     # plotting the room
     # cap.plotting_plates()
