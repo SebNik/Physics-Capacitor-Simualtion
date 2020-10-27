@@ -31,7 +31,7 @@ class Particle:
         # setting factor k for force cal
         self.__k = 14 * pi * physical_constants['vacuum electric permittivity'][0]
         # setting constant k
-        self.k = self.__k * self.__charge * 2
+        self.k = self.__k * abs(self.__charge) * abs(self.__charge)
 
     def cal_force(self, particle):
         # finding out the force between the two particles

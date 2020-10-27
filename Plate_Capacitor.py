@@ -1,5 +1,6 @@
 # this file is working with two plate capacitors
 import os
+import pickle
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
@@ -93,21 +94,20 @@ class Plate_Capacitor:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
-            s_sum = 0
             rel_avg_sum = []
             # moving all the particles by their force on the neg plate
             for e_n in self.plate_neg.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=400)
+                                                                             delta_t=300)
                 rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=400)
+                                                                             delta_t=300)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
             rel_list.append(sum(rel_avg_sum) / len(rel_avg_sum))
@@ -192,8 +192,7 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=14, n_pos=10, p1=[0.01, 0.01], p2=[0.011, 0.011], plane_z_pos=[0.001],
-                          plane_z_neg=[0.0011],
+    cap = Plate_Capacitor(n_neg=7, n_pos=5, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001], plane_z_neg=[0.002],
                           random=False)
     # plotting the room
     # cap.plotting_plates()
@@ -209,6 +208,11 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_density()
     # starting sim
     cap.sim()
+    with open("filename.pickle", "wb") as file_:
+        pickle.dump(cap, file_, -1)
+
+    my_brick = pickle.load(open("filename.pickle", "rb", -1))
+    print(my_brick)
     # plotting density to heck sim
     cap.plate_neg.plot_matrix_particles()
     cap.plate_neg.plot_density()
