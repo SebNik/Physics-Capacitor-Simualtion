@@ -98,6 +98,7 @@ class Plate_Capacitor:
                     e = (sum_forces[0] ** 2 + sum_forces[1] ** 2 + sum_forces[2] ** 2) ** 0.5 / \
                         physical_constants["elementary charge"][0]
                     array_results.append([x[i], y[j], z[k], e])
+        # TODO fix split array over x y z
         # setting array to numpy
         array_results = np.array(array_results)
         # returning value
@@ -251,8 +252,8 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
     # starting sim
-    # cap.sim()
+    cap.sim()
     # # plotting density to heck sim
-    # cap.plate_neg.plot_matrix_particles()
-    # cap.plate_neg.plot_density()
-    print(cap.cal_electric_field())
+    cap.plate_neg.plot_matrix_particles()
+    cap.plate_neg.plot_density()
+    # print(cap.cal_electric_field())
