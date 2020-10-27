@@ -3,6 +3,7 @@ import os
 import pickle
 import datetime
 import numpy as np
+from Particle import Particle
 import matplotlib.pyplot as plt
 from Plate_negative import Plate_Negative
 
@@ -65,9 +66,29 @@ class Plate_Capacitor:
         # this function is calculating the electric field between the two plates
         print(self.z_plane_diff, self.plate_neg.x_length, self.plate_neg.y_length)
         # setting the numpy spaces for the grid points
-        x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
-        y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
-        print(x, y)
+        x = np.linspace(0, self.plate_neg.x_length, int(resolution / 2)) + self._p1[0]
+        y = np.linspace(0, self.plate_neg.y_length, int(resolution / 2)) + self._p1[1]
+        z = np.linspace(0, self.z_plane_diff, int(resolution / 2)) + self.plate_pos.z_plane
+        print(x, '\n', y, '\n', z)
+        # iterating through simple small cube with a 1/4 of the real volume
+        # later building the cube up to full size
+        for i in range(0, int(resolution / 2)):
+            # building mock particle
+            e_test = Particle(x=x[i], y=y[i], z=z[i], type_c='-')
+            # setting force sum vector
+            sum_forces = np.array([0.0, 0.0, 0.0])
+            # cal forces between test particle and all real ones
+            # negative plate
+            for e_n in self.plate_neg.matrix.flatten():
+                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(particle=e_n)
+                sum_forces+=force_vector
+            # positive plate
+            for e_p in self.plate_neg.matrix.flatten():
+                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(particle=e_p)
+                sum_forces+=force_vector
+            # cal the electric field on this point
+
+
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state
