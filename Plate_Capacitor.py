@@ -12,6 +12,7 @@ class Plate_Capacitor:
     # this capacitor represents two plates which interact together
     def __init__(self, n_neg, n_pos, p1, p2, plane_z_pos, plane_z_neg, random):
         # setting the points n
+        self.rel_list = []
         self._n_neg = n_neg
         self._n_neg = n_pos
         # setting the points
@@ -85,8 +86,6 @@ class Plate_Capacitor:
         os.mkdir(path_density_pos)
         os.mkdir(path_particles_pos)
         os.mkdir(path_density_neg_3d)
-        # starting sim and setting status list for overview in moved particles in iterations
-        rel_list = []
         # iterating through sim
         i = 0
         rel_avg_sum = [1, 1]
@@ -100,17 +99,17 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=700)
+                                                                             delta_t=200)
                 rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=700)
+                                                                             delta_t=200)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
-            rel_list.append(sum(rel_avg_sum) / len(rel_avg_sum))
+            self.rel_list.append(sum(rel_avg_sum) / len(rel_avg_sum))
             i += 1
             # checking if every 10th sav image of plot
             if i % 10 == 0:
@@ -128,7 +127,9 @@ class Plate_Capacitor:
                     i) + '_Particles.png', show=False)
             # print out
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', abs(sum(rel_avg_sum) / len(rel_avg_sum)))
-        plt.plot(rel_list, label='Relative Sum Avg', c='r')
+        with open(path+'\\'+"class.pickle", "wb") as file_:
+            pickle.dump(self, file_, -1)
+        plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.show()
 
     def plotting_plates_vectors_force(self):
@@ -192,7 +193,8 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=7, n_pos=5, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001], plane_z_neg=[0.002],
+    cap = Plate_Capacitor(n_neg=14, n_pos=10, p1=[0.01, 0.01], p2=[0.011, 0.011], plane_z_pos=[0.001],
+                          plane_z_neg=[0.0011],
                           random=False)
     # plotting the room
     # cap.plotting_plates()
@@ -208,11 +210,6 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_density()
     # starting sim
     cap.sim()
-    # with open("filename.pickle", "wb") as file_:
-    #     pickle.dump(cap, file_, -1)
-    #
-    # my_brick = pickle.load(open("filename.pickle", "rb", -1))
-    # print(my_brick.plate_neg.plot_matrix_particles())
     # plotting density to heck sim
     cap.plate_neg.plot_matrix_particles()
     cap.plate_neg.plot_density()
