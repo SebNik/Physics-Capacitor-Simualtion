@@ -6,6 +6,7 @@ import numpy as np
 from Particle import Particle
 import matplotlib.pyplot as plt
 from Plate_negative import Plate_Negative
+from scipy.constants import physical_constants as physical_constants
 
 
 class Plate_Capacitor:
@@ -66,29 +67,41 @@ class Plate_Capacitor:
         # this function is calculating the electric field between the two plates
         print(self.z_plane_diff, self.plate_neg.x_length, self.plate_neg.y_length)
         # setting the numpy spaces for the grid points
-        x = np.linspace(0, self.plate_neg.x_length, int(resolution / 2)) + self._p1[0]
-        y = np.linspace(0, self.plate_neg.y_length, int(resolution / 2)) + self._p1[1]
-        z = np.linspace(0, self.z_plane_diff, int(resolution / 2)) + self.plate_pos.z_plane
+        x = np.linspace(0, self.plate_neg.x_length / 2, int(resolution / 2)) + self._p1[0]
+        y = np.linspace(0, self.plate_neg.y_length / 2, int(resolution / 2)) + self._p1[1]
+        z = np.linspace(0, self.z_plane_diff / 2, int(resolution / 2)) + self.plate_pos.z_plane
         print(x, '\n', y, '\n', z)
         # iterating through simple small cube with a 1/4 of the real volume
         # later building the cube up to full size
+        array_results = []
         for i in range(0, int(resolution / 2)):
-            # building mock particle
-            e_test = Particle(x=x[i], y=y[i], z=z[i], type_c='-')
-            # setting force sum vector
-            sum_forces = np.array([0.0, 0.0, 0.0])
-            # cal forces between test particle and all real ones
-            # negative plate
-            for e_n in self.plate_neg.matrix.flatten():
-                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(particle=e_n)
-                sum_forces+=force_vector
-            # positive plate
-            for e_p in self.plate_neg.matrix.flatten():
-                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(particle=e_p)
-                sum_forces+=force_vector
-            # cal the electric field on this point
-
-
+            for j in range(0, int(resolution / 2)):
+                for k in range(0, int(resolution / 2)):
+                    # building mock particle
+                    e_test = Particle(x=x[i], y=y[j], z=z[k], type_c='-')
+                    # setting force sum vector
+                    sum_forces = np.array([0.0, 0.0, 0.0])
+                    # cal forces between test particle and all real ones
+                    # negative plate
+                    for e_n in self.plate_neg.matrix.flatten():
+                        if e_n.get_x() != e_test.get_x() and e_n.get_y() != e_test.get_y() and e_n.get_z() != e_test.get_z():
+                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
+                                particle=e_n)
+                            sum_forces += force_vector
+                    # positive plate
+                    for e_p in self.plate_neg.matrix.flatten():
+                        if e_p.get_x() != e_test.get_x() and e_p.get_y() != e_test.get_y() and e_p.get_z() != e_test.get_z():
+                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
+                                particle=e_p)
+                            sum_forces += force_vector
+                    # cal the electric field on this point
+                    e = (sum_forces[0] ** 2 + sum_forces[1] ** 2 + sum_forces[2] ** 2) ** 0.5 / \
+                        physical_constants["elementary charge"][0]
+                    array_results.append([x[i], y[j], z[k], e])
+        # setting array to numpy
+        array_results = np.array(array_results)
+        # returning value
+        return array_results, len(array_results)
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state
