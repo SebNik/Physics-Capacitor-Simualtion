@@ -193,8 +193,8 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=14, n_pos=10, p1=[0.01, 0.01], p2=[0.011, 0.011], plane_z_pos=[0.001],
-                          plane_z_neg=[0.0011],
+    cap = Plate_Capacitor(n_neg=14, n_pos=10, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
+                          plane_z_neg=[0.002],
                           random=False)
     # plotting the room
     # cap.plotting_plates()
