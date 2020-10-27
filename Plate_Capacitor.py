@@ -99,14 +99,14 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=100)
+                                                                             delta_t=300)
                 rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=100)
+                                                                             delta_t=300)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
             self.rel_list.append(sum(rel_avg_sum) / len(rel_avg_sum))
