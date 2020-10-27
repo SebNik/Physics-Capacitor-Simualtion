@@ -260,6 +260,14 @@ class Plate_Negative:
         return "This is a Plate : {0}, with a negative charge. The bounding box coordinates are: p1: {1}, p2: {2}, p3: {3}, p4: {4}, on the z-plane: {5}".format(
             self._id, self._p1, self._p2, self._p3, self._p4, self.z_plane)
 
+    @property
+    def x_length(self):
+        return self._x_length
+
+    @property
+    def y_length(self):
+        return self._y_length
+
 
 if __name__ == "__main__":
     # getting class information

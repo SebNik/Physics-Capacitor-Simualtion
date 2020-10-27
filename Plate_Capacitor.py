@@ -4,7 +4,6 @@ import pickle
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
-from Plate_positive import Plate_Positive
 from Plate_negative import Plate_Negative
 
 
@@ -18,6 +17,7 @@ class Plate_Capacitor:
         # setting the points
         self._p1 = p1
         self._p2 = p2
+        self.z_plane_diff = abs(plane_z_neg[0] - plane_z_pos[0])
         # setting up a plane negative and positive
         self.plate_pos = Plate_Negative(n=n_pos, p1=p1 + plane_z_pos, p2=p2 + plane_z_pos, random=random)
         self.plate_neg = Plate_Negative(n=n_neg, p1=p1 + plane_z_neg, p2=p2 + plane_z_neg, random=random)
@@ -60,6 +60,14 @@ class Plate_Capacitor:
             force_dic_pos[str(e_n.get_id())] = force_sum_pos
         # returning all vales
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
+
+    def cal_electric_field(self, resolution=10):
+        # this function is calculating the electric field between the two plates
+        print(self.z_plane_diff, self.plate_neg.x_length, self.plate_neg.y_length)
+        # setting the numpy spaces for the grid points
+        x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
+        y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
+        print(x, y)
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state
@@ -127,7 +135,7 @@ class Plate_Capacitor:
                     i) + '_Particles.png', show=False)
             # print out
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', abs(sum(rel_avg_sum) / len(rel_avg_sum)))
-        with open(path+'\\'+"class.pickle", "wb") as file_:
+        with open(path + '\\' + "class.pickle", "wb") as file_:
             pickle.dump(self, file_, -1)
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.show()
@@ -209,7 +217,8 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
     # starting sim
-    cap.sim()
-    # plotting density to heck sim
-    cap.plate_neg.plot_matrix_particles()
-    cap.plate_neg.plot_density()
+    # cap.sim()
+    # # plotting density to heck sim
+    # cap.plate_neg.plot_matrix_particles()
+    # cap.plate_neg.plot_density()
+    print(cap.cal_electric_field())
