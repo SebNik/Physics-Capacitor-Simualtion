@@ -10,8 +10,6 @@ if __name__ == "__main__":
     cap = pickle.load(open(path, "rb", -1))
     # print(cap.plate_neg.plot_density())
     e_field, length = cap.cal_electric_field()
-    # print(x_arr)
-    e_field_values = e_field[:25]
-    # print(e_field_values)
+    np.savez_compressed('resources/exports/27_10_2020__23_35_54/arr.npz', e_field)
     e_field_max = np.where(e_field[:, 3] == e_field[:, 3].max())[0][0]
     # print(e_field[e_field_max])

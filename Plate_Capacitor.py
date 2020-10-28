@@ -63,9 +63,9 @@ class Plate_Capacitor:
         # returning all vales
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
-    def cal_electric_field(self, resolution=6):
+    def cal_electric_field(self, resolution=40):
         # this function is calculating the electric field between the two plates
-        print(self.z_plane_diff, self.plate_neg.x_length, self.plate_neg.y_length)
+        # print(self.z_plane_diff, self.plate_neg.x_length, self.plate_neg.y_length)
         # setting the numpy spaces for the grid points
         x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
         y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
@@ -103,35 +103,23 @@ class Plate_Capacitor:
         array_results = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
         array_results = array_results[array_results[:, 1].argsort(kind='mergesort')]
         array_results = array_results[array_results[:, 0].argsort(kind='mergesort')]
-        print(array_results)
-
+        # print(array_results)
         data_2d_plot = []
         for r in array_results:
             if r[2] == 0.001:
                 data_2d_plot.append(r)
         data_2d_plot = np.array(data_2d_plot)
-
         a = data_2d_plot[data_2d_plot[:, 2].argsort()]  # First sort doesn't need to be stable.
         a = a[a[:, 1].argsort(kind='mergesort')]
         a = a[a[:, 0].argsort(kind='mergesort')]
-        print(a, len(a))
-
+        # print(a, len(a))
         plt.scatter(a[:, 0], a[:, 1], c=[a[:, 3]])
         plt.colorbar()
         plt.show()
-
-
-        image = a[:,3].reshape(int(len(a) / int(resolution)), int(resolution))
-
+        image = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
         fig, ax = plt.subplots()
         ax.imshow(image)
         plt.show()
-        #
-        # # fig = plt.figure()
-        # # ax = plt.axes(projection='3d')
-        # # ax.scatter3D(x_full[:,0],x_full[:,1],x_full[:,2], c='b')
-        # # plt.show()
-        #
         # returning value
         return array_results, len(array_results)
 
