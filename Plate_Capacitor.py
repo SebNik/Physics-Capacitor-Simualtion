@@ -63,20 +63,20 @@ class Plate_Capacitor:
         # returning all vales
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
-    def cal_electric_field(self, resolution=12):
+    def cal_electric_field(self, resolution=6):
         # this function is calculating the electric field between the two plates
         print(self.z_plane_diff, self.plate_neg.x_length, self.plate_neg.y_length)
         # setting the numpy spaces for the grid points
-        x = np.linspace(0, self.plate_neg.x_length / 2, int(resolution / 2)) + self._p1[0]
-        y = np.linspace(0, self.plate_neg.y_length / 2, int(resolution / 2)) + self._p1[1]
-        z = np.linspace(0, self.z_plane_diff / 2, int(resolution / 2)) + self.plate_pos.z_plane
-        print(x, '\n', y, '\n', z)
+        x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
+        y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
+        z = np.linspace(0, self.z_plane_diff, resolution) + self.plate_pos.z_plane
+        # print(x, '\n', y, '\n', z)
         # iterating through simple small cube with a 1/4 of the real volume
         # later building the cube up to full size
         array_results = []
-        for i in range(0, int(resolution / 2)):
-            for j in range(0, int(resolution / 2)):
-                for k in range(0, int(resolution / 2)):
+        for i in range(0, resolution):
+            for j in range(0, resolution):
+                for k in range(0, resolution):
                     # building mock particle
                     e_test = Particle(x=x[i], y=y[j], z=z[k], type_c='-')
                     # setting force sum vector
@@ -103,32 +103,10 @@ class Plate_Capacitor:
         array_results = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
         array_results = array_results[array_results[:, 1].argsort(kind='mergesort')]
         array_results = array_results[array_results[:, 0].argsort(kind='mergesort')]
-        # print(array_results)
+        print(array_results)
 
-        # plt.scatter(array_results[:, 0], array_results[:, 1], c=[array_results[:, 3]])
-        # plt.show()
-        #
-        # fix split array over x y z
-        # starting with x axis
-        # flipping x axis coordinates
-        array_x = ((x[-1] - x[::-1]) + x[-1])
-        x_spited_axis = [round(t, 6) for t in array_x]
-        # repeating this array n times
-        x_spited_axis_full = np.repeat(x_spited_axis, int(len(array_results) / int(resolution / 2)))[::-1]
-        # setting it to list
-        x_spited_axis_full = np.array([[e] for e in x_spited_axis_full])
-        print(x_spited_axis_full)
-        # combining the array
-        print(x_spited_axis_full.shape, array_results[:, 1:].shape)
-        x_array = np.concatenate((x_spited_axis_full, array_results[:, 1:]), axis=1)
-        print('combined')
-        print(x_array)
-        print('combined_full')
-        x_full = np.concatenate((array_results, x_array))
-        print(x_full)
-        #
         data_2d_plot = []
-        for r in x_full:
+        for r in array_results:
             if r[2] == 0.001:
                 data_2d_plot.append(r)
         data_2d_plot = np.array(data_2d_plot)
@@ -142,17 +120,10 @@ class Plate_Capacitor:
         plt.colorbar()
         plt.show()
 
-        z = a[:, 3].reshape(int(len(a) / int(resolution / 2)), int(resolution / 2))
-        print(z)
+        z = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
 
-        x_plot = []
-        for e in a:
-            if e[0] not in x_plot:
-                x_plot.append(e[0])
-
-        print(len(y), len(list(x)+list(x_spited_axis)), len(z))
-        plt.pcolormesh(list(x)+list(x_spited_axis), y, z.T)
-        plt.colorbar()
+        fig, ax = plt.subplots()
+        im = ax.imshow(harvest)
         plt.show()
         #
         # # fig = plt.figure()
@@ -160,8 +131,8 @@ class Plate_Capacitor:
         # # ax.scatter3D(x_full[:,0],x_full[:,1],x_full[:,2], c='b')
         # # plt.show()
         #
-        # # returning value
-        # return array_results, len(array_results), x_array
+        # returning value
+        return array_results, len(array_results)
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state

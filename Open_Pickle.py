@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # path open an old pickle file
     cap = pickle.load(open(path, "rb", -1))
     # print(cap.plate_neg.plot_density())
-    e_field, length, x_arr = cap.cal_electric_field()
+    e_field, length = cap.cal_electric_field()
     # print(x_arr)
     e_field_values = e_field[:25]
     # print(e_field_values)
