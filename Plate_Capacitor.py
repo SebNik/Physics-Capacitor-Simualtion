@@ -63,7 +63,7 @@ class Plate_Capacitor:
         # returning all vales
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
-    def cal_electric_field(self, resolution=10):
+    def cal_electric_field(self, resolution=12):
         # this function is calculating the electric field between the two plates
         print(self.z_plane_diff, self.plate_neg.x_length, self.plate_neg.y_length)
         # setting the numpy spaces for the grid points
@@ -98,34 +98,70 @@ class Plate_Capacitor:
                     e = (sum_forces[0] ** 2 + sum_forces[1] ** 2 + sum_forces[2] ** 2) ** 0.5 / \
                         physical_constants["elementary charge"][0]
                     array_results.append([x[i], y[j], z[k], e])
-        # setting array to numpy
+        # setting array to numpy and sorting it
         array_results = np.array(array_results)
+        array_results = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
+        array_results = array_results[array_results[:, 1].argsort(kind='mergesort')]
+        array_results = array_results[array_results[:, 0].argsort(kind='mergesort')]
+        # print(array_results)
+
+        # plt.scatter(array_results[:, 0], array_results[:, 1], c=[array_results[:, 3]])
+        # plt.show()
+        #
         # fix split array over x y z
         # starting with x axis
         # flipping x axis coordinates
-        max_old_axis = x[-1]
-        x_spited_axis = [[t] for t in (max_old_axis - x[::-1] + max_old_axis)[1:]]
+        array_x = ((x[-1] - x[::-1]) + x[-1])
+        x_spited_axis = [round(t, 6) for t in array_x]
         # repeating this array n times
-        x_spited_axis_full = x_spited_axis
-        for i in range(0, int(len(array_results) / int(resolution / 2)) - 1):
-            x_spited_axis_full = np.concatenate((x_spited_axis_full, x_spited_axis))
-        # print(x_spited_axis_full.reshape(1, 100))
-        # x_spited_axis_full = x_spited_axis_full.reshape(1, 100)
-        # getting the data from the x axis from the split array
-        data_index_x = int(len(array_results) * (int(resolution / 2) - 1) / int(resolution / 2))
-        data_x = array_results[:data_index_x, 1:]
+        x_spited_axis_full = np.repeat(x_spited_axis, int(len(array_results) / int(resolution / 2)))[::-1]
+        # setting it to list
+        x_spited_axis_full = np.array([[e] for e in x_spited_axis_full])
+        print(x_spited_axis_full)
         # combining the array
-        print(x_spited_axis_full, data_x)
-        print(type(x_spited_axis_full), type(data_x))
-        print(x_spited_axis_full.shape, data_x.shape)
-        x_array = np.concatenate((x_spited_axis_full, data_x), axis=1)
+        print(x_spited_axis_full.shape, array_results[:, 1:].shape)
+        x_array = np.concatenate((x_spited_axis_full, array_results[:, 1:]), axis=1)
         print('combined')
         print(x_array)
         print('combined_full')
         x_full = np.concatenate((array_results, x_array))
         print(x_full)
-        # returning value
-        return array_results, len(array_results), x_array
+        #
+        data_2d_plot = []
+        for r in x_full:
+            if r[2] == 0.001:
+                data_2d_plot.append(r)
+        data_2d_plot = np.array(data_2d_plot)
+
+        a = data_2d_plot[data_2d_plot[:, 2].argsort()]  # First sort doesn't need to be stable.
+        a = a[a[:, 1].argsort(kind='mergesort')]
+        a = a[a[:, 0].argsort(kind='mergesort')]
+        print(a, len(a))
+
+        plt.scatter(a[:, 0], a[:, 1], c=[a[:, 3]])
+        plt.colorbar()
+        plt.show()
+
+        z = a[:, 3].reshape(int(len(a) / int(resolution / 2)), int(resolution / 2))
+        print(z)
+
+        x_plot = []
+        for e in a:
+            if e[0] not in x_plot:
+                x_plot.append(e[0])
+
+        print(len(y), len(list(x)+list(x_spited_axis)), len(z))
+        plt.pcolormesh(list(x)+list(x_spited_axis), y, z.T)
+        plt.colorbar()
+        plt.show()
+        #
+        # # fig = plt.figure()
+        # # ax = plt.axes(projection='3d')
+        # # ax.scatter3D(x_full[:,0],x_full[:,1],x_full[:,2], c='b')
+        # # plt.show()
+        #
+        # # returning value
+        # return array_results, len(array_results), x_array
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state

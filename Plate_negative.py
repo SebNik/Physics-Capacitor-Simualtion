@@ -221,6 +221,7 @@ class Plate_Negative:
         k = kde.gaussian_kde([x, y])
         xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
         zi = k(np.vstack([xi.flatten(), yi.flatten()]))
+        print(xi,yi,zi)
         # plot a density
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap='viridis', shading='auto')
         if points:
@@ -282,11 +283,11 @@ if __name__ == "__main__":
     # plotting out particles
     # plate_neg.plot_matrix_particles()
     # plotting the density of the points
-    # plate_neg.plot_density()
+    plate_neg.plot_density()
     # getting the inner forces
     # print(plate_neg.get_inner_forces())
     # plotting inner forces
-    plate_neg.plot_matrix_particles_vector()
+    # plate_neg.plot_matrix_particles_vector()
     # moving the particle by a force vector
     # i = str(plate_neg.matrix.flatten()[1].get_id())
     # print(i)
