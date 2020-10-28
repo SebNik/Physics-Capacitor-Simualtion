@@ -35,5 +35,6 @@ if __name__ == "__main__":
         # image plotting
         image = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
         fig, ax = plt.subplots()
-        ax.imshow(image)
-        plt.show()
+        ax.imshow(image, **{'extent': [0.01,0.02,0.01,0.02]})
+        # plt.show()
+        plt.savefig('D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\27_10_2020__23_35_54\\E_Field\\'+'E_Field_'+str(off)+'_Res_'+str(resolution)+'.png', dpi=100)
