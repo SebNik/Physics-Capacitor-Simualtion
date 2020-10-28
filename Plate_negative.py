@@ -144,6 +144,7 @@ class Plate_Negative:
                 # finding out the s and the acceleration
                 a = d_abs / electron_mass
                 s = 0.5 * a * (delta_t ** 2)
+                # print(s)
                 # setting the new force vector
                 new_force_vector = unit_force * s
                 # setting new position
