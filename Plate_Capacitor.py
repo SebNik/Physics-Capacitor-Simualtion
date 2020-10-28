@@ -98,11 +98,34 @@ class Plate_Capacitor:
                     e = (sum_forces[0] ** 2 + sum_forces[1] ** 2 + sum_forces[2] ** 2) ** 0.5 / \
                         physical_constants["elementary charge"][0]
                     array_results.append([x[i], y[j], z[k], e])
-        # TODO fix split array over x y z
         # setting array to numpy
         array_results = np.array(array_results)
+        # fix split array over x y z
+        # starting with x axis
+        # flipping x axis coordinates
+        max_old_axis = x[-1]
+        x_spited_axis = [[t] for t in (max_old_axis - x[::-1] + max_old_axis)[1:]]
+        # repeating this array n times
+        x_spited_axis_full = x_spited_axis
+        for i in range(0, int(len(array_results) / int(resolution / 2)) - 1):
+            x_spited_axis_full = np.concatenate((x_spited_axis_full, x_spited_axis))
+        # print(x_spited_axis_full.reshape(1, 100))
+        # x_spited_axis_full = x_spited_axis_full.reshape(1, 100)
+        # getting the data from the x axis from the split array
+        data_index_x = int(len(array_results) * (int(resolution / 2) - 1) / int(resolution / 2))
+        data_x = array_results[:data_index_x, 1:]
+        # combining the array
+        print(x_spited_axis_full, data_x)
+        print(type(x_spited_axis_full), type(data_x))
+        print(x_spited_axis_full.shape, data_x.shape)
+        x_array = np.concatenate((x_spited_axis_full, data_x), axis=1)
+        print('combined')
+        print(x_array)
+        print('combined_full')
+        x_full = np.concatenate((array_results, x_array))
+        print(x_full)
         # returning value
-        return array_results, len(array_results)
+        return array_results, len(array_results), x_array
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state
@@ -252,7 +275,7 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
     # starting sim
-    cap.sim()
+    # cap.sim()
     # # plotting density to heck sim
     cap.plate_neg.plot_matrix_particles()
     cap.plate_neg.plot_density()

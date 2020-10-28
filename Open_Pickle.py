@@ -1,12 +1,17 @@
 # this file is opening saved classes
 import pickle
+import numpy as np
 from Plate_Capacitor import Plate_Capacitor
-
 
 if __name__ == "__main__":
     # setting a path
     path = 'D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\27_10_2020__23_35_54\\class.pickle'
     # path open an old pickle file
     cap = pickle.load(open(path, "rb", -1))
-    print(cap.plate_neg.plot_density())
-    print(cap.cal_electric_field())
+    # print(cap.plate_neg.plot_density())
+    e_field, length, x_arr = cap.cal_electric_field()
+    # print(x_arr)
+    e_field_values = e_field[:25]
+    # print(e_field_values)
+    e_field_max = np.where(e_field[:, 3] == e_field[:, 3].max())[0][0]
+    # print(e_field[e_field_max])
