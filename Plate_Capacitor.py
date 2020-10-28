@@ -120,10 +120,11 @@ class Plate_Capacitor:
         plt.colorbar()
         plt.show()
 
-        z = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
+
+        image = a[:,3].reshape(int(len(a) / int(resolution)), int(resolution))
 
         fig, ax = plt.subplots()
-        im = ax.imshow(harvest)
+        ax.imshow(image)
         plt.show()
         #
         # # fig = plt.figure()
