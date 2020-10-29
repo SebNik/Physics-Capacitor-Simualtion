@@ -74,6 +74,7 @@ class Plate_Capacitor:
         # iterating through simple small cube with a 1/4 of the real volume
         # later building the cube up to full size
         array_results = []
+        forces_results = []
         for i in range(0, resolution):
             for j in range(0, resolution):
                 for k in range(0, resolution):
@@ -88,12 +89,17 @@ class Plate_Capacitor:
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                                 particle=e_n)
                             sum_forces += force_vector
+                        else:
+                            print('Skipping in cal particle:', e_n.get_x(), e_test.get_x(), e_n.get_y(), e_test.get_y(),
+                                  e_n.get_z(), e_test.get_z())
                     # positive plate
-                    for e_p in self.plate_neg.matrix.flatten():
+                    for e_p in self.plate_pos.matrix.flatten():
                         if e_p.get_x() != e_test.get_x() and e_p.get_y() != e_test.get_y() and e_p.get_z() != e_test.get_z():
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                                 particle=e_p)
                             sum_forces += force_vector
+                    # building forces array
+                    forces_results.append([x[i], y[j], z[k], sum_forces])
                     # cal the electric field on this point
                     e = (sum_forces[0] ** 2 + sum_forces[1] ** 2 + sum_forces[2] ** 2) ** 0.5 / \
                         physical_constants["elementary charge"][0]
@@ -113,13 +119,13 @@ class Plate_Capacitor:
         a = a[a[:, 1].argsort(kind='mergesort')]
         a = a[a[:, 0].argsort(kind='mergesort')]
         # print(a, len(a))
-        plt.scatter(a[:, 0], a[:, 1], c=[a[:, 3]])
-        plt.colorbar()
-        plt.show()
-        image = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
-        fig, ax = plt.subplots()
-        ax.imshow(image)
-        plt.show()
+        # plt.scatter(a[:, 0], a[:, 1], c=[a[:, 3]])
+        # plt.colorbar()
+        # plt.show()
+        # image = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
+        # fig, ax = plt.subplots()
+        # ax.imshow(image)
+        # plt.show()
         # returning value
         return array_results, len(array_results)
 
