@@ -76,9 +76,8 @@ class Plate_Capacitor:
         x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
         y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
         z = np.linspace(0, self.z_plane_diff, resolution) + self.plate_pos.z_plane
-        # print(x, '\n', y, '\n', z)
-        # iterating through simple small cube with a 1/4 of the real volume
-        # later building the cube up to full size
+        # iterating through the whole cube of data
+        # setting to new data lists
         array_results = []
         forces_results = []
         for i in range(0, resolution):
@@ -95,13 +94,9 @@ class Plate_Capacitor:
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                                 particle=e_n)
                             sum_forces += force_vector
-                        # else:
-                        #     print('Skipping in cal particle:', e_n.get_x(), e_test.get_x(), e_n.get_y(), e_test.get_y(),
-                        #           e_n.get_z(), e_test.get_z())
-
                     # positive plate
                     for e_p in self.plate_pos.matrix.flatten():
-                        if self.same_position_of_particles(e1=e_n, e2=e_test):
+                        if self.same_position_of_particles(e1=e_p, e2=e_test):
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                                 particle=e_p)
                             sum_forces += force_vector
@@ -111,51 +106,81 @@ class Plate_Capacitor:
                     e = (sum_forces[0] ** 2 + sum_forces[1] ** 2 + sum_forces[2] ** 2) ** 0.5 / \
                         physical_constants["elementary charge"][0]
                     array_results.append([x[i], y[j], z[k], e])
+        # setting it to numpy for later
+        forces_results = np.array(forces_results)
         # setting array to numpy and sorting it
         array_results = np.array(array_results)
         array_results = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
         array_results = array_results[array_results[:, 1].argsort(kind='mergesort')]
         array_results = array_results[array_results[:, 0].argsort(kind='mergesort')]
-        # print(array_results)
-        data_2d_plot = []
-        for r in array_results:
-            if r[2] == 0.001:
-                data_2d_plot.append(r)
-        data_2d_plot = np.array(data_2d_plot)
-        a = data_2d_plot[data_2d_plot[:, 2].argsort()]  # First sort doesn't need to be stable.
-        a = a[a[:, 1].argsort(kind='mergesort')]
-        a = a[a[:, 0].argsort(kind='mergesort')]
-        # print(a, len(a))
-        # plt.scatter(a[:, 0], a[:, 1], c=[a[:, 3]])
-        # plt.colorbar()
-        # plt.show()
-        # image = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
-        # fig, ax = plt.subplots()
-        # ax.imshow(image)
-        # plt.show()
         # returning value
         return array_results, len(array_results), forces_results
+
+    def analysis(self, resolution=10, show=False):
+        # this function is going to cal the electric field and other parameters
+        # creating the paths to save
+        path_field_3d = os.path.abspath(os.path.join(self.path, 'E_Field_3D'))
+        path_field_2d = os.path.abspath(os.path.join(self.path, 'E_Field_2D'))
+        # create folder for saves
+        os.mkdir(path_field_3d)
+        os.mkdir(path_field_2d)
+        # getting the data
+        array_results, length, forces_results = self.cal_electric_field(resolution=resolution)
+        # saving the arrays
+        np.savez_compressed(self.path + '\\e_field_array.npz', array_results)
+        np.savez_compressed(self.path + '\\forces_array.npz', forces_results)
+        # building the plots
+        # setting up the x,y,z axis plots offsets
+        x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
+        y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
+        z = np.linspace(0, self.z_plane_diff, resolution) + self.plate_pos.z_plane
+        # iterating through it for plots
+        for off in z:
+            # data 2d plot creation and filter
+            filter_array_2d = array_results[2] == off
+            data_2d_plot = array_results[filter_array_2d]
+            # sorting the array
+            a = data_2d_plot[data_2d_plot[:, 2].argsort()]  # First sort doesn't need to be stable.
+            a = a[a[:, 1].argsort(kind='mergesort')]
+            a = a[a[:, 0].argsort(kind='mergesort')]
+            # creating the 3d plot surface
+            fig = plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
+            ax = plt.axes(projection='3d')
+            # building the grid in the mesh
+            x_plot_3d, y_plot_3d = np.meshgrid(x, y)
+            # setting the image data in the right format
+            image = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
+            # plotting the 3d plot
+            ax.plot_surface(x_plot_3d, y_plot_3d, image, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+            plt.savefig(path_field_3d + '\\E_Field_3D_' + str(off) + '_Res_' + str(resolution) + '.png', dpi=100)
+            if show:
+                plt.show()
+            # clearing out memory
+            plt.close()
+            plt.clf()
+            # image plotting in 2d
+            fig, ax = plt.subplots()
+            ax.imshow(image, **{'extent': [self._p1[0], self._p2[0], self._p1[1], self._p2[1]]})
+            plt.title(str(off))
+            if show:
+                plt.show()
+            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(off) + '_Res_' + str(resolution) + '.png', dpi=100)
+            # clearing out memory
+            plt.close()
+            plt.clf()
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state
         # creating the path for saving the data
-        path = os.path.abspath(
+        self.path = os.path.abspath(
             os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S")))
-        path_density_neg = os.path.abspath(
-            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"), 'Neg_Density'))
-        path_particles_neg = os.path.abspath(
-            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"),
-                         'Neg_Particles'))
-        path_density_pos = os.path.abspath(
-            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"), 'Pos_Density'))
-        path_particles_pos = os.path.abspath(
-            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"),
-                         'Pos_Particles'))
-        path_density_neg_3d = os.path.abspath(
-            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S"),
-                         'Neg_Density_3D'))
+        path_density_neg = os.path.abspath(os.path.join(self.path, 'Neg_Density'))
+        path_particles_neg = os.path.abspath(os.path.join(self.path, 'Neg_Particles'))
+        path_density_pos = os.path.abspath(os.path.join(self.path, 'Pos_Density'))
+        path_particles_pos = os.path.abspath(os.path.join(self.path, 'Pos_Particles'))
+        path_density_neg_3d = os.path.abspath(os.path.join(self.path, 'Neg_Density_3D'))
         # create folder for today
-        os.mkdir(path)
+        os.mkdir(self.path)
         os.mkdir(path_density_neg)
         os.mkdir(path_particles_neg)
         os.mkdir(path_density_pos)
@@ -202,7 +227,7 @@ class Plate_Capacitor:
                     i) + '_Particles.png', show=False)
             # print out
             print("OUTPUT: Iteration: ", i, ' electrons moved: ', abs(sum(rel_avg_sum) / len(rel_avg_sum)))
-        with open(path + '\\' + "class.pickle", "wb") as file_:
+        with open(self.path + '\\' + "class.pickle", "wb") as file_:
             pickle.dump(self, file_, -1)
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.show()
