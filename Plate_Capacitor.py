@@ -63,9 +63,15 @@ class Plate_Capacitor:
         # returning all vales
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
-    def cal_electric_field(self, resolution=40):
+    def same_position_of_particles(self, e1, e2):
+        # this function is finding out if two particles have the same positions
+        if e1.get_x() == e2.get_x() and e1.get_y() == e2.get_y() and e1.get_z() == e2.get_z():
+            return False
+        else:
+            return True
+
+    def cal_electric_field(self, resolution=10):
         # this function is calculating the electric field between the two plates
-        # print(self.z_plane_diff, self.plate_neg.x_length, self.plate_neg.y_length)
         # setting the numpy spaces for the grid points
         x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
         y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
@@ -85,16 +91,17 @@ class Plate_Capacitor:
                     # cal forces between test particle and all real ones
                     # negative plate
                     for e_n in self.plate_neg.matrix.flatten():
-                        if e_n.get_x() != e_test.get_x() and e_n.get_y() != e_test.get_y() and e_n.get_z() != e_test.get_z():
+                        if self.same_position_of_particles(e1=e_n, e2=e_test):
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                                 particle=e_n)
                             sum_forces += force_vector
-                        else:
-                            print('Skipping in cal particle:', e_n.get_x(), e_test.get_x(), e_n.get_y(), e_test.get_y(),
-                                  e_n.get_z(), e_test.get_z())
+                        # else:
+                        #     print('Skipping in cal particle:', e_n.get_x(), e_test.get_x(), e_n.get_y(), e_test.get_y(),
+                        #           e_n.get_z(), e_test.get_z())
+
                     # positive plate
                     for e_p in self.plate_pos.matrix.flatten():
-                        if e_p.get_x() != e_test.get_x() and e_p.get_y() != e_test.get_y() and e_p.get_z() != e_test.get_z():
+                        if self.same_position_of_particles(e1=e_n, e2=e_test):
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                                 particle=e_p)
                             sum_forces += force_vector
@@ -127,7 +134,7 @@ class Plate_Capacitor:
         # ax.imshow(image)
         # plt.show()
         # returning value
-        return array_results, len(array_results)
+        return array_results, len(array_results), forces_results
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state
