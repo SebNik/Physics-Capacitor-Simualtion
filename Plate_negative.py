@@ -200,7 +200,7 @@ class Plate_Negative:
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         # getting forces data
         f_list, f_dic = self.get_inner_forces()
-        print(f_dic)
+        # print(f_dic)
         for e in self.matrix.flatten():
             plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0], f_dic[str(e.get_id())][1], hatch='o',
                        width=0.01)
@@ -221,7 +221,7 @@ class Plate_Negative:
         k = kde.gaussian_kde([x, y])
         xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
         zi = k(np.vstack([xi.flatten(), yi.flatten()]))
-        print(xi,yi,zi)
+        # print(xi, yi, zi)
         # plot a density
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap='viridis', shading='auto')
         if points:
