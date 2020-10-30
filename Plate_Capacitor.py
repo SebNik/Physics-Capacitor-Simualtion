@@ -81,6 +81,8 @@ class Plate_Capacitor:
         array_results = []
         forces_results = []
         for i in range(0, resolution):
+            # print out status
+            print('Iteration on biggest list: ', i)
             for j in range(0, resolution):
                 for k in range(0, resolution):
                     # building mock particle
@@ -116,6 +118,52 @@ class Plate_Capacitor:
         # returning value
         return array_results, len(array_results), forces_results
 
+    def cal_electric_field_2D(self, z_plane, resolution=10):
+        # this function is calculating the electric field between the two plates on a plane
+        # setting the numpy spaces for the grid points
+        x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
+        y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
+        # iterating through the whole cube of data
+        # setting to new data lists
+        array_results = []
+        forces_results = []
+        for i in range(0, resolution):
+            # print out status
+            print('Iteration on biggest list: ', i)
+            for j in range(0, resolution):
+                # building mock particle
+                e_test = Particle(x=x[i], y=y[j], z=z_plane, type_c='-')
+                # setting force sum vector
+                sum_forces = np.array([0.0, 0.0, 0.0])
+                # cal forces between test particle and all real ones
+                # negative plate
+                for e_n in self.plate_neg.matrix.flatten():
+                    if self.same_position_of_particles(e1=e_n, e2=e_test):
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
+                            particle=e_n)
+                        sum_forces += force_vector
+                # positive plate
+                for e_p in self.plate_pos.matrix.flatten():
+                    if self.same_position_of_particles(e1=e_p, e2=e_test):
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
+                            particle=e_p)
+                        sum_forces += force_vector
+                # building forces array
+                forces_results.append([x[i], y[j], z_plane, sum_forces])
+                # cal the electric field on this point
+                e = (sum_forces[0] ** 2 + sum_forces[1] ** 2 + sum_forces[2] ** 2) ** 0.5 / \
+                    physical_constants["elementary charge"][0]
+                array_results.append([x[i], y[j], z_plane, e])
+        # setting it to numpy for later
+        forces_results = np.array(forces_results)
+        # setting array to numpy and sorting it
+        array_results = np.array(array_results)
+        array_results = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
+        array_results = array_results[array_results[:, 1].argsort(kind='mergesort')]
+        array_results = array_results[array_results[:, 0].argsort(kind='mergesort')]
+        # returning value
+        return array_results, len(array_results), forces_results
+
     def analysis(self, resolution=10, show=False):
         # this function is going to cal the electric field and other parameters
         # creating the paths to save
@@ -126,18 +174,22 @@ class Plate_Capacitor:
         os.mkdir(path_field_2d)
         # getting the data
         array_results, length, forces_results = self.cal_electric_field(resolution=resolution)
+        # print(array_results)
         # saving the arrays
-        np.savez_compressed(self.path + '\\e_field_array.npz', array_results)
-        np.savez_compressed(self.path + '\\forces_array.npz', forces_results)
+        np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
+        # np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
         # building the plots
         # setting up the x,y,z axis plots offsets
         x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
         y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
         z = np.linspace(0, self.z_plane_diff, resolution) + self.plate_pos.z_plane
+        # getting max and min for plots
+        max_v = max(array_results[:, 3])
+        min_v = min(array_results[:, 3])
         # iterating through it for plots
         for off in z:
             # data 2d plot creation and filter
-            filter_array_2d = array_results[:,2] == off
+            filter_array_2d = array_results[:, 2] == off
             data_2d_plot = array_results[filter_array_2d]
             # sorting the array
             a = data_2d_plot[data_2d_plot[:, 2].argsort()]  # First sort doesn't need to be stable.
@@ -160,7 +212,9 @@ class Plate_Capacitor:
             plt.clf()
             # image plotting in 2d
             fig, ax = plt.subplots()
-            ax.imshow(image, **{'extent': [self._p1[0], self._p2[0], self._p1[1], self._p2[1]]})
+            m = ax.imshow(image, vmin=min_v, vmax=max_v,
+                          **{'extent': [self._p1[0], self._p2[0], self._p1[1], self._p2[1]]})
+            fig.colorbar(m)
             plt.title(str(off))
             if show:
                 plt.show()
@@ -168,6 +222,44 @@ class Plate_Capacitor:
             # clearing out memory
             plt.close()
             plt.clf()
+
+    def analysis_2D(self, resolution=10, show=False, z_plane=0.001):
+        # this function is going to cal the electric field and other parameters
+        # creating the paths to save
+        path_field_2d = os.path.abspath(os.path.join(self.path, 'E_Field_2D'))
+        # create folder for saves
+        os.mkdir(path_field_2d)
+        # getting the data
+        array_results, length, forces_results = self.cal_electric_field_2D(z_plane=z_plane, resolution=resolution)
+        # print(array_results)
+        # saving the arrays
+        np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
+        np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
+        # building the plots
+        # setting up the x,y,z axis plots offsets
+        x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
+        y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
+        # getting max and min for plots
+        max_v = max(array_results[:, 3])
+        min_v = min(array_results[:, 3])
+        # sorting the array
+        a = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
+        a = a[a[:, 1].argsort(kind='mergesort')]
+        a = a[a[:, 0].argsort(kind='mergesort')]
+        # image getting the 2d
+        image = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
+        # image plotting in 2d
+        fig, ax = plt.subplots()
+        m = ax.imshow(image, vmin=min_v, vmax=max_v,
+                      **{'extent': [self._p1[0], self._p2[0], self._p1[1], self._p2[1]]})
+        fig.colorbar(m)
+        plt.title(str(z_plane))
+        if show:
+            plt.show()
+        plt.savefig(path_field_2d + '\\E_Field_2D_' + str(z_plane) + '_Res_' + str(resolution) + '.png', dpi=100)
+        # clearing out memory
+        plt.close()
+        plt.clf()
 
     def sim(self):
         # this function is simulating the sates and stopping with stable state
@@ -199,14 +291,14 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=0.000001)
+                                                                             delta_t=0.0000001)
                 rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=0.000001)
+                                                                             delta_t=0.0000001)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
             self.rel_list.append(sum(rel_avg_sum) / len(rel_avg_sum))
@@ -230,7 +322,7 @@ class Plate_Capacitor:
         with open(self.path + '\\' + "class.pickle", "wb") as file_:
             pickle.dump(self, file_, -1)
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
-        plt.savefig(self.path+'\\sim.png', dpi=100)
+        plt.savefig(self.path + '\\sim.png', dpi=100)
 
     def plotting_plates_vectors_force(self):
         # plotting the 3D room of the electrons and their vectors
@@ -293,7 +385,7 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=7, n_pos=5, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
+    cap = Plate_Capacitor(n_neg=14, n_pos=10, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
                           plane_z_neg=[0.002],
                           random=False)
     # plotting the room
@@ -311,7 +403,7 @@ if __name__ == "__main__":
     # starting sim
     cap.sim()
     # building analysis
-    cap.analysis(resolution=5)
+    cap.analysis(resolution=100)
     # # plotting density to heck sim
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
