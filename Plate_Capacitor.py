@@ -142,12 +142,18 @@ class Plate_Capacitor:
                         force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                             particle=e_n)
                         sum_forces += force_vector
+                    else:
+                        print('Found: ', e_test.get_x(), e_n.get_x(), e_test.get_y(), e_n.get_y(), e_test.get_z(),
+                              e_n.get_z())
                 # positive plate
                 for e_p in self.plate_pos.matrix.flatten():
                     if self.same_position_of_particles(e1=e_p, e2=e_test):
                         force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                             particle=e_p)
                         sum_forces += force_vector
+                    else:
+                        print('Found: ', e_test.get_x(), e_p.get_x(), e_test.get_y(), e_p.get_y(), e_test.get_z(),
+                              e_p.get_z())
                 # building forces array
                 forces_results.append([x[i], y[j], z_plane, sum_forces])
                 # cal the electric field on this point
@@ -228,26 +234,24 @@ class Plate_Capacitor:
         # creating the paths to save
         path_field_2d = os.path.abspath(os.path.join(self.path, 'E_Field_2D'))
         # create folder for saves
-        os.mkdir(path_field_2d)
+        # os.mkdir(path_field_2d)
         # getting the data
         array_results, length, forces_results = self.cal_electric_field_2D(z_plane=z_plane, resolution=resolution)
+        # plotting the test
         # print(array_results)
         # saving the arrays
-        np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
-        np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
+        # np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
+        # np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
         # building the plots
-        # setting up the x,y,z axis plots offsets
-        x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
-        y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
         # getting max and min for plots
-        max_v = max(array_results[:, 3])
+        max_v = np.median(array_results[:, 3])  # max(array_results[:, 3])
         min_v = min(array_results[:, 3])
         # sorting the array
         a = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
         a = a[a[:, 1].argsort(kind='mergesort')]
         a = a[a[:, 0].argsort(kind='mergesort')]
         # image getting the 2d
-        image = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
+        image = array_results[:, 3].reshape(int(len(array_results) / int(resolution)), int(resolution))
         # image plotting in 2d
         fig, ax = plt.subplots()
         m = ax.imshow(image, vmin=min_v, vmax=max_v,
