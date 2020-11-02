@@ -249,8 +249,8 @@ class Plate_Capacitor:
             np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
             # building the plots
             # getting max and min for plots
-            max_v = max(array_results[:, 3])
-            min_v = min(array_results[:, 3])
+            max_v = 0.15  # max(array_results[:, 3])
+            min_v = 0.0  # min(array_results[:, 3])
             # setting legend data
             delta = self.plate_neg.x_length * (size - 1) / 2
             # sorting the array
@@ -265,7 +265,7 @@ class Plate_Capacitor:
                           **{'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta,
                                         self._p2[1] + delta]})
             fig.colorbar(m)
-            plt.title(str(z))
+            plt.title(str(z) + ' Check: ' + str(int(sum(sum(image)))))
             if show:
                 plt.show()
             plt.savefig(path_field_2d + '\\E_Field_2D_' + str(z) + '_Res_' + str(resolution) + '.png', dpi=100)

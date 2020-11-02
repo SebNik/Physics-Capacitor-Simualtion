@@ -9,8 +9,9 @@ if __name__ == "__main__":
     path = 'D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\29_10_2020__12_15_19\\class.pickle'
     # path open an old pickle file
     cap = pickle.load(open(path, "rb", -1))
-    resolution = 60
-    cap.analysis_2D(resolution=resolution, z_plane=[0.0017, 0.0015, 0.0014, 0.0019, 0.0011], size=1.5)
+    resolution = 80
+    z = list(np.linspace(0.001, 0.002, 20))
+    cap.analysis_2D(resolution=resolution, z_plane=z, size=1.75)
     # e_field, length, forces = cap.cal_electric_field(resolution=resolution)
     # e_field = np.load('resources/exports/29_10_2020__12_15_19/e_field_array.npz', allow_pickle=True)['arr_0']
     # e_forces = np.load('resources/exports/29_10_2020__12_15_19/forces_array.npz', allow_pickle=True)['arr_0']
