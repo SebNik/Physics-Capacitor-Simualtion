@@ -76,7 +76,7 @@ class Plate_Capacitor:
         delta = self.plate_neg.x_length * (size - 1) / 2
         x = np.linspace(0 - delta, self.plate_neg.x_length + delta, resolution_2d) + self._p1[0]
         y = np.linspace(0 - delta, self.plate_neg.y_length + delta, resolution_2d) + self._p1[1]
-        z = np.linspace(0, self.z_plane_diff, resolution_2d) + self.plate_pos.z_plane
+        z = np.linspace(0, self.z_plane_diff, resolution_3d) + self.plate_pos.z_plane
         # iterating through the whole cube of data
         # setting to new data lists
         array_results = []
@@ -105,7 +105,7 @@ class Plate_Capacitor:
                             sum_forces += force_vector
                     # building forces array
                     # forces_results.append([x[i], y[j], z[k], sum_forces])
-                    forces_results = np.append(forces_results, [x[i], y[j], z[k], sum_forces], axis=0)
+                    forces_results = np.append(forces_results, [x[j], y[k], z[i], sum_forces], axis=0)
                     # cal the electric field on this point
                     e = sum_forces / physical_constants["elementary charge"][0]
                     array_results.append([x[j], y[k], z[i], e])
@@ -185,7 +185,8 @@ class Plate_Capacitor:
         # getting the data
         array_results, length, forces_results = self.cal_electric_field_3d(resolution_2d=resolution_2d,
                                                                            resolution_3d=resolution_3d, size=size)
-        print(array_results.shape)
+        print(array_results)
+        print("Array result shape all 3d: ", array_results.shape)
         # saving the arrays
         np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
         np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
@@ -195,7 +196,6 @@ class Plate_Capacitor:
         x = np.linspace(0 - delta, self.plate_neg.x_length + delta, resolution_2d) + self._p1[0]
         y = np.linspace(0 - delta, self.plate_neg.y_length + delta, resolution_2d) + self._p1[1]
         z = np.linspace(0, self.z_plane_diff, resolution_3d) + self.plate_pos.z_plane
-        print(z.shape)
         # building the grid in the mesh
         x_plot_3d, y_plot_3d = np.meshgrid(x, y)
         # getting max and min for plots
@@ -206,14 +206,13 @@ class Plate_Capacitor:
             # data 2d plot creation and filter
             filter_array_2d = array_results[:, 2] == off
             data_2d_plot = array_results[filter_array_2d]
-            print(data_2d_plot.shape)
+            print("2D Data Filtered: ", off, data_2d_plot.shape)
             # getting the real data from vector to scalar values
             data = np.array([((i[0] ** 2) + (i[1] ** 2) + (i[2] ** 2)) ** 0.5 for i in data_2d_plot[:, 3]])
-            print(data.shape)
             # setting the image data in the right format
             image = data.reshape(int(len(data) / int(resolution_2d)), int(resolution_2d))
             # plotting the 3d plot
-            print(x_plot_3d.shape, y_plot_3d.shape, image.shape)
+            print("3D Plotting array (must match: ", x_plot_3d.shape, y_plot_3d.shape, image.shape)
             # creating the 3d plot surface
             fig = plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
             ax = plt.axes(projection='3d')
