@@ -209,7 +209,7 @@ class Plate_Capacitor:
             fig = plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
             ax = plt.axes(projection='3d')
             # getting the real data from vector to scalar values
-            data = np.array([((i[0] ** 2) + (i[1] ** 2) + (i[3] ** 2)) ** 0.5 for i in data_2d_plot[:, 3]])
+            data = np.array([((i[0] ** 2) + (i[1] ** 2) + (i[2] ** 2)) ** 0.5 for i in data_2d_plot[:, 3]])
             # setting the image data in the right format
             image = data.reshape(int(len(data) / int(resolution_2d)), int(resolution_2d))
             # plotting the 3d plot
