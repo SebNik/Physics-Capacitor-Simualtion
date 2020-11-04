@@ -70,21 +70,21 @@ class Plate_Capacitor:
         else:
             return True
 
-    def cal_electric_field(self, resolution=10):
+    def cal_electric_field_3d(self, resolution_2d=10, resolution_3d=10):
         # this function is calculating the electric field between the two plates
         # setting the numpy spaces for the grid points
-        x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
-        y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
-        z = np.linspace(0, self.z_plane_diff, resolution) + self.plate_pos.z_plane
+        x = np.linspace(0, self.plate_neg.x_length, resolution_2d) + self._p1[0]
+        y = np.linspace(0, self.plate_neg.y_length, resolution_2d) + self._p1[1]
+        z = np.linspace(0, self.z_plane_diff, resolution_2d) + self.plate_pos.z_plane
         # iterating through the whole cube of data
         # setting to new data lists
         array_results = []
         forces_results = []
-        for i in range(0, resolution):
+        for i in range(0, resolution_3d):
             # print out status
             print('Iteration on biggest list: ', i)
-            for j in range(0, resolution):
-                for k in range(0, resolution):
+            for j in range(0, resolution_2d):
+                for k in range(0, resolution_2d):
                     # building mock particle
                     e_test = Particle(x=x[i], y=y[j], z=z[k], type_c='-')
                     # setting force sum vector
@@ -105,8 +105,7 @@ class Plate_Capacitor:
                     # building forces array
                     forces_results.append([x[i], y[j], z[k], sum_forces])
                     # cal the electric field on this point
-                    e = (sum_forces[0] ** 2 + sum_forces[1] ** 2 + sum_forces[2] ** 2) ** 0.5 / \
-                        physical_constants["elementary charge"][0]
+                    e = sum_forces / physical_constants["elementary charge"][0]
                     array_results.append([x[i], y[j], z[k], e])
         # setting it to numpy for later
         forces_results = np.array(forces_results)
@@ -135,14 +134,14 @@ class Plate_Capacitor:
                 # building mock particle
                 e_test = Particle(x=x[i], y=y[j], z=z_plane, type_c='+')
                 # setting force sum vector
-                sum_forces = 0
+                sum_forces = np.array([0.0, 0.0, 0.0])
                 # cal forces between test particle and all real ones
                 # negative plate
                 for e_n in self.plate_neg.matrix.flatten():
                     if self.same_position_of_particles(e1=e_n, e2=e_test):
                         force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                             particle=e_n)
-                        sum_forces += force
+                        sum_forces += force_vector
                     else:
                         print('Found: ', e_test.get_x(), e_n.get_x(), e_test.get_y(), e_n.get_y(), e_test.get_z(),
                               e_n.get_z())
@@ -151,7 +150,7 @@ class Plate_Capacitor:
                     if self.same_position_of_particles(e1=e_p, e2=e_test):
                         force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                             particle=e_p)
-                        sum_forces += force
+                        sum_forces += force_vector
                     else:
                         print('Found: ', e_test.get_x(), e_p.get_x(), e_test.get_y(), e_p.get_y(), e_test.get_z(),
                               e_p.get_z())
@@ -170,7 +169,7 @@ class Plate_Capacitor:
         # returning value
         return array_results, len(array_results), forces_results
 
-    def analysis(self, resolution=10, show=False):
+    def analysis(self, resolution_2d=10, resolution_3d=10, show=False):
         # this function is going to cal the electric field and other parameters
         # creating the paths to save
         path_field_3d = os.path.abspath(os.path.join(self.path, 'E_Field_3D'))
@@ -179,38 +178,37 @@ class Plate_Capacitor:
         os.mkdir(path_field_3d)
         os.mkdir(path_field_2d)
         # getting the data
-        array_results, length, forces_results = self.cal_electric_field(resolution=resolution)
+        array_results, length, forces_results = self.cal_electric_field_3d(resolution_2d=resolution_2d,
+                                                                           resolution_3d=resolution_3d)
         # print(array_results)
         # saving the arrays
         np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
-        # np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
+        np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
         # building the plots
         # setting up the x,y,z axis plots offsets
-        x = np.linspace(0, self.plate_neg.x_length, resolution) + self._p1[0]
-        y = np.linspace(0, self.plate_neg.y_length, resolution) + self._p1[1]
-        z = np.linspace(0, self.z_plane_diff, resolution) + self.plate_pos.z_plane
+        x = np.linspace(0, self.plate_neg.x_length, resolution_2d) + self._p1[0]
+        y = np.linspace(0, self.plate_neg.y_length, resolution_2d) + self._p1[1]
+        z = np.linspace(0, self.z_plane_diff, resolution_3d) + self.plate_pos.z_plane
+        # building the grid in the mesh
+        x_plot_3d, y_plot_3d = np.meshgrid(x, y)
         # getting max and min for plots
-        max_v = max(array_results[:, 3])
-        min_v = min(array_results[:, 3])
+        max_v = 0.15  # max(array_results[:, 3])
+        min_v = 0.0  # min(array_results[:, 3])
         # iterating through it for plots
         for off in z:
             # data 2d plot creation and filter
             filter_array_2d = array_results[:, 2] == off
             data_2d_plot = array_results[filter_array_2d]
-            # sorting the array
-            a = data_2d_plot[data_2d_plot[:, 2].argsort()]  # First sort doesn't need to be stable.
-            a = a[a[:, 1].argsort(kind='mergesort')]
-            a = a[a[:, 0].argsort(kind='mergesort')]
             # creating the 3d plot surface
             fig = plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
             ax = plt.axes(projection='3d')
-            # building the grid in the mesh
-            x_plot_3d, y_plot_3d = np.meshgrid(x, y)
             # setting the image data in the right format
-            image = a[:, 3].reshape(int(len(a) / int(resolution)), int(resolution))
+            # getting the real data from vector to scalar values
+            data = np.array([((i[0] ** 2) + (i[1] ** 2) + (i[3] ** 2)) ** 0.5 for i in data_2d_plot[:, 3]])
+            image = data.reshape(int(len(data) / int(resolution_2d)), int(resolution_2d))
             # plotting the 3d plot
             ax.plot_surface(x_plot_3d, y_plot_3d, image, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-            plt.savefig(path_field_3d + '\\E_Field_3D_' + str(off) + '_Res_' + str(resolution) + '.png', dpi=100)
+            plt.savefig(path_field_3d + '\\E_Field_3D_' + str(off) + '_Res_2D_' + str(resolution_2d) + '.png', dpi=100)
             if show:
                 plt.show()
             # clearing out memory
@@ -224,7 +222,7 @@ class Plate_Capacitor:
             plt.title(str(off))
             if show:
                 plt.show()
-            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(off) + '_Res_' + str(resolution) + '.png', dpi=100)
+            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(off) + '_Res_2D_' + str(resolution_2d) + '.png', dpi=100)
             # clearing out memory
             plt.close()
             plt.clf()
@@ -233,7 +231,7 @@ class Plate_Capacitor:
         # this function is going to cal the electric field and other parameters
         # creating the paths to save
         if z_plane is None:
-            z_plane = [0.001]
+            z_plane = [self.plate_neg.z_plane]
         path_field_2d = os.path.abspath(os.path.join(self.path, 'E_Field_2D'))
         # create folder for saves
         if not os.path.isdir(path_field_2d):
@@ -268,7 +266,8 @@ class Plate_Capacitor:
             plt.title(str(z) + ' Check: ' + str(int(sum(sum(image)))))
             if show:
                 plt.show()
-            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(z) + '_Res_' + str(resolution) + '.png', dpi=100)
+            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(round(z, 3)) + '_Res_' + str(resolution) + '.png',
+                        dpi=100)
             # clearing out memory
             plt.close()
             plt.clf()
