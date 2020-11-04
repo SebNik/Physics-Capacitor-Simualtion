@@ -70,19 +70,20 @@ class Plate_Capacitor:
         else:
             return True
 
-    def cal_electric_field_3d(self, resolution_2d=10, resolution_3d=10):
+    def cal_electric_field_3d(self, resolution_2d=10, resolution_3d=10, size=1):
         # this function is calculating the electric field between the two plates
         # setting the numpy spaces for the grid points
-        x = np.linspace(0, self.plate_neg.x_length, resolution_2d) + self._p1[0]
-        y = np.linspace(0, self.plate_neg.y_length, resolution_2d) + self._p1[1]
+        delta = self.plate_neg.x_length * (size - 1) / 2
+        x = np.linspace(0 - delta, self.plate_neg.x_length + delta, resolution_2d) + self._p1[0]
+        y = np.linspace(0 - delta, self.plate_neg.y_length + delta, resolution_2d) + self._p1[1]
         z = np.linspace(0, self.z_plane_diff, resolution_2d) + self.plate_pos.z_plane
         # iterating through the whole cube of data
         # setting to new data lists
         array_results = []
-        forces_results = []
+        forces_results = np.array([])
         for i in range(0, resolution_3d):
             # print out status
-            print('Iteration on biggest list: ', i)
+            print('Iteration on z plane res list: ', i)
             for j in range(0, resolution_2d):
                 for k in range(0, resolution_2d):
                     # building mock particle
@@ -103,7 +104,9 @@ class Plate_Capacitor:
                                 particle=e_p)
                             sum_forces += force_vector
                     # building forces array
-                    forces_results.append([x[i], y[j], z[k], sum_forces])
+                    # newArray = numpy.append(a, [[50, 60, 70]], axis=0)
+                    # forces_results.append([x[i], y[j], z[k], sum_forces])
+                    forces_results = np.append(forces_results, [[x[i], y[j], z[k], sum_forces]], axis=0)
                     # cal the electric field on this point
                     e = sum_forces / physical_constants["elementary charge"][0]
                     array_results.append([x[i], y[j], z[k], e])
@@ -169,7 +172,7 @@ class Plate_Capacitor:
         # returning value
         return array_results, len(array_results), forces_results
 
-    def analysis(self, resolution_2d=10, resolution_3d=10, show=False):
+    def analysis(self, resolution_2d=10, resolution_3d=10, show=False, size=1):
         # this function is going to cal the electric field and other parameters
         # creating the paths to save
         path_field_3d = os.path.abspath(os.path.join(self.path, 'E_Field_3D'))
@@ -179,15 +182,16 @@ class Plate_Capacitor:
         os.mkdir(path_field_2d)
         # getting the data
         array_results, length, forces_results = self.cal_electric_field_3d(resolution_2d=resolution_2d,
-                                                                           resolution_3d=resolution_3d)
+                                                                           resolution_3d=resolution_3d, size=size)
         # print(array_results)
         # saving the arrays
         np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
         np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
         # building the plots
         # setting up the x,y,z axis plots offsets
-        x = np.linspace(0, self.plate_neg.x_length, resolution_2d) + self._p1[0]
-        y = np.linspace(0, self.plate_neg.y_length, resolution_2d) + self._p1[1]
+        delta = self.plate_neg.x_length * (size - 1) / 2
+        x = np.linspace(0 - delta, self.plate_neg.x_length + delta, resolution_2d) + self._p1[0]
+        y = np.linspace(0 - delta, self.plate_neg.y_length + delta, resolution_2d) + self._p1[1]
         z = np.linspace(0, self.z_plane_diff, resolution_3d) + self.plate_pos.z_plane
         # building the grid in the mesh
         x_plot_3d, y_plot_3d = np.meshgrid(x, y)
@@ -202,9 +206,9 @@ class Plate_Capacitor:
             # creating the 3d plot surface
             fig = plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
             ax = plt.axes(projection='3d')
-            # setting the image data in the right format
             # getting the real data from vector to scalar values
             data = np.array([((i[0] ** 2) + (i[1] ** 2) + (i[3] ** 2)) ** 0.5 for i in data_2d_plot[:, 3]])
+            # setting the image data in the right format
             image = data.reshape(int(len(data) / int(resolution_2d)), int(resolution_2d))
             # plotting the 3d plot
             ax.plot_surface(x_plot_3d, y_plot_3d, image, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
@@ -214,15 +218,19 @@ class Plate_Capacitor:
             # clearing out memory
             plt.close()
             plt.clf()
+            # setting legend data
+            delta = self.plate_neg.x_length * (size - 1) / 2
             # image plotting in 2d
             fig, ax = plt.subplots()
-            m = ax.imshow(image, vmin=min_v, vmax=max_v,
-                          **{'extent': [self._p1[0], self._p2[0], self._p1[1], self._p2[1]]})
+            m = ax.imshow(image, vmin=min_v, vmax=max_v, **{
+                'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
             fig.colorbar(m)
-            plt.title(str(off))
+            # setting title with the offset and the check sum
+            plt.title(str(round(off, 5)) + ' Check: ' + str(int(sum(sum(image)))))
             if show:
                 plt.show()
-            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(off) + '_Res_2D_' + str(resolution_2d) + '.png', dpi=100)
+            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(round(off, 5)) + '_Res_2D_' + str(resolution_2d) + '.png',
+                        dpi=100)
             # clearing out memory
             plt.close()
             plt.clf()
@@ -263,10 +271,10 @@ class Plate_Capacitor:
                           **{'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta,
                                         self._p2[1] + delta]})
             fig.colorbar(m)
-            plt.title(str(z) + ' Check: ' + str(int(sum(sum(image)))))
+            plt.title(str(round(z, 5)) + ' Check: ' + str(int(sum(sum(image)))))
             if show:
                 plt.show()
-            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(round(z, 3)) + '_Res_' + str(resolution) + '.png',
+            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(round(z, 5)) + '_Res_' + str(resolution) + '.png',
                         dpi=100)
             # clearing out memory
             plt.close()
