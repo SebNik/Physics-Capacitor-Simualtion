@@ -217,7 +217,9 @@ class Plate_Capacitor:
             fig = plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
             ax = plt.axes(projection='3d')
             ax.plot_surface(x_plot_3d, y_plot_3d, image, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-            plt.savefig(path_field_3d + '\\E_Field_3D_' + str(off) + '_Res_2D_' + str(resolution_2d) + '.png', dpi=100)
+            ax.view_init(elev=35.)
+            plt.savefig(path_field_3d + '\\E_Field_3D_' + str(format(round(off, 5), '.5f')) + '_Res_2D_' + str(
+                resolution_2d) + '.png', dpi=100)
             if show:
                 plt.show()
             # clearing out memory
@@ -234,8 +236,8 @@ class Plate_Capacitor:
             plt.title(str(round(off, 5)) + ' Check: ' + str(int(sum(sum(image)))))
             if show:
                 plt.show()
-            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(round(off, 5)) + '_Res_2D_' + str(resolution_2d) + '.png',
-                        dpi=100)
+            plt.savefig(path_field_2d + '\\E_Field_2D_' + str(format(round(off, 5), '.5f')) + '_Res_2D_' + str(
+                resolution_2d) + '.png', dpi=100)
             # clearing out memory
             plt.close()
             plt.clf()
