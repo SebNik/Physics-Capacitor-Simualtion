@@ -178,8 +178,11 @@ class Plate_Capacitor:
         path_field_3d = os.path.abspath(os.path.join(self.path, 'E_Field_3D'))
         path_field_2d = os.path.abspath(os.path.join(self.path, 'E_Field_2D'))
         # create folder for saves
-        os.mkdir(path_field_3d)
-        os.mkdir(path_field_2d)
+        # create folder for saves
+        if not os.path.isdir(path_field_2d):
+            os.mkdir(path_field_2d)
+        if not os.path.isdir(path_field_3d):
+            os.mkdir(path_field_3d)
         # getting the data
         array_results, length, forces_results = self.cal_electric_field_3d(resolution_2d=resolution_2d,
                                                                            resolution_3d=resolution_3d, size=size)
