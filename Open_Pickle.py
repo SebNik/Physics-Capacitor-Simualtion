@@ -10,8 +10,8 @@ if __name__ == "__main__":
     # path open an old pickle file
     cap = pickle.load(open(path, "rb", -1))
     # starting analysis for he 3d room
-    res_2d = 80
-    res_3d = 100
+    res_2d = 15
+    res_3d = 10
     cap.analysis(resolution_2d=res_2d, resolution_3d=res_3d, size=1.5)
     # e_field, length, forces = cap.cal_electric_field(resolution=resolution)
     # e_field = np.load('resources/exports/29_10_2020__12_15_19/e_field_array.npz', allow_pickle=True)['arr_0']

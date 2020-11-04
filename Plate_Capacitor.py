@@ -80,7 +80,7 @@ class Plate_Capacitor:
         # iterating through the whole cube of data
         # setting to new data lists
         array_results = []
-        forces_results = np.array([])
+        forces_results = np.array([0, 0, 0, 0])
         for i in range(0, resolution_3d):
             # print out status
             print('Iteration on z plane res list: ', i)
@@ -104,9 +104,8 @@ class Plate_Capacitor:
                                 particle=e_p)
                             sum_forces += force_vector
                     # building forces array
-                    # newArray = numpy.append(a, [[50, 60, 70]], axis=0)
                     # forces_results.append([x[i], y[j], z[k], sum_forces])
-                    forces_results = np.append(forces_results, [[x[i], y[j], z[k], sum_forces]], axis=0)
+                    forces_results = np.append(forces_results, [x[i], y[j], z[k], sum_forces], axis=0)
                     # cal the electric field on this point
                     e = sum_forces / physical_constants["elementary charge"][0]
                     array_results.append([x[i], y[j], z[k], e])
