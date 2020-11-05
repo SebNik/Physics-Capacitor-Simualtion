@@ -9,39 +9,9 @@ if __name__ == "__main__":
     path = 'D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\29_10_2020__12_15_19\\class.pickle'
     # path open an old pickle file
     cap = pickle.load(open(path, "rb", -1))
-    # starting analysis for he 3d room
-    res_2d = 15
-    res_3d = 10
-    cap.analysis(resolution_2d=res_2d, resolution_3d=res_3d, size=1.5)
-    # e_field, length, forces = cap.cal_electric_field(resolution=resolution)
-    # e_field = np.load('resources/exports/29_10_2020__12_15_19/e_field_array.npz', allow_pickle=True)['arr_0']
-    # e_forces = np.load('resources/exports/29_10_2020__12_15_19/forces_array.npz', allow_pickle=True)['arr_0']
-    #
-    # forces = e_forces[:, 3].reshape(int(len(e_forces) / int(resolution)), int(resolution))
-    # fig, ax = plt.subplots()
-    # m = ax.imshow(forces)
-    # fig.colorbar(m)
-    # plt.show()
-
-    # image getting the 2d
-    # image = e_field[:, 3].reshape(int(len(e_field) / int(resolution)), int(resolution))
-    # print(image)
-    # for i in range(0, resolution, 10):
-    #     plt.title(str(i))
-    #     plt.plot(image[i])
-    #     plt.show()
-
-    # for i in range(0, resolution, 25):
-    #     plt.plot(image[i], label=str(i))
-    # plt.title('Full')
-    # plt.legend(loc='upper right')
-    # plt.show()
-
-    # getting max and min for plots
-    # max_v = max(e_field[:, 3])
-    # min_v = min(e_field[:, 3])
-    # # image plotting in 2d
-    # fig, ax = plt.subplots()
-    # m = ax.imshow(image, vmin=min_v, vmax=max_v)
-    # fig.colorbar(m)
-    # plt.show()
+    # starting analysis for the 3d room
+    # res_2d = 100
+    # res_3d = 70
+    # cap.analysis(resolution_2d=res_2d, resolution_3d=res_3d, size=1.5)
+    # getting the field lines
+    cap.plot_field_lines()

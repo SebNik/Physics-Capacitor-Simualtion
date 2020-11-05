@@ -79,7 +79,7 @@ class Plate_Capacitor:
         z = np.linspace(0, self.z_plane_diff, resolution_3d) + self.plate_pos.z_plane
         # iterating through the whole cube of data
         # setting to new data lists
-        array_results = []
+        array_results = [] #TODO build this to numpy
         forces_results = np.array([0, 0, 0, 0])
         for i in range(0, resolution_3d):
             # print out status
@@ -350,6 +350,33 @@ class Plate_Capacitor:
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.savefig(self.path + '\\sim.png', dpi=100)
 
+    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=0.15):
+        # this function is going to build the field lines for the plot
+        # checking if a path was given
+        if path is None:
+            # setting the default path
+            path_e_field_data = os.path.abspath(os.path.join(self.path, 'e_field_array.npz'))
+            # checking if exists
+            if os.path.isfile(path_e_field_data):
+                # read in data
+                e_field = np.load(path_e_field_data, allow_pickle=True)['arr_0']
+            else:
+                # getting data from cal
+                self.analysis()
+                # read in data
+                e_field = np.load(path_e_field_data, allow_pickle=True)['arr_0']
+        else:
+            # read in data
+            e_field = np.load(path, allow_pickle=True)['arr_0']
+        # starting finding the plot lines
+        # setting the field lines points for one special x_plane
+        field_lines = []
+        # getting the start point on the bottom
+        # iterating over length of plate and number of field lines
+        # this then will give us the path of the field lines
+        for i in range(num_field_lines):
+        # adding the vector to start point
+
     def plotting_plates_vectors_force(self):
         # plotting the 3D room of the electrons and their vectors
         # getting force vectors
@@ -427,9 +454,9 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
     # starting sim
-    cap.sim()
+    # cap.sim()
     # building analysis
-    cap.analysis(resolution=100)
+    # cap.analysis(resolution=100)
     # # plotting density to heck sim
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
