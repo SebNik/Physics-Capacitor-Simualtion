@@ -79,7 +79,7 @@ class Plate_Capacitor:
         z = np.linspace(0, self.z_plane_diff, resolution_3d) + self.plate_pos.z_plane
         # iterating through the whole cube of data
         # setting to new data lists
-        array_results = [] #TODO build this to numpy
+        array_results = []  # TODO build this to numpy
         forces_results = np.array([0, 0, 0, 0])
         for i in range(0, resolution_3d):
             # print out status
@@ -350,7 +350,7 @@ class Plate_Capacitor:
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.savefig(self.path + '\\sim.png', dpi=100)
 
-    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=0.15):
+    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None):
         # this function is going to build the field lines for the plot
         # checking if a path was given
         if path is None:
@@ -368,14 +368,36 @@ class Plate_Capacitor:
         else:
             # read in data
             e_field = np.load(path, allow_pickle=True)['arr_0']
+        # setting x_plane
+        if x_plane is None:
+            None
+            # TODO x_plane alternatives with fixed x,y,z
+        # filtering the data for this x_plane
+        filter_array_2d = e_field[:, 0] == x_plane
+        data_2d_plot = e_field[filter_array_2d]
+        print(len(data_2d_plot))
         # starting finding the plot lines
         # setting the field lines points for one special x_plane
         field_lines = []
         # getting the start point on the bottom
+        start_p = np.array([x_plane, self._p1[1], self.plate_pos.z_plane])
+        start_point_cal = start_p
+        # getting the current electric field vector for start point
+        e_vector_current = data_2d_plot[int(self.closest_node(start_p, data_2d_plot[:, :3]))][3]
+        # delta to add it up on every iteration
+        delta = np.array([0.0, self.plate_pos.y_length / num_field_lines, 0.0])
         # iterating over length of plate and number of field lines
         # this then will give us the path of the field lines
-        for i in range(num_field_lines):
+        for i in range(1, num_field_lines+2):
+            # print(start_point_cal, np.linalg.norm(e_vector_current))
+            start_point_cal = start_p + (delta * i)
+            e_vector_current = data_2d_plot[int(self.closest_node(start_point_cal, data_2d_plot[:, :3]))][3]
         # adding the vector to start point
+
+    def closest_node(self, node, nodes):
+        nodes = np.asarray(nodes)
+        dist_2 = np.sum((nodes - node) ** 2, axis=1)
+        return np.argmin(dist_2)
 
     def plotting_plates_vectors_force(self):
         # plotting the 3D room of the electrons and their vectors
@@ -435,6 +457,9 @@ class Plate_Capacitor:
         # plotting out the room
         plt.show()
 
+
+# TODO build export function for class
+# TODO replace all x,y,z linespaces with fixed function
 
 if __name__ == "__main__":
     # setting up an instances for test
