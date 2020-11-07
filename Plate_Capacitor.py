@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 from Particle import Particle
 import matplotlib.pyplot as plt
+from scipy.constants import electron_mass
 from Plate_negative import Plate_Negative
 from scipy.constants import physical_constants as physical_constants
 
@@ -350,98 +351,93 @@ class Plate_Capacitor:
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.savefig(self.path + '\\sim.png', dpi=100)
 
-    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None):
+    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00001):
         # this function is going to build the field lines for the plot
-        # checking if a path was given
-        if path is None:
-            # setting the default path
-            path_e_field_data = os.path.abspath(os.path.join(self.path, 'e_field_array.npz'))
-            # checking if exists
-            if os.path.isfile(path_e_field_data):
-                # read in data
-                e_field = np.load(path_e_field_data, allow_pickle=True)['arr_0']
-            else:
-                # getting data from cal
-                self.analysis()
-                # read in data
-                e_field = np.load(path_e_field_data, allow_pickle=True)['arr_0']
-        else:
-            # read in data
-            e_field = np.load(path, allow_pickle=True)['arr_0']
-        # setting x_plane
-        if x_plane is None:
-            None
-            # TODO x_plane alternatives with fixed x,y,z
-        # filtering the data for this x_plane
-        filter_array_2d = e_field[:, 0] == x_plane
-        data_2d_plot = e_field[filter_array_2d]
-        filter_array_2d = data_2d_plot[:, 1] >= self._p1[1]
-        data_2d_plot = data_2d_plot[filter_array_2d]
-        filter_array_2d = data_2d_plot[:, 2] >= self.plate_pos.z_plane
-        data_2d_plot = data_2d_plot[filter_array_2d]
-        # print(len(data_2d_plot))
+        # # checking if a path was given
+        # if path is None:
+        #     # setting the default path
+        #     path_e_field_data = os.path.abspath(os.path.join(self.path, 'e_field_array.npz'))
+        #     # checking if exists
+        #     if os.path.isfile(path_e_field_data):
+        #         # read in data
+        #         e_field = np.load(path_e_field_data, allow_pickle=True)['arr_0']
+        #     else:
+        #         # getting data from cal
+        #         self.analysis()
+        #         # read in data
+        #         e_field = np.load(path_e_field_data, allow_pickle=True)['arr_0']
+        # else:
+        #     # read in data
+        #     e_field = np.load(path, allow_pickle=True)['arr_0']
+        # # setting x_plane
+        # if x_plane is None:
+        #     None
+        #     # TODO x_plane alternatives with fixed x,y,z
         # starting finding the plot lines
-        # setting the field lines points for one special x_plane
         field_lines = []
         # getting the start point on the bottom
         start_p = np.array([x_plane, self._p1[1], self.plate_pos.z_plane])
         start_point_cal = start_p
-        # getting the current electric field vector for start point
-        e_vector_current = data_2d_plot[int(self.closest_node(start_p, data_2d_plot[:, :3]))][3]
         # delta to add it up on every iteration
         delta = np.array([0.0, self.plate_pos.y_length / num_field_lines, 0.0])
-        # getting the size factor for the electric field
-        size_fac = self.z_plane_diff / 70 * 0.9
         # iterating over length of plate and number of field lines
         # this then will give us the path of the field lines
         for i in range(1, num_field_lines + 2):
-            print("Starting field line cal: ", start_point_cal, np.linalg.norm(e_vector_current))
+            print("Starting field line cal: ", start_point_cal)
             # setting the points data list for this one field line
-            points_data = []
-            data_2d_plot_clean = data_2d_plot
-            node = np.array([0, 0, 0, 0])
-            # building the line until on the other side
-            while start_point_cal[2] != self.plate_neg.z_plane:
-                # adding the points to list for line
-                points_data.append(start_point_cal)
-                print('Moving to point: ', start_point_cal, " with e field vector of: ", e_vector_current)
-                # defining the new point with the e filed vector
-                print('Adding to start p: ', ((e_vector_current / np.linalg.norm(e_vector_current)) * size_fac))
-                new_point = start_point_cal + ((e_vector_current / np.linalg.norm(e_vector_current)) * size_fac)
-                # removing the last z axis because we can't go back only forward to the neg Plate
-                filter_array_2d = data_2d_plot_clean[:, 2] != node[2]
-                data_2d_plot_clean = data_2d_plot_clean[filter_array_2d]
-
-                filter_array_2d = data_2d_plot_clean[:, 1] != start_point_cal[1]
-                data_2d_plot_without = data_2d_plot_clean[filter_array_2d]
-                # getting new array without the current point
-                # data_2d_plot_without = []
-                # for r in data_2d_plot_clean:
-                #     if (r[:3] != start_point_cal).any():
-                #         data_2d_plot_without.append(r)
-                # data_2d_plot_without = np.array(data_2d_plot_without)
-                # finding the closest point
-                node = data_2d_plot_without[int(self.closest_node(new_point[1:], data_2d_plot_without[:, 1:3]))]
-                print('Found node: ', node)
-                start_point_cal = node[:3]
-                e_vector_current = node[3]
-            points_data = np.array(points_data)
-            print(points_data.shape)
-            print(points_data[:, 1])
+            points_data = np.array([0, 0, 0, [0, 0, 0]])
+            # setting up and test particle to find line
+            p_test = Particle(x=start_point_cal[0], y=start_point_cal[1], z=start_point_cal[2], type_c='+')
+            # building the while loop for the stopping point
+            while p_test.get_z() <= self.plate_neg.z_plane:
+                # setting force sum vector
+                sum_forces = np.array([0.0, 0.0, 0.0])
+                # cal forces between test particle and all real ones
+                # negative plate
+                for e_n in self.plate_neg.matrix.flatten():
+                    if self.same_position_of_particles(e1=e_n, e2=p_test):
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
+                            particle=e_n)
+                        sum_forces += force_vector
+                # positive plate
+                for e_p in self.plate_pos.matrix.flatten():
+                    if self.same_position_of_particles(e1=e_p, e2=p_test):
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
+                            particle=e_p)
+                        sum_forces += force_vector
+                # moving the particle by fraction of this force over time
+                # setting new unit force vector
+                unit_force = force / np.linalg.norm(force)
+                # setting the abs distance
+                d_abs = np.linalg.norm(force)
+                # finding out the s and the acceleration
+                a = d_abs / electron_mass
+                s = 0.5 * a * (delta_t ** 2)
+                # setting the new force vector
+                new_force_vector = unit_force * s
+                # setting new position
+                x_new = p_test.get_x() + new_force_vector[0]
+                y_new = p_test.get_y() + new_force_vector[1]
+                z_new = p_test.get_z() + new_force_vector[2]
+                # moving the particle by the new adjusted force vector
+                p_test.set_x(x=x_new)
+                p_test.set_y(y=y_new)
+                p_test.set_z(z=z_new)
+                # adding the new position and force in the list to the array
+                points_data = np.append(points_data, [p_test.get_x(), p_test.get_y(), p_test.get_z(), sum_forces],
+                                        axis=0)
+            # setting the points data
+            points_data = points_data[1:]
+            # plotting the points data for the test
             plt.scatter(points_data[:, 1], points_data[:, 2])
             plt.show()
+            # getting the forces for this particle and
             # setting the new start values for the next list
             start_point_cal = start_p + (delta * i)
-            e_vector_current = data_2d_plot[int(self.closest_node(start_point_cal, data_2d_plot[:, :3]))][3]
             # adding the new filed line in big field lines
             field_lines.append(points_data)
         # returning the values
         return field_lines
-
-    def closest_node(self, node, nodes):
-        nodes = np.asarray(nodes)
-        dist_2 = np.sum((nodes - node) ** 2, axis=1)
-        return np.argmin(dist_2)
 
     def plotting_plates_vectors_force(self):
         # plotting the 3D room of the electrons and their vectors
