@@ -375,6 +375,10 @@ class Plate_Capacitor:
         # filtering the data for this x_plane
         filter_array_2d = e_field[:, 0] == x_plane
         data_2d_plot = e_field[filter_array_2d]
+        filter_array_2d = data_2d_plot[:, 1] >= self._p1[1]
+        data_2d_plot = data_2d_plot[filter_array_2d]
+        filter_array_2d = data_2d_plot[:, 2] >= self.plate_pos.z_plane
+        data_2d_plot = data_2d_plot[filter_array_2d]
         # print(len(data_2d_plot))
         # starting finding the plot lines
         # setting the field lines points for one special x_plane
@@ -400,23 +404,32 @@ class Plate_Capacitor:
             while start_point_cal[2] != self.plate_neg.z_plane:
                 # adding the points to list for line
                 points_data.append(start_point_cal)
-                # print('Moving to point: ', start_point_cal, " with e field vector of: ", e_vector_current)
+                print('Moving to point: ', start_point_cal, " with e field vector of: ", e_vector_current)
                 # defining the new point with the e filed vector
+                print('Adding to start p: ', ((e_vector_current / np.linalg.norm(e_vector_current)) * size_fac))
                 new_point = start_point_cal + ((e_vector_current / np.linalg.norm(e_vector_current)) * size_fac)
                 # removing the last z axis because we can't go back only forward to the neg Plate
                 filter_array_2d = data_2d_plot_clean[:, 2] != node[2]
                 data_2d_plot_clean = data_2d_plot_clean[filter_array_2d]
+
+                filter_array_2d = data_2d_plot_clean[:, 1] != start_point_cal[1]
+                data_2d_plot_without = data_2d_plot_clean[filter_array_2d]
                 # getting new array without the current point
-                data_2d_plot_without = []
-                for i in data_2d_plot_clean:
-                    if (i[:3] != start_point_cal).any():
-                        data_2d_plot_without.append(i)
-                data_2d_plot_without = np.array(data_2d_plot_without)
+                # data_2d_plot_without = []
+                # for r in data_2d_plot_clean:
+                #     if (r[:3] != start_point_cal).any():
+                #         data_2d_plot_without.append(r)
+                # data_2d_plot_without = np.array(data_2d_plot_without)
                 # finding the closest point
-                node = data_2d_plot_without[int(self.closest_node(new_point, data_2d_plot_without[:, :3]))]
-                # print(node[:3] == start_point_cal, node[:3], start_point_cal, node[3])
+                node = data_2d_plot_without[int(self.closest_node(new_point[1:], data_2d_plot_without[:, 1:3]))]
+                print('Found node: ', node)
                 start_point_cal = node[:3]
                 e_vector_current = node[3]
+            points_data = np.array(points_data)
+            print(points_data.shape)
+            print(points_data[:, 1])
+            plt.scatter(points_data[:, 1], points_data[:, 2])
+            plt.show()
             # setting the new start values for the next list
             start_point_cal = start_p + (delta * i)
             e_vector_current = data_2d_plot[int(self.closest_node(start_point_cal, data_2d_plot[:, :3]))][3]
