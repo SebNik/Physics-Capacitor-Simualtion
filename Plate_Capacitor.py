@@ -440,7 +440,7 @@ class Plate_Capacitor:
             plt.title('Field Lines No. ' + str(np.where(x_plane == x_off)[0][0]) + ' X_off: ' + str(round(x_off, 3)))
             # saving the image
             plt.savefig(
-                path_field_lines_2d + '\\Field Lines No ' + str(np.where(x_plane == x_off)[0][0]) + ' X_off: ' + str(
+                path_field_lines_2d + '\\Field_Lines_No_' + str(np.where(x_plane == x_off)[0][0]) + '_X_off_' + str(
                     round(x_off, 3)) + '.png', dpi=100)
             # showing the plot if requests
             if show:
@@ -469,7 +469,7 @@ class Plate_Capacitor:
         # set the right title
         plt.title('Field Lines 3D Plot')
         # saving the image
-        plt.savefig(path_field_lines_3d + '\\Field Lines No.png', dpi=100)
+        plt.savefig(path_field_lines_3d + '\\Field_Lines_3D.png', dpi=100)
         # showing the big 3d plot
         if show:
             plt.show()
