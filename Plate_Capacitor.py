@@ -313,7 +313,7 @@ class Plate_Capacitor:
         # iterating through sim
         i = 0
         rel_avg_sum = [1, 1]
-        while abs(sum(rel_avg_sum) / len(rel_avg_sum)) > 0.0001:
+        while abs(sum(rel_avg_sum) / len(rel_avg_sum)) > 0.00001:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
@@ -323,14 +323,14 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=0.0000001)
+                                                                             delta_t=0.000001)
                 rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=0.0000001)
+                                                                             delta_t=0.000001)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
             self.rel_list.append(sum(rel_avg_sum) / len(rel_avg_sum))
@@ -355,6 +355,7 @@ class Plate_Capacitor:
             pickle.dump(self, file_, -1)
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.savefig(self.path + '\\sim.png', dpi=100)
+        print('Sim done')
 
     def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00000004, show=False, logs=False):
         # this function is going to build the field lines for the plot
@@ -474,8 +475,8 @@ class Plate_Capacitor:
         ax.set_zlabel('Z')
         # set the right title
         plt.title('Field Lines 3D Plot')
-        for ev in range(0, 60, 10):
-            for ii in range(0, 180, 30):
+        for ev in range(0, 60, 2):
+            for ii in range(0, 180, 10):
                 ax.view_init(elev=ev, azim=ii)
                 # saving the image
                 plt.savefig(path_field_lines_3d + '\\Field_Lines_3D_' + str(ev) + '_' + str(ii) + '.png', dpi=100)
