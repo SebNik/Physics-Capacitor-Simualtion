@@ -6,7 +6,7 @@ import numpy as np
 from Particle import Particle
 import matplotlib.pyplot as plt
 from scipy.constants import electron_mass
-from Plate_negative import Plate_Negative
+from Plate import Plate_Negative
 from scipy.constants import physical_constants as physical_constants
 
 
