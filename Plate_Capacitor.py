@@ -24,6 +24,11 @@ class Plate_Capacitor:
         # setting up a plane negative and positive
         self.plate_pos = Plate(n=n_pos, p1=p1 + plane_z_pos, p2=p2 + plane_z_pos, type='+', random=random)
         self.plate_neg = Plate(n=n_neg, p1=p1 + plane_z_neg, p2=p2 + plane_z_neg, type='-', random=random)
+        # setting the base path
+        self.path = os.path.abspath(
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S")))
+        # creating the base path
+        os.mkdir(self.path)
 
     def cal_forces(self):
         # this function is calculating all the forces for the particles
@@ -291,15 +296,12 @@ class Plate_Capacitor:
     def sim(self):
         # this function is simulating the sates and stopping with stable state
         # creating the path for saving the data
-        self.path = os.path.abspath(
-            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S")))
         path_density_neg = os.path.abspath(os.path.join(self.path, 'Neg_Density'))
         path_particles_neg = os.path.abspath(os.path.join(self.path, 'Neg_Particles'))
         path_density_pos = os.path.abspath(os.path.join(self.path, 'Pos_Density'))
         path_particles_pos = os.path.abspath(os.path.join(self.path, 'Pos_Particles'))
         path_density_neg_3d = os.path.abspath(os.path.join(self.path, 'Neg_Density_3D'))
         # create folder for today
-        os.mkdir(self.path)
         os.mkdir(path_density_neg)
         os.mkdir(path_particles_neg)
         os.mkdir(path_density_pos)
@@ -351,8 +353,16 @@ class Plate_Capacitor:
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.savefig(self.path + '\\sim.png', dpi=100)
 
-    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00000008):
+    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00000004, show=False):
         # this function is going to build the field lines for the plot
+        # # setting up the path
+        path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
+        path_field_lines_3d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
+        # create folder for saves
+        if not os.path.isdir(path_field_lines_2d):
+            os.mkdir(path_field_lines_2d)
+        if not os.path.isdir(path_field_lines_3d):
+            os.mkdir(path_field_lines_3d)
         # building the field lines
         field_lines = []
         # delta to add it up on every iteration
@@ -406,12 +416,12 @@ class Plate_Capacitor:
                     points_data.append([x_new, y_new, z_new, sum_forces])
                     # setting count higher
                     count += 1
-                    if count % 200 == 0:
+                    if count % 100 == 0:
                         print('Count: ', count, 'Current position: ', p_test.get_x(), p_test.get_y(), p_test.get_z(),
                               ' distance to end: ', self.plate_neg.z_plane - p_test.get_z(), ' current force: ',
                               sum_forces)
-                    if self.plate_neg.z_plane - p_test.get_z() < self.z_plane_diff * 0.1:
-                        break
+                    # if self.plate_neg.z_plane - p_test.get_z() < self.z_plane_diff * 0.1:
+                    #     break
                 # setting the points data
                 points_data = np.array(points_data)[1:-2]
                 # getting the forces for this particle and
@@ -426,7 +436,16 @@ class Plate_Capacitor:
             plt.plot(x1, y1, marker='o', c='r')
             x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
             plt.plot(x2, y2, marker='o', c='b')
-            plt.show()
+            # set the right title
+            plt.title('Field Lines No. ' + str(np.where(x_plane == x_off)[0][0]) + ' X_off: ' + str(round(x_off, 3)))
+            # saving the image
+            plt.savefig(
+                path_field_lines_2d + '\\Field Lines No ' + str(np.where(x_plane == x_off)[0][0]) + ' X_off: ' + str(
+                    round(x_off, 3)) + '.png', dpi=100)
+            # showing the plot if requests
+            if show:
+                plt.show()
+            plt.close()
         field_lines = np.array(field_lines)
         #  building up the plot
         fig = plt.figure()
@@ -447,9 +466,13 @@ class Plate_Capacitor:
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
+        # set the right title
+        plt.title('Field Lines 3D Plot')
+        # saving the image
+        plt.savefig(path_field_lines_3d + '\\Field Lines No.png', dpi=100)
         # showing the big 3d plot
-        plt.show()
-
+        if show:
+            plt.show()
         # returning the values
         return field_lines
 
