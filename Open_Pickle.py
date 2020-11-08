@@ -13,6 +13,6 @@ if __name__ == "__main__":
                           plane_z_neg=[0.002],
                           random=False)
     # cap.plotting_plates()
-    x = np.linspace(0, cap.plate_neg.x_length, 10) + cap._p1[0]
+    x = np.linspace(0, cap.plate_neg.x_length, 5) + cap.p1[0]
     # getting the field lines
-    print(cap.plot_field_lines(x_plane=x.tolist()))
+    print(cap.plot_field_lines(x_plane=x.tolist(), num_field_lines=5))

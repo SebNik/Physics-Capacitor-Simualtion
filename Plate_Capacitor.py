@@ -351,24 +351,8 @@ class Plate_Capacitor:
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.savefig(self.path + '\\sim.png', dpi=100)
 
-    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00000001):
+    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00000008):
         # this function is going to build the field lines for the plot
-        #  building up the plot
-        fig = plt.figure()
-        ax = plt.axes(projection='3d')
-        # plotting the plates for better view
-        r = [self._p1[0], self._p2[0]]
-        x, y = np.meshgrid(r, r)
-        # plotting the pos plate
-        pos_z = np.full((2, 2), self.plate_pos.z_plane)
-        ax.plot_surface(x, y, pos_z, alpha=0.5, color='r')
-        # plotting the neg plate
-        neg_z = np.full((2, 2), self.plate_neg.z_plane)
-        ax.plot_surface(x, y, neg_z, alpha=0.5, color='b')
-        # setting labels
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
         # building the field lines
         field_lines = []
         # delta to add it up on every iteration
@@ -394,14 +378,16 @@ class Plate_Capacitor:
                     # cal forces between test particle and all real ones
                     # negative plate
                     for e_n in self.plate_neg.matrix.flatten():
-                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
-                            particle=e_n)
-                        sum_forces += force_vector
+                        if self.same_position_of_particles(e1=e_n, e2=p_test):
+                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
+                                particle=e_n)
+                            sum_forces += force_vector
                     # positive plate
                     for e_p in self.plate_pos.matrix.flatten():
-                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
-                            particle=e_p)
-                        sum_forces += force_vector
+                        if self.same_position_of_particles(e1=e_p, e2=p_test):
+                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
+                                particle=e_p)
+                            sum_forces += force_vector
                     # moving the particle by fraction of this force over time
                     # finding out the s and the acceleration
                     a = sum_forces / electron_mass
@@ -420,20 +406,47 @@ class Plate_Capacitor:
                     points_data.append([x_new, y_new, z_new, sum_forces])
                     # setting count higher
                     count += 1
-                    if count % 100 == 0:
+                    if count % 200 == 0:
                         print('Count: ', count, 'Current position: ', p_test.get_x(), p_test.get_y(), p_test.get_z(),
-                              ' distance to end: ', self.plate_neg.z_plane - p_test.get_z(), ' current force: ', sum_forces)
+                              ' distance to end: ', self.plate_neg.z_plane - p_test.get_z(), ' current force: ',
+                              sum_forces)
                     if self.plate_neg.z_plane - p_test.get_z() < self.z_plane_diff * 0.1:
                         break
                 # setting the points data
                 points_data = np.array(points_data)[1:-2]
-                print(points_data.shape)
-                ax.plot(points_data[:, 0], points_data[:, 1], points_data[:, 2], label=str(i))
                 # getting the forces for this particle and
                 # setting the new start values for the next list
                 start_point_cal = start_p + (delta * i)
                 # adding the new filed line in big field lines
                 field_lines.append(points_data)
+                # plotting for the 3d line plot
+                plt.plot(points_data[:, 2], points_data[:, 1])
+            # building up the 2D plot
+            x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
+            plt.plot(x1, y1, marker='o', c='r')
+            x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
+            plt.plot(x2, y2, marker='o', c='b')
+            plt.show()
+        field_lines = np.array(field_lines)
+        #  building up the plot
+        fig = plt.figure()
+        ax = plt.axes(projection='3d')
+        # plotting the plates for better view
+        r = [self._p1[0], self._p2[0]]
+        x, y = np.meshgrid(r, r)
+        # plotting the pos plate
+        pos_z = np.full((2, 2), self.plate_pos.z_plane)
+        ax.plot_surface(x, y, pos_z, alpha=0.5, color='r')
+        # plotting the neg plate
+        neg_z = np.full((2, 2), self.plate_neg.z_plane)
+        ax.plot_surface(x, y, neg_z, alpha=0.5, color='b')
+        # plotting the field lines
+        for line in field_lines:
+            ax.plot(line[:, 0], line[:, 1], line[:, 2])
+        # setting labels
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
         # showing the big 3d plot
         plt.show()
 
@@ -505,6 +518,10 @@ class Plate_Capacitor:
         ax.set_zlabel('Z')
         # plotting out the room
         plt.show()
+
+    @property
+    def p1(self):
+        return self._p1
 
 
 # TODO build export function for class
