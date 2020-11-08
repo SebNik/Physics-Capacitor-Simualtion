@@ -356,7 +356,7 @@ class Plate_Capacitor:
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.savefig(self.path + '\\sim.png', dpi=100)
 
-    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00000004, show=False):
+    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00000004, show=False, logs=False):
         # this function is going to build the field lines for the plot
         # # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
@@ -377,7 +377,8 @@ class Plate_Capacitor:
             start_point_cal = start_p
             # iterating over length of plate and number of field lines
             for i in range(1, num_field_lines + 2):
-                print("Starting field line cal: ", start_point_cal)
+                if logs:
+                    print("Starting field line cal: ", start_point_cal)
                 # setting the points data list for this one field line
                 points_data = []
                 # setting count for print out
@@ -419,7 +420,7 @@ class Plate_Capacitor:
                     points_data.append([x_new, y_new, z_new, sum_forces])
                     # setting count higher
                     count += 1
-                    if count % 100 == 0:
+                    if count % 100 == 0 and logs:
                         print('Count: ', count, 'Current position: ', p_test.get_x(), p_test.get_y(), p_test.get_z(),
                               ' distance to end: ', self.plate_neg.z_plane - p_test.get_z(), ' current force: ',
                               sum_forces)
@@ -434,6 +435,8 @@ class Plate_Capacitor:
                 field_lines.append(points_data)
                 # plotting for the 3d line plot
                 plt.plot(points_data[:, 2], points_data[:, 1])
+                # saving the created data
+                np.savez_compressed(path_field_lines_2d + '\\e_field_lines_' + str(start_p).replace(' ', '_').replace('.','_') + '.npz', points_data,chunksize=100)
             # building up the 2D plot
             x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
             plt.plot(x1, y1, marker='o', c='r')

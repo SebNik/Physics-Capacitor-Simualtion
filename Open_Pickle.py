@@ -14,5 +14,5 @@ if __name__ == "__main__":
                           random=False)
     # cap.sim()
     # getting the field lines
-    x = np.linspace(0.001, cap.plate_neg.x_length-0.001, 5) + cap.p1[0]
-    ar= cap.plot_field_lines(x_plane=x, num_field_lines=4)
+    x = np.linspace(0.001, cap.plate_neg.x_length - 0.001, 5) + cap.p1[0]
+    ar = cap.plot_field_lines(x_plane=x, num_field_lines=4)
