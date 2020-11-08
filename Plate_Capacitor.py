@@ -71,7 +71,7 @@ class Plate_Capacitor:
         else:
             return True
 
-    def cal_electric_field_3d(self, resolution_2d=10, resolution_3d=10, size=1):
+    def cal_electric_field_3d(self, resolution_2d=5, resolution_3d=10, size=1):
         # this function is calculating the electric field between the two plates
         # setting the numpy spaces for the grid points
         delta = self.plate_neg.x_length * (size - 1) / 2
@@ -351,29 +351,28 @@ class Plate_Capacitor:
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
         plt.savefig(self.path + '\\sim.png', dpi=100)
 
-    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00001):
+    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=1000000000000000):
         # this function is going to build the field lines for the plot
-        # # checking if a path was given
-        # if path is None:
-        #     # setting the default path
-        #     path_e_field_data = os.path.abspath(os.path.join(self.path, 'e_field_array.npz'))
-        #     # checking if exists
-        #     if os.path.isfile(path_e_field_data):
-        #         # read in data
-        #         e_field = np.load(path_e_field_data, allow_pickle=True)['arr_0']
-        #     else:
-        #         # getting data from cal
-        #         self.analysis()
-        #         # read in data
-        #         e_field = np.load(path_e_field_data, allow_pickle=True)['arr_0']
-        # else:
-        #     # read in data
-        #     e_field = np.load(path, allow_pickle=True)['arr_0']
-        # # setting x_plane
-        # if x_plane is None:
-        #     None
-        #     # TODO x_plane alternatives with fixed x,y,z
-        # starting finding the plot lines
+
+
+        fig = plt.figure()
+        ax = plt.axes(projection='3d')
+
+        # plotting the plates for better view
+        r = [self._p1[0], self._p2[0]]
+        x, y = np.meshgrid(r, r)
+        # plotting the pos plate
+        pos_z = np.full((2, 2), self.plate_pos.z_plane)
+        ax.plot_surface(x, y, pos_z, alpha=0.5, color='r')
+        # plotting the neg plate
+        neg_z = np.full((2, 2), self.plate_neg.z_plane)
+        ax.plot_surface(x, y, neg_z, alpha=0.5, color='b')
+        # setting labels
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        # ax.legend()
+
         field_lines = []
         # getting the start point on the bottom
         start_p = np.array([x_plane, self._p1[1], self.plate_pos.z_plane])
@@ -385,7 +384,9 @@ class Plate_Capacitor:
         for i in range(1, num_field_lines + 2):
             print("Starting field line cal: ", start_point_cal)
             # setting the points data list for this one field line
-            points_data = np.array([0, 0, 0, [0, 0, 0]])
+            points_data = []
+            # setting count for print out
+            count = 0
             # setting up and test particle to find line
             p_test = Particle(x=start_point_cal[0], y=start_point_cal[1], z=start_point_cal[2], type_c='+')
             # building the while loop for the stopping point
@@ -395,26 +396,28 @@ class Plate_Capacitor:
                 # cal forces between test particle and all real ones
                 # negative plate
                 for e_n in self.plate_neg.matrix.flatten():
-                    if self.same_position_of_particles(e1=e_n, e2=p_test):
-                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
-                            particle=e_n)
-                        sum_forces += force_vector
+                    force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
+                        particle=e_n)
+                    sum_forces += force_vector
                 # positive plate
                 for e_p in self.plate_pos.matrix.flatten():
-                    if self.same_position_of_particles(e1=e_p, e2=p_test):
-                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
-                            particle=e_p)
-                        sum_forces += force_vector
+                    force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
+                        particle=e_p)
+                    sum_forces += force_vector
+
+                if 0 > sum_forces[2]:
+                    print('error fuck you world, this is not possible fuck you ', sum_forces)
+                    points_data = np.array(points_data)[1:-2]
+                    ax.plot(points_data[:, 0], points_data[:, 1], points_data[:, 2], label=str(i))
+                    plt.show()
+                    break
+
                 # moving the particle by fraction of this force over time
-                # setting new unit force vector
-                unit_force = force / np.linalg.norm(force)
-                # setting the abs distance
-                d_abs = np.linalg.norm(force)
                 # finding out the s and the acceleration
-                a = d_abs / electron_mass
-                s = 0.5 * a * (delta_t ** 2)
+                # a = sum_forces / electron_mass
+                # s = 0.5 * a * (delta_t ** 2)
                 # setting the new force vector
-                new_force_vector = unit_force * s
+                new_force_vector = sum_forces * delta_t
                 # setting new position
                 x_new = p_test.get_x() + new_force_vector[0]
                 y_new = p_test.get_y() + new_force_vector[1]
@@ -424,18 +427,33 @@ class Plate_Capacitor:
                 p_test.set_y(y=y_new)
                 p_test.set_z(z=z_new)
                 # adding the new position and force in the list to the array
-                points_data = np.append(points_data, [p_test.get_x(), p_test.get_y(), p_test.get_z(), sum_forces],
-                                        axis=0)
+                points_data.append([x_new, y_new, z_new, sum_forces])
+                # setting count higher
+                count += 1
+                if count % 100 == 0:
+                    print('Count: ', count, 'Current position: ', p_test.get_x(), p_test.get_y(), p_test.get_z(),
+                          ' distance to end: ', self.plate_neg.z_plane - p_test.get_z(), ' current force: ', sum_forces)
+                if self.plate_neg.z_plane - p_test.get_z() < self.z_plane_diff * 0.1:
+                    break
             # setting the points data
-            points_data = points_data[1:]
+            points_data = np.array(points_data)[1:-2]
+            print(points_data.shape)
             # plotting the points data for the test
-            plt.scatter(points_data[:, 1], points_data[:, 2])
-            plt.show()
+            # plt.plot(points_data[:, 1], points_data[:, 0])
+            # plotting points of pos plate
+            # for p in points_data:
+            #     ax.scatter3D(p[0], p[1], p[2], c='r')
+            ax.plot(points_data[:, 0], points_data[:, 1], points_data[:, 2], label=str(i))
             # getting the forces for this particle and
             # setting the new start values for the next list
             start_point_cal = start_p + (delta * i)
             # adding the new filed line in big field lines
             field_lines.append(points_data)
+        # plt.show()
+
+
+        plt.show()
+
         # returning the values
         return field_lines
 
