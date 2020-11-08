@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 from scipy.constants import electron_mass
 from Plate import Plate
 from scipy.constants import physical_constants as physical_constants
+import warnings
+
+warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 
 class Plate_Capacitor:
@@ -357,7 +360,7 @@ class Plate_Capacitor:
         # this function is going to build the field lines for the plot
         # # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
-        path_field_lines_3d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
+        path_field_lines_3d = os.path.abspath(os.path.join(self.path, 'Field_Lines_3D'))
         # create folder for saves
         if not os.path.isdir(path_field_lines_2d):
             os.mkdir(path_field_lines_2d)
@@ -468,8 +471,11 @@ class Plate_Capacitor:
         ax.set_zlabel('Z')
         # set the right title
         plt.title('Field Lines 3D Plot')
-        # saving the image
-        plt.savefig(path_field_lines_3d + '\\Field_Lines_3D.png', dpi=100)
+        for ev in range(0, 60, 10):
+            for ii in range(0, 180, 30):
+                ax.view_init(elev=ev, azim=ii)
+                # saving the image
+                plt.savefig(path_field_lines_3d + '\\Field_Lines_3D_' + str(ev) + '_' + str(ii) + '.png', dpi=100)
         # showing the big 3d plot
         if show:
             plt.show()
