@@ -7,12 +7,14 @@ import matplotlib.pyplot as plt
 from scipy.constants import electron_mass
 
 
-class Plate_Negative:
+class Plate:
     # this is a class which represents one negative plate
     # this plate is filled with electrons which can move freely
-    def __init__(self, n, p1, p2, random=False):
+    def __init__(self, n, p1, p2, type, random=False):
         # setting an id for the plate
         self._id = uuid.uuid4()
+        # setting up the charge and type of the plate
+        self.type = type
         # setting bounding box edges
         self._p1 = p1
         self._p2 = p2
@@ -45,7 +47,7 @@ class Plate_Negative:
             data = []
             for y in y_ps:
                 # print("coordinates: ", x, y)
-                data.append(Particle(x=x, y=y, z=self.z_plane, type_c='-'))
+                data.append(Particle(x=x, y=y, z=self.z_plane, type_c=self.type))
                 self.matrix_pos.append([data[-1].get_x(), data[-1].get_y()])
             # adding the data into the matrix
             self.matrix.append(data)

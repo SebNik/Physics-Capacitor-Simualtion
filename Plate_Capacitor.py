@@ -6,7 +6,7 @@ import numpy as np
 from Particle import Particle
 import matplotlib.pyplot as plt
 from scipy.constants import electron_mass
-from Plate import Plate_Negative
+from Plate import Plate
 from scipy.constants import physical_constants as physical_constants
 
 
@@ -22,8 +22,8 @@ class Plate_Capacitor:
         self._p2 = p2
         self.z_plane_diff = abs(plane_z_neg[0] - plane_z_pos[0])
         # setting up a plane negative and positive
-        self.plate_pos = Plate_Negative(n=n_pos, p1=p1 + plane_z_pos, p2=p2 + plane_z_pos, random=random)
-        self.plate_neg = Plate_Negative(n=n_neg, p1=p1 + plane_z_neg, p2=p2 + plane_z_neg, random=random)
+        self.plate_pos = Plate(n=n_pos, p1=p1 + plane_z_pos, p2=p2 + plane_z_pos, type='+', random=random)
+        self.plate_neg = Plate(n=n_neg, p1=p1 + plane_z_neg, p2=p2 + plane_z_neg, type='-', random=random)
 
     def cal_forces(self):
         # this function is calculating all the forces for the particles
@@ -495,10 +495,18 @@ class Plate_Capacitor:
         ax = plt.axes(projection='3d')
         # plotting points of pos plate
         for e_p in self.plate_pos.matrix.flatten():
-            ax.scatter3D(e_p.get_x(), e_p.get_y(), e_p.get_z(), c='r')
+            if e_p.get_type() == '+':
+                color = 'r'
+            else:
+                color = 'b'
+            ax.scatter3D(e_p.get_x(), e_p.get_y(), e_p.get_z(), c=color)
         # plotting points of neg plate
         for e_n in self.plate_neg.matrix.flatten():
-            ax.scatter3D(e_n.get_x(), e_n.get_y(), e_n.get_z(), c='b')
+            if e_n.get_type() == '+':
+                color = 'r'
+            else:
+                color = 'b'
+            ax.scatter3D(e_n.get_x(), e_n.get_y(), e_n.get_z(), c=color)
         # plotting the plates for better view
         r = [self._p1[0], self._p2[0]]
         x, y = np.meshgrid(r, r)

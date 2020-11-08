@@ -20,4 +20,4 @@ if __name__ == "__main__":
     # res_3d = 70
     # cap.analysis(resolution_2d=res_2d, resolution_3d=res_3d, size=1.5)
     # getting the field lines
-    print(cap.plot_field_lines(x_plane=x[int(len(x) / 2)]))
+    print(cap.plot_field_lines(x_plane=x[int(len(x) / 8)]))
