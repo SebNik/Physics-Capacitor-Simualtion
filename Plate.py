@@ -42,7 +42,7 @@ class Plate:
             y_ps = [np.random.random_sample() * self._y_length + min(self._p1, self._p2)[1] for i in range(n)]
         # print("The positions for the spacing particles: ", x_ps, y_ps)
         # iterating through positions
-        s=True
+        s=False
         for x in x_ps:
             row = []
             data = []
@@ -211,7 +211,7 @@ class Plate:
         x = [e.get_x() for e in self.matrix.flatten()]
         y = [e.get_y() for e in self.matrix.flatten()]
         color = ['r' if e.get_charge()>0 else 'b' for e in self.matrix.flatten()]
-        print(color)
+        # print(color)
         # plotting particles
         plt.scatter(x, y, c=color)
         # showing the plot
@@ -280,7 +280,7 @@ if __name__ == "__main__":
     # getting class information
     print(Plate)
     # setting instance of single plate
-    plate_neg = Plate(n=4, p1=[0, 0, 0], p2=[1, 1, 0], random=True, type='+')
+    plate_neg = Plate(n=4, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='+')
     # printing all information about it
     # print(plate_neg)
     # getting values
@@ -290,7 +290,7 @@ if __name__ == "__main__":
     # plotting the density of the points
     # plate_neg.plot_density()
     # getting the inner forces
-    # print(plate_neg.get_inner_forces())
+    print(np.array(plate_neg.get_inner_forces()[0]).mean())
     # plotting inner forces
     plate_neg.plot_matrix_particles_vector()
     # moving the particle by a force vector
