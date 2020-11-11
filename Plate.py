@@ -42,12 +42,17 @@ class Plate:
             y_ps = [np.random.random_sample() * self._y_length + min(self._p1, self._p2)[1] for i in range(n)]
         # print("The positions for the spacing particles: ", x_ps, y_ps)
         # iterating through positions
+        s=True
         for x in x_ps:
             row = []
             data = []
             for y in y_ps:
                 # print("coordinates: ", x, y)
-                data.append(Particle(x=x, y=y, z=self.z_plane, type_c=self.type))
+                if s:
+                    data.append(Particle(x=x, y=y, z=self.z_plane, type_c='-'))
+                    s = False
+                else:
+                    data.append(Particle(x=x, y=y, z=self.z_plane, type_c=self.type))
                 self.matrix_pos.append([data[-1].get_x(), data[-1].get_y()])
             # adding the data into the matrix
             self.matrix.append(data)
@@ -139,16 +144,12 @@ class Plate:
                 # setting old position
                 x_old = e.get_x()
                 y_old = e.get_y()
-                # setting new unit force vector
-                unit_force = force / np.linalg.norm(force)
-                # setting the abs distance
-                d_abs = (force[0] ** 2 + force[1] ** 2) ** 0.5
                 # finding out the s and the acceleration
-                a = d_abs / electron_mass
+                a = force / electron_mass
                 s = 0.5 * a * (delta_t ** 2)
                 # print(s)
                 # setting the new force vector
-                new_force_vector = unit_force * s
+                new_force_vector = s
                 # setting new position
                 x_new = x_old + new_force_vector[0]
                 y_new = y_old + new_force_vector[1]
@@ -209,8 +210,10 @@ class Plate:
         # getting x,y for particles plot
         x = [e.get_x() for e in self.matrix.flatten()]
         y = [e.get_y() for e in self.matrix.flatten()]
+        color = ['r' if e.get_charge()>0 else 'b' for e in self.matrix.flatten()]
+        print(color)
         # plotting particles
-        plt.scatter(x, y, c='r')
+        plt.scatter(x, y, c=color)
         # showing the plot
         plt.show()
 
@@ -275,9 +278,9 @@ class Plate:
 
 if __name__ == "__main__":
     # getting class information
-    print(Plate_Negative)
+    print(Plate)
     # setting instance of single plate
-    plate_neg = Plate_Negative(n=4, p1=[0, 0, 0], p2=[1, 1, 0], random=True)
+    plate_neg = Plate(n=4, p1=[0, 0, 0], p2=[1, 1, 0], random=True, type='+')
     # printing all information about it
     # print(plate_neg)
     # getting values
@@ -285,11 +288,11 @@ if __name__ == "__main__":
     # plotting out particles
     # plate_neg.plot_matrix_particles()
     # plotting the density of the points
-    plate_neg.plot_density()
+    # plate_neg.plot_density()
     # getting the inner forces
     # print(plate_neg.get_inner_forces())
     # plotting inner forces
-    # plate_neg.plot_matrix_particles_vector()
+    plate_neg.plot_matrix_particles_vector()
     # moving the particle by a force vector
     # i = str(plate_neg.matrix.flatten()[1].get_id())
     # print(i)

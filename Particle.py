@@ -41,7 +41,7 @@ class Particle:
             [particle.__x - self.__x, particle.__y - self.__y, particle.__z - self.__z]) / np.linalg.norm(
             np.array([particle.__x - self.__x, particle.__y - self.__y, particle.__z - self.__z]))
         # print("Unit Vector force: ", unit_force_vector)
-        # setting the direction
+        # # setting the direction
         if particle.type == self.type:
             unit_force_vector = unit_force_vector * -1
         # setting the force vector

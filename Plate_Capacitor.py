@@ -313,7 +313,7 @@ class Plate_Capacitor:
         # iterating through sim
         i = 0
         rel_avg_sum = [1, 1]
-        while abs(sum(rel_avg_sum) / len(rel_avg_sum)) > 0.00001:
+        while abs(sum(rel_avg_sum) / len(rel_avg_sum)) > 0.000000001:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
@@ -323,20 +323,20 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=0.000001)
+                                                                             delta_t=0.0000005)
                 rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=0.000001)
+                                                                             delta_t=0.0000005)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
             self.rel_list.append(sum(rel_avg_sum) / len(rel_avg_sum))
             i += 1
             # checking if every 10th sav image of plot
-            if i % 10 == 0:
+            if i % 2 == 0:
                 # plotting particles and density and saving them
                 self.plate_neg.plot_density_3d(save=True,
                                                path=path_density_neg_3d + '\\Plate_Neg_' + str(i) + '_3D_Density.png',
