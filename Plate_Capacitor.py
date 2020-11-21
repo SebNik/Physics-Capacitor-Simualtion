@@ -318,7 +318,7 @@ class Plate_Capacitor:
         i = 0
         rel_avg_sum = [1, 1]
         sma_list = [1]
-        while sma_list[-1] > 1e-05:
+        while sma_list[-1] > 2e-05:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
@@ -370,7 +370,7 @@ class Plate_Capacitor:
         plt.savefig(self.path + '\\sim.png', dpi=100)
         print('Sim done')
 
-    def plot_field_lines(self, path=None, num_field_lines=10, x_plane=None, delta_t=0.00000004, show=False, logs=False):
+    def plot_field_lines(self, path=None, num_field_lines=10, delta_m=0.000004, x_plane=None, show=False, logs=True, room=False):
         # this function is going to build the field lines for the plot
         # # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
@@ -416,12 +416,10 @@ class Plate_Capacitor:
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
                                 particle=e_p)
                             sum_forces += force_vector
-                    # moving the particle by fraction of this force over time
-                    # finding out the s and the acceleration
-                    a = sum_forces / electron_mass
-                    s = 0.5 * a * (delta_t ** 2)
-                    # setting the new force vector
-                    new_force_vector = s  # sum_forces * delta_t # 1000000000000000
+                    # getting the unit vector
+                    unit_vector = sum_forces / np.linalg.norm(sum_forces)
+                    # getting the new vector
+                    new_force_vector = unit_vector * delta_m
                     # setting new position
                     x_new = p_test.get_x() + new_force_vector[0]
                     y_new = p_test.get_y() + new_force_vector[1]
@@ -441,14 +439,14 @@ class Plate_Capacitor:
                     # if self.plate_neg.z_plane - p_test.get_z() < self.z_plane_diff * 0.1:
                     #     break
                 # setting the points data
-                points_data = np.array(points_data)[1:-2]
+                points_data = np.array(points_data)[1:-1]
                 # getting the forces for this particle and
                 # setting the new start values for the next list
                 start_point_cal = start_p + (delta * i)
                 # adding the new filed line in big field lines
                 field_lines.append(points_data)
-                # plotting for the 3d line plot
-                plt.plot(points_data[:, 2], points_data[:, 1])
+                # plotting for the 2d line plot
+                plt.plot(points_data[:, 2], points_data[:, 1], c='g')
                 # saving the created data
                 np.savez_compressed(
                     path_field_lines_2d + '\\e_field_lines_' + str(start_p).replace(' ', '_').replace('.',
@@ -470,32 +468,33 @@ class Plate_Capacitor:
                 plt.show()
             plt.close()
         field_lines = np.array(field_lines)
-        #  building up the plot
-        fig = plt.figure()
-        ax = plt.axes(projection='3d')
-        # plotting the plates for better view
-        r = [self._p1[0], self._p2[0]]
-        x, y = np.meshgrid(r, r)
-        # plotting the pos plate
-        pos_z = np.full((2, 2), self.plate_pos.z_plane)
-        ax.plot_surface(x, y, pos_z, alpha=0.5, color='r')
-        # plotting the neg plate
-        neg_z = np.full((2, 2), self.plate_neg.z_plane)
-        ax.plot_surface(x, y, neg_z, alpha=0.5, color='b')
-        # plotting the field lines
-        for line in field_lines:
-            ax.plot(line[:, 0], line[:, 1], line[:, 2])
-        # setting labels
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-        # set the right title
-        plt.title('Field Lines 3D Plot')
-        for ev in range(0, 60, 2):
-            for ii in range(0, 180, 10):
-                ax.view_init(elev=ev, azim=ii)
-                # saving the image
-                plt.savefig(path_field_lines_3d + '\\Field_Lines_3D_' + str(ev) + '_' + str(ii) + '.png', dpi=100)
+        if room:
+            #  building up the plot
+            fig = plt.figure()
+            ax = plt.axes(projection='3d')
+            # plotting the plates for better view
+            r = [self._p1[0], self._p2[0]]
+            x, y = np.meshgrid(r, r)
+            # plotting the pos plate
+            pos_z = np.full((2, 2), self.plate_pos.z_plane)
+            ax.plot_surface(x, y, pos_z, alpha=0.5, color='r')
+            # plotting the neg plate
+            neg_z = np.full((2, 2), self.plate_neg.z_plane)
+            ax.plot_surface(x, y, neg_z, alpha=0.5, color='b')
+            # plotting the field lines
+            for line in field_lines:
+                ax.plot(line[:, 0], line[:, 1], line[:, 2])
+            # setting labels
+            ax.set_xlabel('X')
+            ax.set_ylabel('Y')
+            ax.set_zlabel('Z')
+            # set the right title
+            plt.title('Field Lines 3D Plot')
+            for ev in range(0, 60, 2):
+                for ii in range(0, 180, 10):
+                    ax.view_init(elev=ev, azim=ii)
+                    # saving the image
+                    plt.savefig(path_field_lines_3d + '\\Field_Lines_3D_' + str(ev) + '_' + str(ii) + '.png', dpi=100)
         # showing the big 3d plot
         if show:
             plt.show()

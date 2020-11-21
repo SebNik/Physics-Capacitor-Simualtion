@@ -42,17 +42,12 @@ class Plate:
             y_ps = [np.random.random_sample() * self._y_length + min(self._p1, self._p2)[1] for i in range(n)]
         # print("The positions for the spacing particles: ", x_ps, y_ps)
         # iterating through positions
-        s=False
         for x in x_ps:
             row = []
             data = []
             for y in y_ps:
                 # print("coordinates: ", x, y)
-                if s:
-                    data.append(Particle(x=x, y=y, z=self.z_plane, type_c='-'))
-                    s = False
-                else:
-                    data.append(Particle(x=x, y=y, z=self.z_plane, type_c=self.type))
+                data.append(Particle(x=x, y=y, z=self.z_plane, type_c=self.type))
                 self.matrix_pos.append([data[-1].get_x(), data[-1].get_y()])
             # adding the data into the matrix
             self.matrix.append(data)
@@ -69,6 +64,14 @@ class Plate:
             self.matrix_pos.append([e.get_x(), e.get_y()])
         # setting it to numpy array
         # self.matrix_pos = np.array(self.matrix_pos)
+
+    def move_plane_on_z_plane(self, new_z_plane):
+        # this function will move the whole plate on the z plane
+        self.z_plane = new_z_plane
+        # moving all the particles
+        for p in self.matrix.flatten():
+            # changing the z axis
+            p.set_z(z=new_z_plane)
 
     def get_info_of_particles(self):
         # printing out all ethe information of the particles
@@ -333,7 +336,7 @@ if __name__ == "__main__":
     # getting class information
     print(Plate)
     # setting instance of single plate
-    plate_neg = Plate(n=4, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='+')
+    plate_neg = Plate(n=4, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='-')
     # printing all information about it
     # print(plate_neg)
     # getting values
