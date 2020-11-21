@@ -304,16 +304,21 @@ class Plate_Capacitor:
         path_density_pos = os.path.abspath(os.path.join(self.path, 'Pos_Density'))
         path_particles_pos = os.path.abspath(os.path.join(self.path, 'Pos_Particles'))
         path_density_neg_3d = os.path.abspath(os.path.join(self.path, 'Neg_Density_3D'))
+        path_stuff = os.path.abspath(os.path.join(self.path, 'Stuff'))
         # create folder for today
         os.mkdir(path_density_neg)
         os.mkdir(path_particles_neg)
         os.mkdir(path_density_pos)
         os.mkdir(path_particles_pos)
         os.mkdir(path_density_neg_3d)
+        os.mkdir(path_stuff)
+        # files for saving stuff
+        path_stuff_export_sma = os.path.abspath(os.path.join(path_stuff, 'export_sma.csv'))
         # iterating through sim
         i = 0
         rel_avg_sum = [1, 1]
-        while abs(sum(rel_avg_sum) / len(rel_avg_sum)) > 0.000000001:
+        sma_list = [1]
+        while sma_list[-1] > 1e-05:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
             # setting status sim to 0
@@ -333,10 +338,10 @@ class Plate_Capacitor:
                                                                              delta_t=0.000001)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
-            self.rel_list.append(sum(rel_avg_sum) / len(rel_avg_sum))
+            self.rel_list.append(abs(sum(rel_avg_sum) / len(rel_avg_sum)))
             i += 1
             # checking if every 10th sav image of plot
-            if i % 10 == 0:
+            if i % 5 == 0:
                 # plotting particles and density and saving them
                 self.plate_neg.plot_density_3d(save=True,
                                                path=path_density_neg_3d + '\\Plate_Neg_' + str(i) + '_3D_Density.png',
@@ -349,9 +354,16 @@ class Plate_Capacitor:
                                             show=False, points=False)
                 self.plate_pos.plot_matrix_particles(save=True, path=path_particles_pos + '\\Plate_Pos_' + str(
                     i) + '_Particles.png', show=False)
-                self.plate_neg.plot_matrix_particles_vector()
+            # getting the SMA change
+            n = 10
+            sma_value = sum(np.array(self.rel_list)[-n:]) / n
+            sma_list.append(sma_value)
             # print out
-            print("OUTPUT: Iteration: ", i, ' electrons moved: ', abs(sum(rel_avg_sum) / len(rel_avg_sum)))
+            print("OUTPUT: Iteration: ", i, ' electrons moved: ', abs(sum(rel_avg_sum) / len(rel_avg_sum)),
+                  ' SMA n=10: ', sma_value)
+        # exporting the sma
+        np.savetxt(path_stuff_export_sma, np.array(sma_list), delimiter=";")
+        # saving the class in pickle
         with open(self.path + '\\' + "class.pickle", "wb") as file_:
             pickle.dump(self, file_, -1)
         plt.plot(self.rel_list, label='Relative Sum Avg', c='r')
@@ -438,7 +450,10 @@ class Plate_Capacitor:
                 # plotting for the 3d line plot
                 plt.plot(points_data[:, 2], points_data[:, 1])
                 # saving the created data
-                np.savez_compressed(path_field_lines_2d + '\\e_field_lines_' + str(start_p).replace(' ', '_').replace('.','_') + '.npz', points_data,chunksize=100)
+                np.savez_compressed(
+                    path_field_lines_2d + '\\e_field_lines_' + str(start_p).replace(' ', '_').replace('.',
+                                                                                                      '_') + '.npz',
+                    points_data, chunksize=100)
             # building up the 2D plot
             x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
             plt.plot(x1, y1, marker='o', c='r')
@@ -563,7 +578,7 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=14, n_pos=10, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
+    cap = Plate_Capacitor(n_neg=10, n_pos=7, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
                           plane_z_neg=[0.002],
                           random=False)
     # plotting the room
@@ -579,7 +594,7 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
     # starting sim
-    # cap.sim()
+    cap.sim()
     # building analysis
     # cap.analysis(resolution=100)
     # # plotting density to heck sim
