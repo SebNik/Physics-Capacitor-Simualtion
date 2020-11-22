@@ -374,7 +374,8 @@ class Plate_Capacitor:
         plt.savefig(self.path + '\\sim.png', dpi=100)
         print('Sim done')
 
-    def plot_field_lines(self, path=None, num_field_lines=10, delta_m=0.000004, x_plane=None, show=False, logs=True, room=False):
+    def plot_field_lines(self, path=None, num_field_lines=10, delta_m=0.000004, x_plane=None, show=False, logs=True,
+                         room=False):
         # this function is going to build the field lines for the plot
         # # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
@@ -445,6 +446,11 @@ class Plate_Capacitor:
                     #     break
                 # setting the points data
                 points_data = np.array(points_data)[1:-1]
+                # saving the created data
+                np.savez_compressed(
+                    path_field_lines_2d + '\\e_field_lines_' + str(start_point_cal).replace(' ', '_').replace('.',
+                                                                                                              '_') + '.npz',
+                    points_data, chunksize=100)
                 # getting the forces for this particle and
                 # setting the new start values for the next list
                 start_point_cal = start_p + (delta * i)
@@ -452,11 +458,6 @@ class Plate_Capacitor:
                 field_lines.append(points_data)
                 # plotting for the 2d line plot
                 plt.plot(points_data[:, 2], points_data[:, 1], c='g')
-                # saving the created data
-                np.savez_compressed(
-                    path_field_lines_2d + '\\e_field_lines_' + str(start_p).replace(' ', '_').replace('.',
-                                                                                                      '_') + '.npz',
-                    points_data, chunksize=100)
             # building up the 2D plot
             x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
             plt.plot(x1, y1, marker='o', c='r')
@@ -505,6 +506,27 @@ class Plate_Capacitor:
             plt.show()
         # returning the values
         return field_lines
+
+    def plot_field_lines_static(self, num_field_lines=10, delta_m=0.000004, show=False, logs=True, room=False):
+        # this function will plot a fully static field
+        # delta to add it up on every iteration
+        delta = np.array([0.0, self.plate_pos.y_length / num_field_lines])
+        # showing the fieldline
+        start_p = np.array([self.plate_pos.z_plane, self._p1[1]])
+        start_point_cal = start_p
+        # iterating over length of plate and number of field lines
+        for i in range(1, num_field_lines + 2):
+            plt.plot(np.array([start_point_cal[0],self.plate_neg.z_plane]),[start_point_cal[1],start_point_cal[1]], c='g')
+            # setting the new start values for the next list
+            start_point_cal = start_p + (delta * i)
+        # building up the 2D plot
+        x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
+        plt.plot(x1, y1, marker='o', c='r')
+        x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
+        plt.plot(x2, y2, marker='o', c='b')
+        # set the right title
+        plt.title('Full static field')
+        plt.show()
 
     def plotting_plates_vectors_force(self):
         # plotting the 3D room of the electrons and their vectors

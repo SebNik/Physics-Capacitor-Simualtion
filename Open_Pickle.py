@@ -16,5 +16,6 @@ if __name__ == "__main__":
     # getting the field lines
     cap.set_self_path(path='D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\21_11_2020__15_17_43_bigger_d')
     cap.plate_neg.move_plane_on_z_plane(new_z_plane=0.015)
+    cap.plot_field_lines_static(num_field_lines=15)
     x = np.linspace(0.0001, cap.plate_neg.x_length - 0.0001, 3) + cap.p1[0]
     ar = cap.plot_field_lines(x_plane=x, num_field_lines=15, delta_m=0.00001)
