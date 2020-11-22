@@ -296,6 +296,10 @@ class Plate_Capacitor:
             plt.close()
             plt.clf()
 
+    def set_self_path(self, path):
+        # setting the base path
+        self.path = path
+
     def sim(self):
         # this function is simulating the sates and stopping with stable state
         # creating the path for saving the data
@@ -399,6 +403,7 @@ class Plate_Capacitor:
                 count = 0
                 # setting up and test particle to find line
                 p_test = Particle(x=start_point_cal[0], y=start_point_cal[1], z=start_point_cal[2], type_c='+')
+                # p_test.set_charge_to_fraction(f=0.0001)
                 # building the while loop for the stopping point
                 while p_test.get_z() <= self.plate_neg.z_plane:
                     # setting force sum vector
@@ -407,13 +412,13 @@ class Plate_Capacitor:
                     # negative plate
                     for e_n in self.plate_neg.matrix.flatten():
                         if self.same_position_of_particles(e1=e_n, e2=p_test):
-                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
+                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force_q(
                                 particle=e_n)
                             sum_forces += force_vector
                     # positive plate
                     for e_p in self.plate_pos.matrix.flatten():
                         if self.same_position_of_particles(e1=e_p, e2=p_test):
-                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force(
+                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force_q(
                                 particle=e_p)
                             sum_forces += force_vector
                     # getting the unit vector
@@ -565,6 +570,7 @@ class Plate_Capacitor:
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
         # plotting out the room
+        plt.savefig('test.png', dpi=250)
         plt.show()
 
     @property

@@ -29,11 +29,13 @@ class Particle:
         # setting id for identification
         self._id = uuid.uuid4()
         # setting factor k for force cal
-        self.__k = (abs(self.__charge) * abs(self.__charge)) / (4 * pi * physical_constants['vacuum electric permittivity'][0])
+        self.__k = (abs(self.__charge) * abs(self.__charge)) / (
+                    4 * pi * physical_constants['vacuum electric permittivity'][0])
 
     def cal_force(self, particle):
         # finding out the force between the two particles
-        force = (1 / (((particle.__x - self.__x) ** 2) + ((particle.__y - self.__y) ** 2) + ((particle.__z - self.__z) ** 2))) * self.__k
+        force = (1 / (((particle.__x - self.__x) ** 2) + ((particle.__y - self.__y) ** 2) + (
+                    (particle.__z - self.__z) ** 2))) * self.__k
         # print("Force: ", force)
         # finding the vector for the force
         # setting unit vector for force
@@ -54,6 +56,36 @@ class Particle:
         force_vector_z = np.array([0, 0, force_vector[2]])
         # returning all vectors
         return force, force_vector, force_vector_x, force_vector_y, force_vector_z
+
+    def cal_force_q(self, particle):
+        # finding out the force between the two particles
+        force = (1 / (((particle.__x - self.__x) ** 2) + ((particle.__y - self.__y) ** 2) + (
+                    (particle.__z - self.__z) ** 2))) * ((abs(self.__charge) * abs(particle.__charge)) / (
+                    4 * pi * physical_constants['vacuum electric permittivity'][0]))
+        # print("Force: ", force)
+        # finding the vector for the force
+        # setting unit vector for force
+        unit_force_vector = np.array(
+            [particle.__x - self.__x, particle.__y - self.__y, particle.__z - self.__z]) / np.linalg.norm(
+            np.array([particle.__x - self.__x, particle.__y - self.__y, particle.__z - self.__z]))
+        # print("Unit Vector force: ", unit_force_vector)
+        # # setting the direction
+        if particle.type == self.type:
+            unit_force_vector = unit_force_vector * -1
+        # setting the force vector
+        force_vector = unit_force_vector * force
+        # print("Full force vector: ", force_vector)
+        # getting angle for vx and vy cal
+        # setting values
+        force_vector_x = np.array([force_vector[0], 0, 0])
+        force_vector_y = np.array([0, force_vector[1], 0])
+        force_vector_z = np.array([0, 0, force_vector[2]])
+        # returning all vectors
+        return force, force_vector, force_vector_x, force_vector_y, force_vector_z
+
+    def set_charge_to_fraction(self, f):
+        # this function is setting the charge in the fraction
+        self.__charge = self.fac * physical_constants["elementary charge"][0] * f
 
     def get_x(self):
         # getting x coordinate
