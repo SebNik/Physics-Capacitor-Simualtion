@@ -187,6 +187,9 @@ class Plate:
     #             # print(x_old, y_old, e.get_x(), e.get_y())
     #     return s, x_rel, y_rel, rel_avg - 100
 
+    def sumColumn(self, m):
+        return [sum(col) for col in zip(*m)]
+
     def move_by_force_time(self, id, force, delta_t=0.001):
         # this function is moving the particle with the id by the force vector in the time t
         # setting vars for case
@@ -273,21 +276,47 @@ class Plate:
         # showing the plot
         plt.show()
 
+    def plot_density_cals(self, nbins=300):
+        # getting the calculations for density plot
+        # getting the points
+        x = np.array([e.get_x() for e in self.matrix.flatten()])
+        y = np.array([e.get_y() for e in self.matrix.flatten()])
+        # setting the cals for gaussian
+        k = kde.gaussian_kde([x, y])
+        # setting the data grid
+        xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
+        # combining all the data
+        zi = k(np.vstack([xi.flatten(), yi.flatten()]))
+        # returning all the values
+        return xi, yi, zi, x, y
+
+    def plot_density_distribution(self):
+        # plotting the distribution of density
+        # getting the data
+        xi, yi, zi, x, y = self.plot_density_cals()
+        # setting it the right way
+        zi = zi.reshape(xi.shape)
+        # combining the data
+        list_dist = self.sumColumn(m=zi)
+        # setting the title
+        plt.title('Distribution of density on plate')
+        # setting stuff
+        plt.xlabel('x profile steps')
+        plt.ylabel('added density')
+        # plotting the plots
+        plt.plot(list_dist, c='b', linewidth=2)
+        plt.show()
+
     def plot_density(self, save=False, path=None, show=True, points=True):
         # plotting the density of the points
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
-        x = np.array([e.get_x() for e in self.matrix.flatten()])
-        y = np.array([e.get_y() for e in self.matrix.flatten()])
-        nbins = 300
-        k = kde.gaussian_kde([x, y])
-        xi, yi = np.mgrid[x.min():x.max():nbins * 1j, y.min():y.max():nbins * 1j]
-        zi = k(np.vstack([xi.flatten(), yi.flatten()]))
-        # print(xi, yi, zi)
+        # getting the data
+        xi, yi, zi, x, y = self.plot_density_cals()
         # plot a density
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap='viridis', shading='auto')
+        plt.colorbar()
         if points:
             plt.scatter(x, y, c='r', alpha=0.1)
-        # plt.colorbar()
         if save:
             plt.savefig(path, dpi=100)
         if show:

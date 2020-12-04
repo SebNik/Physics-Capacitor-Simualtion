@@ -466,6 +466,7 @@ class Plate_Capacitor:
             # set the right title
             plt.title('Field Lines No. ' + str(np.where(x_plane == x_off)[0][0]) + ' X_off: ' + str(round(x_off, 3)))
             # saving the image
+            print(plt.axis())
             plt.savefig(
                 path_field_lines_2d + '\\Field_Lines_No_' + str(np.where(x_plane == x_off)[0][0]) + '_X_off_' + str(
                     round(x_off, 3)) + '.png', dpi=100)
@@ -507,7 +508,7 @@ class Plate_Capacitor:
         # returning the values
         return field_lines
 
-    def plot_field_lines_static(self, num_field_lines=10, delta_m=0.000004, show=False, logs=True, room=False):
+    def plot_field_lines_static(self, num_field_lines=10):
         # this function will plot a fully static field
         # delta to add it up on every iteration
         delta = np.array([0.0, self.plate_pos.y_length / num_field_lines])
@@ -526,6 +527,7 @@ class Plate_Capacitor:
         plt.plot(x2, y2, marker='o', c='b')
         # set the right title
         plt.title('Full static field')
+        plt.axis([0.00030000000000000003, 0.0157, 0.0019876531873855687, 0.028012346812614407])
         plt.show()
 
     def plotting_plates_vectors_force(self):
