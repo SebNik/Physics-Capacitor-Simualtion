@@ -508,6 +508,139 @@ class Plate_Capacitor:
         # returning the values
         return field_lines
 
+    def plot_field_lines_integral_calculation(self, path=None, num_field_lines=10, delta_m=0.000004, x_plane=None, show=False, logs=True,room=False):
+        # this function is going to build the field lines for the plot
+        # # setting up the path
+        path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
+        path_field_lines_3d = os.path.abspath(os.path.join(self.path, 'Field_Lines_3D'))
+        # create folder for saves
+        if not os.path.isdir(path_field_lines_2d):
+            os.mkdir(path_field_lines_2d)
+        if not os.path.isdir(path_field_lines_3d):
+            os.mkdir(path_field_lines_3d)
+        # building the field lines
+        field_lines = []
+        # delta to add it up on every iteration
+        delta = np.array([0.0, self.plate_pos.y_length / num_field_lines, 0.0])
+        # iteration over the different z planes
+        for x_off in x_plane:
+            # getting the start point on the bottom
+            start_p = np.array([x_off, self._p1[1], self.plate_pos.z_plane])
+            start_point_cal = start_p
+            # iterating over length of plate and number of field lines
+            for i in range(1, num_field_lines + 2):
+                if logs:
+                    print("Starting field line cal: ", start_point_cal)
+                # setting the points data list for this one field line
+                points_data = []
+                # setting count for print out
+                count = 0
+                # setting up and test particle to find line
+                p_test = Particle(x=start_point_cal[0], y=start_point_cal[1], z=start_point_cal[2], type_c='+')
+                # p_test.set_charge_to_fraction(f=0.0001)
+                # building the while loop for the stopping point
+                while p_test.get_z() <= self.plate_neg.z_plane:
+                    # setting force sum vector
+                    sum_forces = np.array([0.0, 0.0, 0.0])
+                    # cal forces between test particle and all real ones
+                    # negative plate
+                    for e_n in self.plate_neg.matrix.flatten():
+                        if self.same_position_of_particles(e1=e_n, e2=p_test):
+                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force_q(
+                                particle=e_n)
+                            sum_forces += force_vector
+                    # positive plate
+                    for e_p in self.plate_pos.matrix.flatten():
+                        if self.same_position_of_particles(e1=e_p, e2=p_test):
+                            force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force_q(
+                                particle=e_p)
+                            sum_forces += force_vector
+                    # getting the unit vector
+                    unit_vector = sum_forces / np.linalg.norm(sum_forces)
+                    # getting the new vector
+                    new_force_vector = unit_vector * delta_m
+                    # setting new position
+                    x_new = p_test.get_x() + new_force_vector[0]
+                    y_new = p_test.get_y() + new_force_vector[1]
+                    z_new = p_test.get_z() + new_force_vector[2]
+                    # moving the particle by the new adjusted force vector
+                    p_test.set_x(x=x_new)
+                    p_test.set_y(y=y_new)
+                    p_test.set_z(z=z_new)
+                    # adding the new position and force in the list to the array
+                    points_data.append([x_new, y_new, z_new, sum_forces])
+                    # setting count higher
+                    count += 1
+                    if count % 100 == 0 and logs:
+                        print('Count: ', count, 'Current position: ', p_test.get_x(), p_test.get_y(), p_test.get_z(),
+                              ' distance to end: ', self.plate_neg.z_plane - p_test.get_z(), ' current force: ',
+                              sum_forces)
+                    # if self.plate_neg.z_plane - p_test.get_z() < self.z_plane_diff * 0.1:
+                    #     break
+                # setting the points data
+                points_data = np.array(points_data)[1:-1]
+                # saving the created data
+                np.savez_compressed(
+                    path_field_lines_2d + '\\e_field_lines_' + str(start_point_cal).replace(' ', '_').replace('.',
+                                                                                                              '_') + '.npz',
+                    points_data, chunksize=100)
+                # getting the forces for this particle and
+                # setting the new start values for the next list
+                start_point_cal = start_p + (delta * i)
+                # adding the new filed line in big field lines
+                field_lines.append(points_data)
+                # plotting for the 2d line plot
+                plt.plot(points_data[:, 2], points_data[:, 1], c='g')
+            # building up the 2D plot
+            x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
+            plt.plot(x1, y1, marker='o', c='r')
+            x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
+            plt.plot(x2, y2, marker='o', c='b')
+            # set the right title
+            plt.title('Field Lines No. ' + str(np.where(x_plane == x_off)[0][0]) + ' X_off: ' + str(round(x_off, 3)))
+            # saving the image
+            print(plt.axis())
+            plt.savefig(
+                path_field_lines_2d + '\\Field_Lines_No_' + str(np.where(x_plane == x_off)[0][0]) + '_X_off_' + str(
+                    round(x_off, 3)) + '.png', dpi=100)
+            # showing the plot if requests
+            if show:
+                plt.show()
+            plt.close()
+        field_lines = np.array(field_lines)
+        if room:
+            #  building up the plot
+            fig = plt.figure()
+            ax = plt.axes(projection='3d')
+            # plotting the plates for better view
+            r = [self._p1[0], self._p2[0]]
+            x, y = np.meshgrid(r, r)
+            # plotting the pos plate
+            pos_z = np.full((2, 2), self.plate_pos.z_plane)
+            ax.plot_surface(x, y, pos_z, alpha=0.5, color='r')
+            # plotting the neg plate
+            neg_z = np.full((2, 2), self.plate_neg.z_plane)
+            ax.plot_surface(x, y, neg_z, alpha=0.5, color='b')
+            # plotting the field lines
+            for line in field_lines:
+                ax.plot(line[:, 0], line[:, 1], line[:, 2])
+            # setting labels
+            ax.set_xlabel('X')
+            ax.set_ylabel('Y')
+            ax.set_zlabel('Z')
+            # set the right title
+            plt.title('Field Lines 3D Plot')
+            for ev in range(0, 60, 2):
+                for ii in range(0, 180, 10):
+                    ax.view_init(elev=ev, azim=ii)
+                    # saving the image
+                    plt.savefig(path_field_lines_3d + '\\Field_Lines_3D_' + str(ev) + '_' + str(ii) + '.png', dpi=100)
+        # showing the big 3d plot
+        if show:
+            plt.show()
+        # returning the values
+        return field_lines
+
     def plot_field_lines_static(self, num_field_lines=10):
         # this function will plot a fully static field
         # delta to add it up on every iteration
