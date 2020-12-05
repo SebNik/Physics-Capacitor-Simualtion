@@ -521,7 +521,18 @@ class Plate_Capacitor:
         # building the field lines
         field_lines = []
         # delta for big space in which we check for the number density
-        delta = np.array([0.0, self.plate_pos.y_length / nbins, 0.0])
+        delta_n = np.array([self.plate_pos.y_length / nbins])
+        # getting the data for the density 2d plot for integral cal
+        xi, yi, zi, x, y = self.plate_pos.plot_density_cals(nbins=nbins)
+        # setting it the right way
+        zi = zi.reshape(xi.shape)
+
+        data_plot_density = self.sumColumn(m=zi)
+
+        print(data_plot_density)
+        # getting the area array
+        area_array = data_plot_density * delta_n
+        print(area_array)
         # iteration over the different z planes
         for x_off in x_plane:
             # getting the start point on the bottom
