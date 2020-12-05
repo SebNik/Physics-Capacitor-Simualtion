@@ -292,6 +292,7 @@ class Plate:
 
     def plot_density_distribution(self, nbins=300):
         # plotting the distribution of density
+        plt.figure(figsize=(8, 8), dpi=150, facecolor='w', edgecolor='b')
         # getting the data
         xi, yi, zi, x, y = self.plot_density_cals(nbins=nbins)
         # setting it the right way
@@ -309,7 +310,7 @@ class Plate:
 
     def plot_density(self, save=False, path=None, show=True, points=True):
         # plotting the density of the points
-        plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
+        plt.figure(figsize=(8.5, 7), dpi=150, facecolor='w', edgecolor='b')
         # getting the data
         xi, yi, zi, x, y = self.plot_density_cals()
         # plot a density

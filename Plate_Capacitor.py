@@ -332,14 +332,14 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=0.000001)
+                                                                             delta_t=0.0000001)
                 rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=0.000001)
+                                                                             delta_t=0.0000001)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
             self.rel_list.append(abs(sum(rel_avg_sum) / len(rel_avg_sum)))
@@ -537,17 +537,14 @@ class Plate_Capacitor:
         data_plot_density = self.sumColumn(m=zi)
         # getting the area array
         area_array = data_plot_density * delta_n
-        print(area_array)
         area_array_sum = area_array.sum()
-        print(area_array_sum)
         # finding out how many field lines per delta_n
         num_field_lines_in_area = []
         for area in area_array:
             num_field_lines_in_area.append(int((area * num_field_lines) / area_array_sum))
         # testing the data
-        print(num_field_lines_in_area)
+        # print(num_field_lines_in_area)
         check_real_field_lines = sum(num_field_lines_in_area)
-        print(check_real_field_lines)
         # setting the separated delta for all bins
         delta_bins = delta_n / num_field_lines_in_area
         # iteration over the different z planes
@@ -562,8 +559,6 @@ class Plate_Capacitor:
                 for u in range(points_in_sector):
                     new_point = start_points_list[-1] + np.array([0.0, delta_in_sector, 0.0])
                     start_points_list.append(new_point)
-            print(start_points_list)
-            print(len(start_points_list))
             # iterating over length of plate and number of field lines
             for i in range(0, len(start_points_list)):
                 start_point_cal = start_points_list[i]
@@ -637,7 +632,7 @@ class Plate_Capacitor:
             print(plt.axis())
             plt.savefig(
                 path_field_lines_2d + '\\Field_Lines_No_' + str(np.where(x_plane == x_off)[0][0]) + '_X_off_' + str(
-                    round(x_off, 3)) + '.png', dpi=100)
+                    round(x_off, 3)) + '.png', dpi=150)
             # showing the plot if requests
             if show:
                 plt.show()
