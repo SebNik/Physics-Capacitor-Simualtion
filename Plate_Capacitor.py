@@ -560,9 +560,9 @@ class Plate_Capacitor:
                     start_points_list.append(new_point)
             print(start_points_list)
             print(len(start_points_list))
-            start_point_cal = start_p
             # iterating over length of plate and number of field lines
-            for i in range(1, num_field_lines + 2):
+            for i in range(0, len(start_points_list)):
+                start_point_cal = start_points_list[i]
                 if logs:
                     print("Starting field line cal: ", start_point_cal)
                 # setting the points data list for this one field line
@@ -618,9 +618,6 @@ class Plate_Capacitor:
                     path_field_lines_2d + '\\e_field_lines_' + str(start_point_cal).replace(' ', '_').replace('.',
                                                                                                               '_') + '.npz',
                     points_data, chunksize=100)
-                # getting the forces for this particle and
-                # setting the new start values for the next list
-                start_point_cal = start_p + (delta * i)
                 # adding the new filed line in big field lines
                 field_lines.append(points_data)
                 # plotting for the 2d line plot
