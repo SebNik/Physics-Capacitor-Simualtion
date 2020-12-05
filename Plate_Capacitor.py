@@ -374,6 +374,9 @@ class Plate_Capacitor:
         plt.savefig(self.path + '\\sim.png', dpi=100)
         print('Sim done')
 
+    def sumColumn(self, m):
+        return [sum(col) for col in zip(*m)]
+
     def plot_field_lines(self, path=None, num_field_lines=10, delta_m=0.000004, x_plane=None, show=False, logs=True,
                          room=False):
         # this function is going to build the field lines for the plot
@@ -508,7 +511,7 @@ class Plate_Capacitor:
         # returning the values
         return field_lines
 
-    def plot_field_lines_integral_calculation(self, num_field_lines=10, delta_m=0.000004, nbins=30, x_plane=None, show=False, logs=True,room=False):
+    def plot_field_lines_integral_calculation(self, num_field_lines=100, delta_m=0.000004, nbins=30, x_plane=None, show=False, logs=True,room=False):
         # this function is going to build the field lines for the plot
         # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
@@ -526,17 +529,37 @@ class Plate_Capacitor:
         xi, yi, zi, x, y = self.plate_pos.plot_density_cals(nbins=nbins)
         # setting it the right way
         zi = zi.reshape(xi.shape)
-
+        # combing zi in one dimension array
         data_plot_density = self.sumColumn(m=zi)
-
-        print(data_plot_density)
         # getting the area array
         area_array = data_plot_density * delta_n
         print(area_array)
+        area_array_sum = area_array.sum()
+        print(area_array_sum)
+        # finding out how many field lines per delta_n
+        num_field_lines_in_area = []
+        for area in area_array:
+            num_field_lines_in_area.append(int((area*num_field_lines)/area_array_sum))
+        # testing the data
+        print(num_field_lines_in_area)
+        check_real_field_lines = sum(num_field_lines_in_area)
+        print(check_real_field_lines)
+        # setting the separated delta for all bins
+        delta_bins = delta_n/num_field_lines_in_area
         # iteration over the different z planes
         for x_off in x_plane:
             # getting the start point on the bottom
             start_p = np.array([x_off, self._p1[1], self.plate_pos.z_plane])
+            # now starting to set all the relevant points for sim in field lines
+            start_points_list=[start_p]
+            for o in range(0,nbins):
+                points_in_sector = num_field_lines_in_area[o]
+                delta_in_sector = delta_bins[o]
+                for u in range(points_in_sector):
+                    new_point = start_points_list[-1]+ np.array([0.0, delta_in_sector, 0.0])
+                    start_points_list.append(new_point)
+            print(start_points_list)
+            print(len(start_points_list))
             start_point_cal = start_p
             # iterating over length of plate and number of field lines
             for i in range(1, num_field_lines + 2):

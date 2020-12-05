@@ -13,10 +13,10 @@ if __name__ == "__main__":
     #                       plane_z_neg=[0.004],
     #                       random=False)
     # cap.sim()
-    cap.plate_neg.plot_density_distribution(nbins=300)
+    # cap.plate_neg.plot_density_distribution(nbins=300)
     # cap.plate_neg.plot_density()
     x = np.linspace(0.0001, cap.plate_neg.x_length - 0.0001, 3) + cap.p1[0]
-    cap.plot_field_lines_integral_calculation(x_plane=x, num_field_lines=15, delta_m=0.00001)
+    cap.plot_field_lines_integral_calculation(x_plane=x)
 
     # getting the field lines
     # cap.set_self_path(path='D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\21_11_2020__15_17_43_bigger_d')
