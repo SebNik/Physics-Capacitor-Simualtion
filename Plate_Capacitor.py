@@ -511,14 +511,18 @@ class Plate_Capacitor:
         # returning the values
         return field_lines
 
-    def plot_field_lines_integral_calculation(self, num_field_lines=100, delta_m=0.000004, nbins=30, x_plane=None, show=False, logs=True,room=False):
+    def plot_field_lines_integral_calculation(self, num_field_lines=100, delta_m=0.000004, nbins=30, x_plane=None,
+                                              show=False, logs=True, room=False):
         # this function is going to build the field lines for the plot
         # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
+        path_field_lines_2d_data = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D_DATA'))
         path_field_lines_3d = os.path.abspath(os.path.join(self.path, 'Field_Lines_3D'))
         # create folder for saves
         if not os.path.isdir(path_field_lines_2d):
             os.mkdir(path_field_lines_2d)
+        if not os.path.isdir(path_field_lines_2d_data):
+            os.mkdir(path_field_lines_2d_data)
         if not os.path.isdir(path_field_lines_3d):
             os.mkdir(path_field_lines_3d)
         # building the field lines
@@ -539,24 +543,24 @@ class Plate_Capacitor:
         # finding out how many field lines per delta_n
         num_field_lines_in_area = []
         for area in area_array:
-            num_field_lines_in_area.append(int((area*num_field_lines)/area_array_sum))
+            num_field_lines_in_area.append(int((area * num_field_lines) / area_array_sum))
         # testing the data
         print(num_field_lines_in_area)
         check_real_field_lines = sum(num_field_lines_in_area)
         print(check_real_field_lines)
         # setting the separated delta for all bins
-        delta_bins = delta_n/num_field_lines_in_area
+        delta_bins = delta_n / num_field_lines_in_area
         # iteration over the different z planes
         for x_off in x_plane:
             # getting the start point on the bottom
             start_p = np.array([x_off, self._p1[1], self.plate_pos.z_plane])
             # now starting to set all the relevant points for sim in field lines
-            start_points_list=[start_p]
-            for o in range(0,nbins):
+            start_points_list = [start_p]
+            for o in range(0, nbins):
                 points_in_sector = num_field_lines_in_area[o]
                 delta_in_sector = delta_bins[o]
                 for u in range(points_in_sector):
-                    new_point = start_points_list[-1]+ np.array([0.0, delta_in_sector, 0.0])
+                    new_point = start_points_list[-1] + np.array([0.0, delta_in_sector, 0.0])
                     start_points_list.append(new_point)
             print(start_points_list)
             print(len(start_points_list))
@@ -615,8 +619,8 @@ class Plate_Capacitor:
                 points_data = np.array(points_data)[1:-1]
                 # saving the created data
                 np.savez_compressed(
-                    path_field_lines_2d + '\\e_field_lines_' + str(start_point_cal).replace(' ', '_').replace('.',
-                                                                                                              '_') + '.npz',
+                    path_field_lines_2d_data + '\\e_field_lines_' + str(start_point_cal).replace(' ', '_').replace('.',
+                                                                                                                   '_') + '.npz',
                     points_data, chunksize=100)
                 # adding the new filed line in big field lines
                 field_lines.append(points_data)
@@ -681,7 +685,8 @@ class Plate_Capacitor:
         start_point_cal = start_p
         # iterating over length of plate and number of field lines
         for i in range(1, num_field_lines + 2):
-            plt.plot(np.array([start_point_cal[0],self.plate_neg.z_plane]),[start_point_cal[1],start_point_cal[1]], c='g')
+            plt.plot(np.array([start_point_cal[0], self.plate_neg.z_plane]), [start_point_cal[1], start_point_cal[1]],
+                     c='g')
             # setting the new start values for the next list
             start_point_cal = start_p + (delta * i)
         # building up the 2D plot
