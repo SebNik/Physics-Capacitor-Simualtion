@@ -290,10 +290,10 @@ class Plate:
         # returning all the values
         return xi, yi, zi, x, y
 
-    def plot_density_distribution(self):
+    def plot_density_distribution(self, nbins=300):
         # plotting the distribution of density
         # getting the data
-        xi, yi, zi, x, y = self.plot_density_cals()
+        xi, yi, zi, x, y = self.plot_density_cals(nbins=nbins)
         # setting it the right way
         zi = zi.reshape(xi.shape)
         # combining the data

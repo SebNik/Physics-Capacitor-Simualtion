@@ -13,7 +13,7 @@ if __name__ == "__main__":
     #                       plane_z_neg=[0.004],
     #                       random=False)
     # cap.sim()
-    cap.plate_neg.plot_density_distribution()
+    cap.plate_neg.plot_density_distribution(nbins=30)
     cap.plate_neg.plot_density()
     # getting the field lines
     # cap.set_self_path(path='D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\21_11_2020__15_17_43_bigger_d')

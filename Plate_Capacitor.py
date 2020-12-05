@@ -508,9 +508,9 @@ class Plate_Capacitor:
         # returning the values
         return field_lines
 
-    def plot_field_lines_integral_calculation(self, path=None, num_field_lines=10, delta_m=0.000004, x_plane=None, show=False, logs=True,room=False):
+    def plot_field_lines_integral_calculation(self, num_field_lines=10, delta_m=0.000004, nbins=30, x_plane=None, show=False, logs=True,room=False):
         # this function is going to build the field lines for the plot
-        # # setting up the path
+        # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
         path_field_lines_3d = os.path.abspath(os.path.join(self.path, 'Field_Lines_3D'))
         # create folder for saves
@@ -520,8 +520,8 @@ class Plate_Capacitor:
             os.mkdir(path_field_lines_3d)
         # building the field lines
         field_lines = []
-        # delta to add it up on every iteration
-        delta = np.array([0.0, self.plate_pos.y_length / num_field_lines, 0.0])
+        # delta for big space in which we check for the number density
+        delta = np.array([0.0, self.plate_pos.y_length / nbins, 0.0])
         # iteration over the different z planes
         for x_off in x_plane:
             # getting the start point on the bottom
