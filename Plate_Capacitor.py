@@ -527,29 +527,32 @@ class Plate_Capacitor:
             os.mkdir(path_field_lines_3d)
         # building the field lines
         field_lines = []
-        # delta for big space in which we check for the number density
-        delta_n = np.array([self.plate_pos.y_length / nbins])
-        # getting the data for the density 2d plot for integral cal
-        xi, yi, zi, x, y = self.plate_pos.plot_density_cals(nbins=nbins)
-        # setting it the right way
-        zi = zi.reshape(xi.shape)
-        # combing zi in one dimension array
-        data_plot_density = self.sumColumn(m=zi)
         # loading the fake dist in data_plot_density
         if fake_dist:
             data_plot_density, nbins = self.plate_neg.plot_density_cals_fake(path=path_fake_dist)
             # RESET delta for big space in which we check for the number density
             delta_n = np.array([self.plate_pos.y_length / nbins])
+            print(nbins, data_plot_density)
+        else:
+            # delta for big space in which we check for the number density
+            delta_n = np.array([self.plate_pos.y_length / nbins])
+            # getting the data for the density 2d plot for integral cal
+            xi, yi, zi, x, y = self.plate_pos.plot_density_cals(nbins=nbins)
+            # setting it the right way
+            zi = zi.reshape(xi.shape)
+            # combing zi in one dimension array
+            data_plot_density = self.sumColumn(m=zi)
         # getting the area array
         area_array = data_plot_density * delta_n
         area_array_sum = area_array.sum()
         # finding out how many field lines per delta_n
         num_field_lines_in_area = []
         for area in area_array:
-            num_field_lines_in_area.append(int((area * num_field_lines) / area_array_sum))
+            num_field_lines_in_area.append(int((area * num_field_lines) / area_array_sum)+1)
         # testing the data
-        # print(num_field_lines_in_area)
+        print(num_field_lines_in_area)
         check_real_field_lines = sum(num_field_lines_in_area)
+        print(check_real_field_lines)
         # setting the separated delta for all bins
         delta_bins = delta_n / num_field_lines_in_area
         # iteration over the different z planes
