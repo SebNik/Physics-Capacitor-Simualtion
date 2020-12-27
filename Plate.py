@@ -1,6 +1,7 @@
 # this file is working with the negative plate
 import uuid
 import numpy as np
+import pandas as pd
 from scipy.stats import kde
 from Particle import Particle
 import matplotlib.pyplot as plt
@@ -290,6 +291,14 @@ class Plate:
         # returning all the values
         return xi, yi, zi, x, y
 
+    def plot_density_cals_fake(self, path):
+        # this function will read in an excel file as an distributions function to the field line cals
+        # reading in the pandas dataframe from file
+        df = pd.read_excel(path, index_col=0)
+        # returning the data from excel file
+        return df['y'].to_numpy(), int(df['y'].to_numpy().shape[0])
+
+
     def plot_density_distribution(self, nbins=300):
         # plotting the distribution of density
         plt.figure(figsize=(8, 8), dpi=150, facecolor='w', edgecolor='b')
@@ -299,6 +308,7 @@ class Plate:
         zi = zi.reshape(xi.shape)
         # combining the data
         list_dist = self.sumColumn(m=zi)
+        # list_dist, nbins = self.plot_density_cals_fake(path="C:\\Users\\lordv\\Documents\\Data_Density_Plot.xlsx")
         # setting the title
         plt.title('Distribution of density on plate')
         # setting stuff

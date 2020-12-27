@@ -512,7 +512,7 @@ class Plate_Capacitor:
         return field_lines
 
     def plot_field_lines_integral_calculation(self, num_field_lines=100, delta_m=0.000004, nbins=30, x_plane=None,
-                                              show=False, logs=True, room=False):
+                                              show=False, logs=True, room=False, fake_dist=False, path_fake_dist=None):
         # this function is going to build the field lines for the plot
         # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
@@ -535,6 +535,11 @@ class Plate_Capacitor:
         zi = zi.reshape(xi.shape)
         # combing zi in one dimension array
         data_plot_density = self.sumColumn(m=zi)
+        # loading the fake dist in data_plot_density
+        if fake_dist:
+            data_plot_density, nbins = self.plate_neg.plot_density_cals_fake(path=path_fake_dist)
+            # RESET delta for big space in which we check for the number density
+            delta_n = np.array([self.plate_pos.y_length / nbins])
         # getting the area array
         area_array = data_plot_density * delta_n
         area_array_sum = area_array.sum()

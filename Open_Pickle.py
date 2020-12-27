@@ -11,10 +11,16 @@ if __name__ == "__main__":
     # cap = pickle.load(open(path, "rb", -1))
     # cap.set_self_path(
     #     path='D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\21_11_2020__15_17_43_integral_big_d')
-    cap = Plate_Capacitor(n_neg=20, n_pos=20, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
+    cap = Plate_Capacitor(n_neg=15, n_pos=15, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
                           plane_z_neg=[0.004],
                           random=False)
-    cap.sim()
+    cap.plate_neg.plot_density_distribution()
+
+    # path = 'D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\21_11_2020__15_17_43\\class.pickle'
+    # # path open an old pickle file
+    # cap = pickle.load(open(path, "rb", -1))
+    #
+    # cap.plate_neg.plot_density_distribution()
     # print(cap.plate_neg.z_plane)
     # # cap.plate_neg.move_plane_on_z_plane(new_z_plane=0.01)
     # cap.plate_neg.plot_density_distribution(nbins=300)
