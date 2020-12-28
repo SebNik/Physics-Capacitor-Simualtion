@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # path = 'D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\exports\\21_11_2020__15_17_43_fake_dist\\class.pickle'
     # # path open an old pickle file
     # cap = pickle.load(open(path, "rb", -1))
-    cap = Plate_Capacitor(n_neg=10, n_pos=10, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
+    cap = Plate_Capacitor(n_neg=16, n_pos=16, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
                           plane_z_neg=[0.004],
                           random=False)
     cap.sim()

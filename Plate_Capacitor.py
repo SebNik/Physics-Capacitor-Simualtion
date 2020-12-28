@@ -378,7 +378,7 @@ class Plate_Capacitor:
         # setting the base path
         self.path = path
 
-    def sim(self, t=0.000001):
+    def sim(self, t=0.0000003):
         # this function is simulating the sates and stopping with stable state
         # creating the path for saving the data
         path_density_neg = os.path.abspath(os.path.join(self.path, 'Neg_Density'))
