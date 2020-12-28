@@ -332,7 +332,7 @@ class Plate:
                     else:
                         color.append('b')
         # plotting particles
-        plt.scatter(x, y, c=color)
+        plt.scatter(x, y, c=color, alpha=0.5)
         if save:
             plt.savefig(path, dpi=100)
         if show:

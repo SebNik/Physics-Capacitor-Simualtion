@@ -125,11 +125,11 @@ class Plate_Capacitor:
         # -------------------------- PLANE POSITIVE PARTICLES ----------------------------
         # setting the forces for the positive particles
         for e in self.plate_neg.matrix.flatten():
-            new_force_vector = force_dic_neg[e.get_id()] * np.array([1, 1, -1])
+            new_force_vector = force_dic_neg[str(e.get_id())] * np.array([1, 1, -1])
             for e_p in self.plate_pos.matrix.flatten():
                 if e.get_x() == e_p.get_x() and e.get_y() == e_p.get_y():
                     force_list_pos.append(new_force_vector)
-                    force_dic_pos[e_p.get_id()] = new_force_vector
+                    force_dic_pos[str(e_p.get_id())] = new_force_vector
         # returning all values
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
@@ -361,7 +361,7 @@ class Plate_Capacitor:
         # setting the base path
         self.path = path
 
-    def sim(self):
+    def sim(self, t=0.000001):
         # this function is simulating the sates and stopping with stable state
         # creating the path for saving the data
         path_density_neg = os.path.abspath(os.path.join(self.path, 'Neg_Density'))
@@ -385,7 +385,7 @@ class Plate_Capacitor:
         sma_list = [1]
         while sma_list[-1] > 2e-05:
             # getting the forces for all the particles
-            force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces_optimised()
+            force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces_optimised()  # 20:52--21:03 (11min)-->133 (old) || 21:03--21:14 (11min)-->217 (new)
             # setting status sim to 0
             rel_avg_sum = []
             # moving all the particles by their force on the neg plate
@@ -393,20 +393,20 @@ class Plate_Capacitor:
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_neg.move_by_force_time(id=str(e_n.get_id()),
                                                                              force=force_dic_neg[str(e_n.get_id())],
-                                                                             delta_t=0.0000001)
+                                                                             delta_t=t)
                 rel_avg_sum.append(rel_avg)
             # moving all the particles by their force on the pos plate
             for e_p in self.plate_pos.matrix.flatten():
                 # moving the particle
                 s, x_rel, y_rel, rel_avg = self.plate_pos.move_by_force_time(id=str(e_p.get_id()),
                                                                              force=force_dic_pos[str(e_p.get_id())],
-                                                                             delta_t=0.0000001)
+                                                                             delta_t=t)
                 rel_avg_sum.append(rel_avg)
             # setting indicators
             self.rel_list.append(abs(sum(rel_avg_sum) / len(rel_avg_sum)))
             i += 1
             # checking if every 10th sav image of plot
-            if i % 10 == 0:
+            if i % 5 == 0:
                 # plotting particles and density and saving them
                 self.plate_neg.plot_density_3d(save=True,
                                                path=path_density_neg_3d + '\\Plate_Neg_' + str(i) + '_3D_Density.png',
@@ -840,8 +840,8 @@ class Plate_Capacitor:
 
 if __name__ == "__main__":
     # setting up an instances for test
-    cap = Plate_Capacitor(n_neg=10, n_pos=7, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
-                          plane_z_neg=[0.002],
+    cap = Plate_Capacitor(n_neg=10, n_pos=10, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
+                          plane_z_neg=[0.004],
                           random=False)
     # plotting the room
     # cap.plotting_plates()
@@ -856,6 +856,8 @@ if __name__ == "__main__":
     # cap.plate_neg.plot_matrix_particles()
     # cap.plate_neg.plot_density()
     # starting sim
+    # force_list_neg, force_dic_neg_old, force_list_pos, force_dic_pos_old = cap.cal_forces()
+    force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = cap.cal_forces_optimised()
     cap.sim()
     # building analysis
     # cap.analysis(resolution=100)
