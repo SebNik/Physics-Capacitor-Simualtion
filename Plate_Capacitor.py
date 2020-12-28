@@ -74,41 +74,63 @@ class Plate_Capacitor:
 
     def cal_forces_optimised(self):
         # this function is calculating all the forces for the particles faster
+        # -------------------------- SET -------------------------
         # setting lists with force vectors and dic
         force_list_neg = []
         force_dic_neg = {}
         force_list_pos = []
         force_dic_pos = {}
+        # get relevant corresponding information
+        corresponding_info_particles_neg, corresponding_state_info_particles_neg = self.plate_neg.find_corresponding_particles()
+        corresponding_info_particles_pos, corresponding_state_info_particles_pos = self.plate_pos.find_corresponding_particles()
+        # -------------------------- INNER FORCES -------------------------
         # getting inner forces
-        inner_list_neg, inner_dic_neg = self.plate_neg.get_inner_forces()
-        inner_list_pos, inner_dic_pos = self.plate_pos.get_inner_forces()
-        # -------------------------- Negative Plane -------------------------
+        inner_list_neg, inner_dic_neg = self.plate_neg.get_inner_forces_optimised(
+            corresponding_particles_information=[corresponding_info_particles_neg,
+                                                 corresponding_state_info_particles_neg])
+        inner_list_pos, inner_dic_pos = self.plate_pos.get_inner_forces_optimised(
+            corresponding_particles_information=[corresponding_info_particles_pos,
+                                                 corresponding_state_info_particles_pos])
+        # -------------------------- RELEVANT PLANE PARTICLES -------------------------
         # getting forces for each electron with the positive charge and then adding it to inner forces
         for e_n in self.plate_neg.matrix.flatten():
-            force_sum_neg = np.array([0.0, 0.0, 0.0])
-            # now going through positive plane
+            if e_n.get_id() in corresponding_info_particles_neg.keys():
+                force_sum_neg = np.array([0.0, 0.0, 0.0])
+                # now going through positive plane
+                for e_p in self.plate_pos.matrix.flatten():
+                    force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_n.cal_force(particle=e_p)
+                    force_sum_neg += force_vector
+                # adding force_sum and inner force together
+                force_sum_neg += inner_dic_neg[str(e_n.get_id())]
+                # adding the force sum of all in list and dic
+                force_list_neg.append(force_sum_neg)
+                force_dic_neg[str(e_n.get_id())] = force_sum_neg
+        # -------------------------- NON RELEVANT PLANE PARTICLES ------------------------------------
+        # setting the other non relevant particles some forces vectors too
+        new_force_vector = None
+        for id_relevant in corresponding_info_particles_neg:
+            ids_non_relevant = corresponding_info_particles_neg[id_relevant]
+            original_force_vector = force_dic_neg[str(id_relevant)]
+            for id in ids_non_relevant:
+                state = corresponding_state_info_particles_neg[id]
+                # setting the new force vector
+                if state == 'x':
+                    new_force_vector = original_force_vector * np.array([-1, 1, 1])
+                elif state == 'y':
+                    new_force_vector = original_force_vector * np.array([1, -1, 1])
+                elif state == 'xy':
+                    new_force_vector = original_force_vector * np.array([-1, -1, 1])
+                force_dic_neg[str(id)] = new_force_vector
+                force_list_neg.append(new_force_vector)
+        # -------------------------- PLANE POSITIVE PARTICLES ----------------------------
+        # setting the forces for the positive particles
+        for e in self.plate_neg.matrix.flatten():
+            new_force_vector = force_dic_neg[e.get_id()] * np.array([1, 1, -1])
             for e_p in self.plate_pos.matrix.flatten():
-                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_n.cal_force(particle=e_p)
-                force_sum_neg += force_vector
-            # adding force_sum and inner force together
-            force_sum_neg += inner_dic_neg[str(e_n.get_id())]
-            # adding the force sum of all in list and dic
-            force_list_neg.append(force_sum_neg)
-            force_dic_neg[str(e_n.get_id())] = force_sum_neg
-        # -------------------------- Positive Plane -------------------------
-        # getting forces for each electron with the positive charge and then adding it to inner forces
-        for e_n in self.plate_pos.matrix.flatten():
-            force_sum_pos = np.array([0.0, 0.0, 0.0])
-            # now going through positive plane
-            for e_p in self.plate_neg.matrix.flatten():
-                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_n.cal_force(particle=e_p)
-                force_sum_pos += force_vector
-            # adding force_sum and inner force together
-            force_sum_pos += inner_dic_pos[str(e_n.get_id())]
-            # adding the force sum of all in list and dic
-            force_list_pos.append(force_sum_pos)
-            force_dic_pos[str(e_n.get_id())] = force_sum_pos
-        # returning all vales
+                if e.get_x() == e_p.get_x() and e.get_y() == e_p.get_y():
+                    force_list_pos.append(new_force_vector)
+                    force_dic_pos[e_p.get_id()] = new_force_vector
+        # returning all values
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
     def same_position_of_particles(self, e1, e2):
@@ -363,7 +385,7 @@ class Plate_Capacitor:
         sma_list = [1]
         while sma_list[-1] > 2e-05:
             # getting the forces for all the particles
-            force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces()
+            force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces_optimised()
             # setting status sim to 0
             rel_avg_sum = []
             # moving all the particles by their force on the neg plate
@@ -587,7 +609,7 @@ class Plate_Capacitor:
         # finding out how many field lines per delta_n
         num_field_lines_in_area = []
         for area in area_array:
-            num_field_lines_in_area.append(int((area * num_field_lines) / area_array_sum)+1)
+            num_field_lines_in_area.append(int((area * num_field_lines) / area_array_sum) + 1)
         # testing the data
         print(num_field_lines_in_area)
         check_real_field_lines = sum(num_field_lines_in_area)

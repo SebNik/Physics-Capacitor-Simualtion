@@ -196,6 +196,7 @@ class Plate:
                 elif state == 'xy':
                     new_force_vector = original_force_vector * np.array([-1, -1, 1])
                 forces_dic[str(id)] = new_force_vector
+                forces_list.append(new_force_vector)
         # returning values
         return forces_list, forces_dic
 
