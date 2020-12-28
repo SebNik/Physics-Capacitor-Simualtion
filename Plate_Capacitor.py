@@ -72,6 +72,45 @@ class Plate_Capacitor:
         # returning all vales
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
+    def cal_forces_optimised(self):
+        # this function is calculating all the forces for the particles faster
+        # setting lists with force vectors and dic
+        force_list_neg = []
+        force_dic_neg = {}
+        force_list_pos = []
+        force_dic_pos = {}
+        # getting inner forces
+        inner_list_neg, inner_dic_neg = self.plate_neg.get_inner_forces()
+        inner_list_pos, inner_dic_pos = self.plate_pos.get_inner_forces()
+        # -------------------------- Negative Plane -------------------------
+        # getting forces for each electron with the positive charge and then adding it to inner forces
+        for e_n in self.plate_neg.matrix.flatten():
+            force_sum_neg = np.array([0.0, 0.0, 0.0])
+            # now going through positive plane
+            for e_p in self.plate_pos.matrix.flatten():
+                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_n.cal_force(particle=e_p)
+                force_sum_neg += force_vector
+            # adding force_sum and inner force together
+            force_sum_neg += inner_dic_neg[str(e_n.get_id())]
+            # adding the force sum of all in list and dic
+            force_list_neg.append(force_sum_neg)
+            force_dic_neg[str(e_n.get_id())] = force_sum_neg
+        # -------------------------- Positive Plane -------------------------
+        # getting forces for each electron with the positive charge and then adding it to inner forces
+        for e_n in self.plate_pos.matrix.flatten():
+            force_sum_pos = np.array([0.0, 0.0, 0.0])
+            # now going through positive plane
+            for e_p in self.plate_neg.matrix.flatten():
+                force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_n.cal_force(particle=e_p)
+                force_sum_pos += force_vector
+            # adding force_sum and inner force together
+            force_sum_pos += inner_dic_pos[str(e_n.get_id())]
+            # adding the force sum of all in list and dic
+            force_list_pos.append(force_sum_pos)
+            force_dic_pos[str(e_n.get_id())] = force_sum_pos
+        # returning all vales
+        return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
+
     def same_position_of_particles(self, e1, e2):
         # this function is finding out if two particles have the same positions
         if e1.get_x() == e2.get_x() and e1.get_y() == e2.get_y() and e1.get_z() == e2.get_z():
@@ -345,7 +384,7 @@ class Plate_Capacitor:
             self.rel_list.append(abs(sum(rel_avg_sum) / len(rel_avg_sum)))
             i += 1
             # checking if every 10th sav image of plot
-            if i % 5 == 0:
+            if i % 10 == 0:
                 # plotting particles and density and saving them
                 self.plate_neg.plot_density_3d(save=True,
                                                path=path_density_neg_3d + '\\Plate_Neg_' + str(i) + '_3D_Density.png',

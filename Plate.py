@@ -104,6 +104,87 @@ class Plate:
         # returning values
         return forces_list, forces_dic
 
+    def find_relevant_part_of_particles(self):
+        # this function is going to find the quarter of the particles that are necessary
+        # first finding mirror axis x and y
+        mirror_axis_x = self._x_length / 2 + self._p1[0]
+        mirror_axis_y = self._y_length / 2 + self._p1[1]
+        print(mirror_axis_x, mirror_axis_y)
+        # searching for the relevant particles
+        # a particle is relevant when its coordinates are smaller than the mirror axis
+        relevant_particles_ids = []
+        for p in self.matrix.flatten():
+            if p.get_x() < mirror_axis_x and p.get_y() < mirror_axis_y:
+                relevant_particles_ids.append(p.get_id())
+        # returning the relevant data
+        return relevant_particles_ids
+
+    def find_corresponding_particles(self):
+        # this function will find the mirrored particles and their corresponding relevant particle
+        # first finding mirror axis x and y
+        mirror_axis_x = self._x_length / 2 + self._p1[0]
+        mirror_axis_y = self._y_length / 2 + self._p1[1]
+        # getting the relevant particles
+        relevant_particles_ids = self.find_relevant_part_of_particles()
+        # setting the corresponding particles
+        corresponding_particles = {}
+        state_particles = {}
+        for id_particle in relevant_particles_ids:
+            # add id to dic
+            corresponding_particles[id_particle] = []
+            for p in self.matrix.flatten():
+                if p.get_id() == id_particle:
+                    # get coordinates for the particle
+                    x, y = round(p.get_x(), 10), round(p.get_y(), 10)
+                    # mirror first on the x and y axis
+                    x_mirror = round((mirror_axis_x - x) + mirror_axis_x, 10)
+                    y_mirror = round((mirror_axis_y - y) + mirror_axis_y, 10)
+                    # checking for the mirrored particles
+                    for p_test in self.matrix.flatten():
+                        check = 'nee'
+                        # X axis mirror
+                        if round(p_test.get_x(), 10) == x_mirror and round(p_test.get_y(), 10) == y:
+                            corresponding_particles[id_particle].append(p_test.get_id())
+                            check = 'x'
+                            state_particles[p_test.get_id()] = check
+                        # Y axis mirror
+                        if round(p_test.get_x(), 10) == x and round(p_test.get_y(), 10) == y_mirror:
+                            corresponding_particles[id_particle].append(p_test.get_id())
+                            check = 'y'
+                            state_particles[p_test.get_id()] = check
+                        # XY axis mirror
+                        if round(p_test.get_x(), 10) == x_mirror and round(p_test.get_y(), 10) == y_mirror:
+                            corresponding_particles[id_particle].append(p_test.get_id())
+                            check = 'xy'
+                            state_particles[p_test.get_id()] = check
+        # returning the right value particles
+        return corresponding_particles, state_particles
+
+    def get_inner_forces_optimised(self):
+        # getting the inner force of the plate faster
+        forces_list = []
+        forces_dic = {}
+        # iterating through electrons
+        for e_cal in self.matrix.flatten():
+            force_sum = np.array([0.0, 0.0, 0.0])
+            for e_check in self.matrix.flatten():
+                if e_cal != e_check:
+                    # print(e_cal.get_id(), e_check.get_id(),e_cal.get_x(), e_check.get_x(), e_cal.get_y(),
+                    # e_check.get_y(), e_cal.get_z(), e_check.get_z())
+                    force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_cal.cal_force(
+                        particle=e_check)
+                    # print("Forces: from: ", str(e_cal.get_id()), 'to: ', str(e_check.get_id()), '--->', force,
+                    #       force_vector, force_vector_x, force_vector_y, force_vector_z)
+                    force_sum += force_vector
+                else:
+                    # print(str(e_cal.get_id()), str(e_check.get_id()))
+                    None
+            # print("Force sum: from: ", str(e_cal.get_id()), ' to: ', str(e_check.get_id()), ' --->', force_sum)
+            forces_list.append(force_sum)
+            forces_dic[str(e_cal.get_id())] = force_sum
+        # returning values
+        return forces_list, forces_dic
+
     def move_by_force_vector(self, id, force, p=1):
         # this function is moving the particle with the id by the force vector in p
         for e in self.matrix.flatten():
@@ -244,12 +325,49 @@ class Plate:
                 # print(x_old, y_old, e.get_x(), e.get_y())
         return s, x_rel, y_rel, rel_avg - 100
 
-    def plot_matrix_particles(self, save=False, path=None, show=True):
+    def plot_matrix_particles(self, save=False, path=None, show=True, highlight=None):
         # plotting the particles
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
+        # getting x,y for particles plot
         x = [e.get_x() for e in self.matrix.flatten()]
         y = [e.get_y() for e in self.matrix.flatten()]
-        plt.scatter(x, y, c='r', alpha=0.1)
+        color = []
+        if type(highlight) == dict:
+            color_list = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+            current_color = -1
+            color_relevant_particles = {}
+            for p in self.matrix.flatten():
+                if p.get_id() in highlight.keys():
+                    current_color += 1
+                    if current_color == len(color_list):
+                        current_color = 0
+                    color_relevant_particles[p.get_id()] = color_list[current_color]
+                    color.append(color_list[current_color])
+                else:
+                    state = True
+                    for test_id in highlight:
+                        if p.get_id() in highlight[test_id]:
+                            color.append(color_relevant_particles[test_id])
+                            state = False
+                    if state:
+                        color.append('w')
+        else:
+            for e in self.matrix.flatten():
+                if highlight is not None:
+                    if type(highlight) == list:
+                        if e.get_id() in highlight:
+                            color.append('g')
+                        elif e.get_charge() > 0:
+                            color.append('r')
+                        else:
+                            color.append('b')
+                else:
+                    if e.get_charge() > 0:
+                        color.append('r')
+                    else:
+                        color.append('b')
+        # plotting particles
+        plt.scatter(x, y, c=color)
         if save:
             plt.savefig(path, dpi=100)
         if show:
@@ -270,7 +388,7 @@ class Plate:
         # getting x,y for particles plot
         x = [e.get_x() for e in self.matrix.flatten()]
         y = [e.get_y() for e in self.matrix.flatten()]
-        color = ['r' if e.get_charge()>0 else 'b' for e in self.matrix.flatten()]
+        color = ['r' if e.get_charge() > 0 else 'b' for e in self.matrix.flatten()]
         # print(color)
         # plotting particles
         plt.scatter(x, y, c=color)
@@ -297,7 +415,6 @@ class Plate:
         df = pd.read_excel(path, index_col=0)
         # returning the data from excel file
         return df['y'].to_numpy(), int(df['y'].to_numpy().shape[0])
-
 
     def plot_density_distribution(self, nbins=300):
         # plotting the distribution of density
@@ -386,9 +503,13 @@ if __name__ == "__main__":
     # plotting the density of the points
     # plate_neg.plot_density()
     # getting the inner forces
-    print(np.array(plate_neg.get_inner_forces()[0]).mean())
+    # print(np.array(plate_neg.get_inner_forces()[0]).mean())
     # plotting inner forces
-    plate_neg.plot_matrix_particles_vector()
+    corresponding_particles, states = plate_neg.find_corresponding_particles()
+    for i in corresponding_particles:
+        print(i, corresponding_particles[i])
+    print(states)
+    plate_neg.plot_matrix_particles(highlight=corresponding_particles)
     # moving the particle by a force vector
     # i = str(plate_neg.matrix.flatten()[1].get_id())
     # print(i)
