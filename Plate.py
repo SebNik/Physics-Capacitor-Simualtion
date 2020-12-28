@@ -525,9 +525,9 @@ class Plate:
 
 if __name__ == "__main__":
     # getting class information
-    print(Plate)
+    # print(Plate)
     # setting instance of single plate
-    plate_neg = Plate(n=4, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='-')
+    plate_neg = Plate(n=16, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='-')
     # printing all information about it
     # print(plate_neg)
     # getting values
@@ -538,16 +538,17 @@ if __name__ == "__main__":
     # print(np.array(plate_neg.get_inner_forces()[0]).mean())
     # plotting inner forces
     # plate_neg.plot_matrix_particles_vector_old()
-    # plate_neg.plot_matrix_particles_vector_optimised()
-    # corresponding_particles, states = plate_neg.find_corresponding_particles()
-    # for i in corresponding_particles:
-    #     print(i, corresponding_particles[i])
-    # print(states)
-    # plate_neg.plot_matrix_particles(highlight=corresponding_particles)
+    plate_neg.plot_matrix_particles_vector_optimised()
+    corresponding_particles, states = plate_neg.find_corresponding_particles()
+    for i in corresponding_particles:
+        print(i, corresponding_particles[i])
+    print(states)
+    plate_neg.plot_matrix_particles(highlight=corresponding_particles)
     # running the time check
-    start_time = time.time()
-    for i in range(1000):
-        forces = plate_neg.get_inner_forces_optimised()
-        # forces = plate_neg.get_inner_forces()
-        print(forces)
-    print("--- %s seconds ---" % (time.time() - start_time))
+    # start_time = time.time()
+    # for i in range(100):
+    #     # forces = plate_neg.get_inner_forces_optimised()
+    #     forces = plate_neg.get_inner_forces()
+    #     print(i, forces)
+    # # 201sec vs. 517sec
+    # print("--- %s seconds ---" % (time.time() - start_time))
