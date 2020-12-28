@@ -1,5 +1,6 @@
 # this file is working with the negative plate
 import uuid
+import time
 import numpy as np
 import pandas as pd
 from scipy.stats import kde
@@ -109,7 +110,6 @@ class Plate:
         # first finding mirror axis x and y
         mirror_axis_x = self._x_length / 2 + self._p1[0]
         mirror_axis_y = self._y_length / 2 + self._p1[1]
-        print(mirror_axis_x, mirror_axis_y)
         # searching for the relevant particles
         # a particle is relevant when its coordinates are smaller than the mirror axis
         relevant_particles_ids = []
@@ -160,28 +160,42 @@ class Plate:
         # returning the right value particles
         return corresponding_particles, state_particles
 
-    def get_inner_forces_optimised(self):
+    def get_inner_forces_optimised(self, corresponding_particles_information=None):
         # getting the inner force of the plate faster
+        # checking if the data is there or if it has to be found
+        if corresponding_particles_information is None:
+            corresponding_particles, state_particles = self.find_corresponding_particles()
+        else:
+            corresponding_particles, state_particles = corresponding_particles_information[0], \
+                                                       corresponding_particles_information[1]
+        # setting up the dic and list
         forces_list = []
         forces_dic = {}
         # iterating through electrons
         for e_cal in self.matrix.flatten():
-            force_sum = np.array([0.0, 0.0, 0.0])
-            for e_check in self.matrix.flatten():
-                if e_cal != e_check:
-                    # print(e_cal.get_id(), e_check.get_id(),e_cal.get_x(), e_check.get_x(), e_cal.get_y(),
-                    # e_check.get_y(), e_cal.get_z(), e_check.get_z())
-                    force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_cal.cal_force(
-                        particle=e_check)
-                    # print("Forces: from: ", str(e_cal.get_id()), 'to: ', str(e_check.get_id()), '--->', force,
-                    #       force_vector, force_vector_x, force_vector_y, force_vector_z)
-                    force_sum += force_vector
-                else:
-                    # print(str(e_cal.get_id()), str(e_check.get_id()))
-                    None
-            # print("Force sum: from: ", str(e_cal.get_id()), ' to: ', str(e_check.get_id()), ' --->', force_sum)
-            forces_list.append(force_sum)
-            forces_dic[str(e_cal.get_id())] = force_sum
+            if e_cal.get_id() in corresponding_particles.keys():
+                force_sum = np.array([0.0, 0.0, 0.0])
+                for e_check in self.matrix.flatten():
+                    if e_cal != e_check:
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_cal.cal_force(
+                            particle=e_check)
+                        force_sum += force_vector
+                forces_list.append(force_sum)
+                forces_dic[str(e_cal.get_id())] = force_sum
+        # setting the other non relevant particles some forces vectors too
+        for id_relevant in corresponding_particles:
+            ids_non_relevant = corresponding_particles[id_relevant]
+            original_force_vector = forces_dic[str(id_relevant)]
+            for id in ids_non_relevant:
+                state = state_particles[id]
+                # setting the new force vector
+                if state == 'x':
+                    new_force_vector = original_force_vector * np.array([-1, 1, 1])
+                elif state == 'y':
+                    new_force_vector = original_force_vector * np.array([1, -1, 1])
+                elif state == 'xy':
+                    new_force_vector = original_force_vector * np.array([-1, -1, 1])
+                forces_dic[str(id)] = new_force_vector
         # returning values
         return forces_list, forces_dic
 
@@ -375,12 +389,32 @@ class Plate:
         plt.close()
         plt.clf()
 
-    def plot_matrix_particles_vector(self):
+    def plot_matrix_particles_vector_old(self):
         # plotting the particles and inner force vectors
         # setting figure
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         # getting forces data
         f_list, f_dic = self.get_inner_forces()
+        # print(f_dic)
+        for e in self.matrix.flatten():
+            plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0], f_dic[str(e.get_id())][1], hatch='o',
+                       width=0.01)
+        # getting x,y for particles plot
+        x = [e.get_x() for e in self.matrix.flatten()]
+        y = [e.get_y() for e in self.matrix.flatten()]
+        color = ['r' if e.get_charge() > 0 else 'b' for e in self.matrix.flatten()]
+        # print(color)
+        # plotting particles
+        plt.scatter(x, y, c=color)
+        # showing the plot
+        plt.show()
+
+    def plot_matrix_particles_vector_optimised(self):
+        # plotting the particles and inner force vectors
+        # setting figure
+        plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
+        # getting forces data
+        f_list, f_dic = self.get_inner_forces_optimised()
         # print(f_dic)
         for e in self.matrix.flatten():
             plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0], f_dic[str(e.get_id())][1], hatch='o',
@@ -477,7 +511,7 @@ class Plate:
 
     def __str__(self):
         # printing th object out for information
-        return "This is a Plate : {0}, with a negative charge. The bounding box coordinates are: p1: {1}, p2: {2}, p3: {3}, p4: {4}, on the z-plane: {5}".format(
+        return "This is a Plate : {0}, with a charge. The bounding box coordinates are: p1: {1}, p2: {2}, p3: {3}, p4: {4}, on the z-plane: {5}".format(
             self._id, self._p1, self._p2, self._p3, self._p4, self.z_plane)
 
     @property
@@ -493,27 +527,27 @@ if __name__ == "__main__":
     # getting class information
     print(Plate)
     # setting instance of single plate
-    plate_neg = Plate(n=20, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='-')
+    plate_neg = Plate(n=4, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='-')
     # printing all information about it
     # print(plate_neg)
     # getting values
     # plate_neg.get_info_of_particles()
-    # plotting out particles
-    # plate_neg.plot_matrix_particles()
     # plotting the density of the points
     # plate_neg.plot_density()
     # getting the inner forces
     # print(np.array(plate_neg.get_inner_forces()[0]).mean())
     # plotting inner forces
-    corresponding_particles, states = plate_neg.find_corresponding_particles()
-    for i in corresponding_particles:
-        print(i, corresponding_particles[i])
-    print(states)
-    plate_neg.plot_matrix_particles(highlight=corresponding_particles)
-    # moving the particle by a force vector
-    # i = str(plate_neg.matrix.flatten()[1].get_id())
-    # print(i)
-    # plate_neg.move_by_force_vector(id=i, force=np.array([0.23, 0.2, 0]))
-    # # checking via plot
-    # plate_neg.plot_matrix_particles()
-    # print(plate_neg.matrix.flatten()[0].get_x())
+    # plate_neg.plot_matrix_particles_vector_old()
+    # plate_neg.plot_matrix_particles_vector_optimised()
+    # corresponding_particles, states = plate_neg.find_corresponding_particles()
+    # for i in corresponding_particles:
+    #     print(i, corresponding_particles[i])
+    # print(states)
+    # plate_neg.plot_matrix_particles(highlight=corresponding_particles)
+    # running the time check
+    start_time = time.time()
+    for i in range(1000):
+        forces = plate_neg.get_inner_forces_optimised()
+        # forces = plate_neg.get_inner_forces()
+        print(forces)
+    print("--- %s seconds ---" % (time.time() - start_time))
