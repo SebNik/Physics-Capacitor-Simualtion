@@ -72,7 +72,8 @@ class Plate_Capacitor:
         # returning all vales
         return force_list_neg, force_dic_neg, force_list_pos, force_dic_pos
 
-    def cal_forces_optimised(self):
+    def cal_forces_optimised(self, corresponding_info_particles_neg=None, corresponding_state_info_particles_neg=None,
+                             corresponding_info_particles_pos=None, corresponding_state_info_particles_pos=None):
         # this function is calculating all the forces for the particles faster
         # -------------------------- SET -------------------------
         # setting lists with force vectors and dic
@@ -81,8 +82,9 @@ class Plate_Capacitor:
         force_list_pos = []
         force_dic_pos = {}
         # get relevant corresponding information
-        corresponding_info_particles_neg, corresponding_state_info_particles_neg = self.plate_neg.find_corresponding_particles()
-        corresponding_info_particles_pos, corresponding_state_info_particles_pos = self.plate_pos.find_corresponding_particles()
+        if corresponding_info_particles_neg is None:
+            corresponding_info_particles_neg, corresponding_state_info_particles_neg = self.plate_neg.find_corresponding_particles()
+            corresponding_info_particles_pos, corresponding_state_info_particles_pos = self.plate_pos.find_corresponding_particles()
         # -------------------------- INNER FORCES -------------------------
         # getting inner forces
         inner_list_neg, inner_dic_neg = self.plate_neg.get_inner_forces_optimised(
@@ -377,6 +379,9 @@ class Plate_Capacitor:
         os.mkdir(path_particles_pos)
         os.mkdir(path_density_neg_3d)
         os.mkdir(path_stuff)
+        # finding the corresponding particles
+        corresponding_info_particles_neg, corresponding_state_info_particles_neg = self.plate_neg.find_corresponding_particles()
+        corresponding_info_particles_pos, corresponding_state_info_particles_pos = self.plate_pos.find_corresponding_particles()
         # files for saving stuff
         path_stuff_export_sma = os.path.abspath(os.path.join(path_stuff, 'export_sma.csv'))
         # iterating through sim
@@ -385,7 +390,12 @@ class Plate_Capacitor:
         sma_list = [1]
         while sma_list[-1] > 2e-05:
             # getting the forces for all the particles
-            force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces_optimised()  # 20:52--21:03 (11min)-->133 (old) || 21:03--21:14 (11min)-->217 (new)
+            force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces_optimised(
+                corresponding_info_particles_neg=corresponding_info_particles_neg,
+                corresponding_state_info_particles_neg=corresponding_state_info_particles_neg,
+                corresponding_info_particles_pos=corresponding_info_particles_pos,
+                corresponding_state_info_particles_pos=corresponding_state_info_particles_pos)
+            # 20:52--21:03 (11min)-->133 (old) || 21:03--21:14 (11min)-->217 (new)
             # setting status sim to 0
             rel_avg_sum = []
             # moving all the particles by their force on the neg plate
