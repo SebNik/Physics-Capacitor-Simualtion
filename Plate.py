@@ -333,7 +333,7 @@ class Plate:
         y = [e.get_y() for e in self.matrix.flatten()]
         color = []
         if type(highlight) == dict:
-            color_list = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+            color_list = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
             current_color = -1
             color_relevant_particles = {}
             for p in self.matrix.flatten():
@@ -493,7 +493,7 @@ if __name__ == "__main__":
     # getting class information
     print(Plate)
     # setting instance of single plate
-    plate_neg = Plate(n=4, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='-')
+    plate_neg = Plate(n=20, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='-')
     # printing all information about it
     # print(plate_neg)
     # getting values
