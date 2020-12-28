@@ -233,56 +233,6 @@ class Plate:
                 # print(x_old, y_old, e.get_x(), e.get_y())
         return s
 
-    # def move_by_force_time(self, id, force, delta_t=0.001):
-    #     # this function is moving the particle with the id by the force vector in the time t
-    #     # setting vars for case
-    #     s, x_rel, y_rel, rel_avg = 0, 0, 0, 0
-    #     for e in self.matrix.flatten():
-    #         # found the right particle
-    #         if str(e.get_id()) == id:
-    #             # setting old position
-    #             x_old = e.get_x()
-    #             y_old = e.get_y()
-    #             # finding out the s and the acceleration
-    #             a = force / electron_mass
-    #             s = 0.5 * a * (delta_t ** 2)
-    #             # print(s)
-    #             # setting the new force vector
-    #             new_force_vector = s
-    #             # setting new position
-    #             x_new = x_old + new_force_vector[0]
-    #             y_new = y_old + new_force_vector[1]
-    #             # setting state
-    #             s = 1
-    #             # checking if bigger than boundaries
-    #             if x_new > self._p2[0]:
-    #                 x_new = self._p2[0]
-    #                 s = 0
-    #             elif x_new < self._p1[0]:
-    #                 x_new = self._p1[0]
-    #                 s = 0
-    #             if y_new > self._p2[0]:
-    #                 y_new = self._p2[0]
-    #                 s = 0
-    #             elif y_new < self._p1[0]:
-    #                 y_new = self._p1[0]
-    #                 s = 0
-    #             # updating the matrix
-    #             self.update_matrix_pos()
-    #             # checking if there is not another particle already there
-    #             if [x_new, y_new] not in self.matrix_pos:
-    #                 # moving the particle
-    #                 e.set_x(x=x_new)
-    #                 e.set_y(y=y_new)
-    #             else:
-    #                 s = 0
-    #             # getting the relative change
-    #             x_rel = x_new * 100 / x_old
-    #             y_rel = y_new * 100 / y_old
-    #             rel_avg = (x_rel + y_rel) / 2
-    #             # print(x_old, y_old, e.get_x(), e.get_y())
-    #     return s, x_rel, y_rel, rel_avg - 100
-
     def sumColumn(self, m):
         return [sum(col) for col in zip(*m)]
 
