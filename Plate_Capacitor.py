@@ -1,5 +1,6 @@
 # this file is working with two plate capacitors
 import os
+import json
 import pickle
 import datetime
 import numpy as np
@@ -15,11 +16,11 @@ warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 class Plate_Capacitor:
     # this capacitor represents two plates which interact together
-    def __init__(self, n_neg, n_pos, p1, p2, plane_z_pos, plane_z_neg, random):
+    def __init__(self, n_neg, n_pos, p1, p2, plane_z_pos, plane_z_neg, random, name='Test'):
         # setting the points n
         self.rel_list = []
         self._n_neg = n_neg
-        self._n_neg = n_pos
+        self._n_pos = n_pos
         # setting the points
         self._p1 = p1
         self._p2 = p2
@@ -29,9 +30,23 @@ class Plate_Capacitor:
         self.plate_neg = Plate(n=n_neg, p1=p1 + plane_z_neg, p2=p2 + plane_z_neg, type='-', random=random)
         # setting the base path
         self.path = os.path.abspath(
-            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S")))
+            os.path.join('resources', 'exports', datetime.datetime.now().strftime("%d_%m_%Y__%H_%M_%S") + '_' + name))
         # creating the base path
         os.mkdir(self.path)
+        # setting dic
+        d = {
+            'n_neg': self._n_neg,
+            'n_pos': self._n_pos,
+            'p1': self._p1,
+            'p2': self._p2,
+            'plane_pos_z': plane_z_pos,
+            'plane_neg_z': plane_z_neg,
+            'name': name,
+            'random': random
+        }
+        # dic settings in the file
+        with open(self.path + "\\my_settings.json", "w") as f:
+            json.dump(d, f)
 
     def cal_forces(self):
         # this function is calculating all the forces for the particles
