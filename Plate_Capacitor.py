@@ -403,7 +403,7 @@ class Plate_Capacitor:
         i = 0
         rel_avg_sum = [1, 1]
         sma_list = [1]
-        while sma_list[-1] > 2e-05:
+        while sma_list[-1] > 1e-05:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces_optimised(
                 corresponding_info_particles_neg=corresponding_info_particles_neg,

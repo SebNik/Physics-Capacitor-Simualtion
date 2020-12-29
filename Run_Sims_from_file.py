@@ -4,9 +4,9 @@ from Plate_Capacitor import Plate_Capacitor
 
 if __name__ == "__main__":
     # setting the path for the big sims
-    path = 'D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\Test_Simulationen_1.csv'
+    path = 'D:\\Python\\Programme\\Physics-Capacitor-Simualtion\\resources\\Test_Simulationen_2.xlsx'
     # opening the csv file
-    df = pd.read_csv(path, sep=';')
+    df = pd.read_excel(path)
     print(df)
     # iterating through the df
     for index, row in df.iterrows():
