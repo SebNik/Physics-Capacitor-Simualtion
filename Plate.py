@@ -425,7 +425,6 @@ class Plate:
         plt.figure(figsize=(6, 5), dpi=100, facecolor='w', edgecolor='b')
         # getting the data
         xi, yi, zi, x, y = self.plot_density_cals(nbins=nbins)
-        print(xi.shape)
         # plot a density
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap='viridis', shading='auto')
         plt.colorbar()

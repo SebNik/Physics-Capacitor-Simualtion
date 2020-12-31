@@ -888,7 +888,7 @@ class Plate_Capacitor:
                 # adding the new filed line in big field lines
                 field_lines.append(points_data)
                 # plotting for the 2d line plot
-                plt.plot(points_data[:, 2], points_data[:, 1], c='g')
+                plt.plot(points_data[:, 2], points_data[:, 1], c='g', linewidth=0.5)
             # building up the 2D plot
             x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
             plt.plot(x1, y1, marker='o', c='r')
