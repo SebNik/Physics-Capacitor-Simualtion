@@ -765,7 +765,7 @@ class Plate_Capacitor:
         # returning the values
         return field_lines
 
-    def plot_field_lines_integral_calculation_flatten(self, num_field_lines=100, delta_m=0.000004, nbins=30,
+    def plot_field_lines_integral_calculation_flatten(self, num_field_lines=100, delta_m=0.000004, nbins=10,
                                                       x_plane=None, show=False, logs=True, room=False, fake_dist=False,
                                                       path_fake_dist=None):
         # this function is going to build the field lines for the plot
@@ -782,6 +782,10 @@ class Plate_Capacitor:
             os.mkdir(path_field_lines_3d)
         # building the field lines
         field_lines = []
+        # getting the density plot data
+        xi, yi, zi, x, y = self.plate_neg.plot_density_cals(nbins=nbins)
+        # preparing the density data smaller
+        zi = 8.85 * 10 ** -12 / zi.mean()
         # loading the fake dist in data_plot_density
         if fake_dist:
             data_plot_density, nbins = self.plate_neg.plot_density_cals_fake(path=path_fake_dist)
@@ -836,18 +840,21 @@ class Plate_Capacitor:
                 while p_test.get_z() <= self.plate_neg.z_plane:
                     # setting force sum vector
                     sum_forces = np.array([0.0, 0.0, 0.0])
-                    # cal forces between test particle and all real ones
-                    # negative plate
-                    for e_n in self.plate_neg.matrix.flatten():
-                        if self.same_position_of_particles(e1=e_n, e2=p_test):
+                    # iterating through all the density particles
+                    for k in range(xi.shape[0]):
+                        for m in range(xi.shape[1]):
+                            # setting up the particle for the negative site
+                            p_test_neg = Particle(x=xi[k, m], y=yi[k, m], z=self.plate_neg.z_plane, type_c='-')
+                            p_test_neg.set_charge(charge=zi[k, m])
+                            # setting up the particle for the positive site
+                            p_test_pos = Particle(x=xi[k, m], y=yi[k, m], z=self.plate_pos.z_plane, type_c='+')
+                            p_test_pos.set_charge(charge=zi[k, m])
+                            # calculating the force between the particles
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force_q(
-                                particle=e_n)
+                                particle=p_test_neg)
                             sum_forces += force_vector
-                    # positive plate
-                    for e_p in self.plate_pos.matrix.flatten():
-                        if self.same_position_of_particles(e1=e_p, e2=p_test):
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force_q(
-                                particle=e_p)
+                                particle=p_test_pos)
                             sum_forces += force_vector
                     # getting the unit vector
                     unit_vector = sum_forces / np.linalg.norm(sum_forces)

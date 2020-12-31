@@ -420,11 +420,12 @@ class Plate:
         plt.plot(list_dist, c='b', linewidth=2)
         plt.show()
 
-    def plot_density(self, save=False, path=None, show=True, points=True):
+    def plot_density(self, save=False, path=None, show=True, points=True, nbins=300):
         # plotting the density of the points
-        plt.figure(figsize=(8.5, 7), dpi=150, facecolor='w', edgecolor='b')
+        plt.figure(figsize=(6, 5), dpi=100, facecolor='w', edgecolor='b')
         # getting the data
-        xi, yi, zi, x, y = self.plot_density_cals()
+        xi, yi, zi, x, y = self.plot_density_cals(nbins=nbins)
+        print(xi.shape)
         # plot a density
         plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap='viridis', shading='auto')
         plt.colorbar()

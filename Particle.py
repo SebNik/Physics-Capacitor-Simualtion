@@ -87,6 +87,10 @@ class Particle:
         # this function is setting the charge in the fraction
         self.__charge = self.fac * physical_constants["elementary charge"][0] * f
 
+    def set_charge(self, charge):
+        # setting the charge for the particle
+        self.__charge = self.fac * charge
+
     def get_x(self):
         # getting x coordinate
         return self.__x
