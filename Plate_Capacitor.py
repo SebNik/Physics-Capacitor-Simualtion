@@ -3,13 +3,13 @@ import os
 import json
 import pickle
 import datetime
+import warnings
 import numpy as np
+from Plate import Plate
 from Particle import Particle
 import matplotlib.pyplot as plt
 from scipy.constants import electron_mass
-from Plate import Plate
 from scipy.constants import physical_constants as physical_constants
-import warnings
 
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
@@ -378,7 +378,7 @@ class Plate_Capacitor:
         # setting the base path
         self.path = path
 
-    def sim(self, t=0.0000001):
+    def sim(self, t=0.0000001, end_stop=1e-05):
         # this function is simulating the sates and stopping with stable state
         # creating the path for saving the data
         path_density_neg = os.path.abspath(os.path.join(self.path, 'Neg_Density'))
@@ -403,7 +403,7 @@ class Plate_Capacitor:
         i = 0
         rel_avg_sum = [1, 1]
         sma_list = [1]
-        while sma_list[-1] > 1e-05:
+        while sma_list[-1] > end_stop:
             # getting the forces for all the particles
             force_list_neg, force_dic_neg, force_list_pos, force_dic_pos = self.cal_forces_optimised(
                 corresponding_info_particles_neg=corresponding_info_particles_neg,
@@ -782,6 +782,7 @@ class Plate_Capacitor:
             os.mkdir(path_field_lines_3d)
         # building the field lines
         field_lines = []
+        plotted_lines = 0
         # getting the density plot data
         xi, yi, zi, x, y = self.plate_neg.plot_density_cals(nbins=nbins)
         # preparing the density data smaller
@@ -887,20 +888,20 @@ class Plate_Capacitor:
                     points_data, chunksize=100)
                 # adding the new filed line in big field lines
                 field_lines.append(points_data)
-                # plotting for the 2d line plot
-                plt.plot(points_data[:, 2], points_data[:, 1], c='g', linewidth=0.5)
+                if plotted_lines != 0 and check_real_field_lines - 1 != plotted_lines:
+                    # plotting for the 2d line plot
+                    plt.plot(points_data[:, 2], points_data[:, 1], c='g', linewidth=0.5)
+                plotted_lines += 1
             # building up the 2D plot
             x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
             plt.plot(x1, y1, marker='o', c='r')
             x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
             plt.plot(x2, y2, marker='o', c='b')
             # set the right title
-            plt.title('Field Lines No. ' + str(np.where(x_plane == x_off)[0][0]) + ' X_off: ' + str(round(x_off, 3)))
+            plt.title('Field Lines X_off: ' + str(round(x_off, 3)))
             # saving the image
             print(plt.axis())
-            plt.savefig(
-                path_field_lines_2d + '\\Field_Lines_No_' + str(np.where(x_plane == x_off)[0][0]) + '_X_off_' + str(
-                    round(x_off, 3)) + '.png', dpi=150)
+            plt.savefig(path_field_lines_2d + '\\Field_Lines_X_off_' + str(round(x_off, 3)) + '.png', dpi=150)
             # showing the plot if requests
             if show:
                 plt.show()
