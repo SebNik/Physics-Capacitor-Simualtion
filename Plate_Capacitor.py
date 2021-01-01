@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 from scipy.constants import electron_mass
 from scipy.constants import physical_constants as physical_constants
 
+from os import listdir
+from os.path import isfile, join
+
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 
@@ -939,6 +942,33 @@ class Plate_Capacitor:
             plt.show()
         # returning the values
         return field_lines
+
+    def plot_field_lines_from_data(self, x_off_prefix='e_field_lines_[0_015'):
+        # plotting the field lines from the saved data
+        # finding the right path
+        path_field_lines_2d_data = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D_DATA'))
+        # getting all the files
+        onlyfiles = [f for f in listdir(path_field_lines_2d_data) if isfile(join(path_field_lines_2d_data, f))]
+        # iterating through files and plotting them
+        for file in onlyfiles:
+            if x_off_prefix in file:
+                # opening the data
+                points_data = np.load(path_field_lines_2d_data+'\\'+file, allow_pickle=True)['arr_0']
+                plt.plot(points_data[:, 2], points_data[:, 1], c='g', linewidth=0.5)
+        # building up the 2D plot
+        x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
+        plt.plot(x1, y1, marker='o', c='r')
+        x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
+        plt.plot(x2, y2, marker='o', c='b')
+
+        path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
+        plt.savefig(path_field_lines_2d + '\\Field_Lines_X_off_' + str(round(0.015, 3)) + '.png', dpi=150)
+
+        # showing the plot
+        plt.show()
+        # # set the right title
+        # plt.title('Field Lines X_off: ' + str(round(x_off, 3)))
+
 
     def plot_field_lines_static(self, num_field_lines=10):
         # this function will plot a fully static field
