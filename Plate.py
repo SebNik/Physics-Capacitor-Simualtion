@@ -401,7 +401,7 @@ class Plate:
         # returning the data from excel file
         return df['y'].to_numpy(), int(df['y'].to_numpy().shape[0])
 
-    def plot_density_self_made(self, nbins_inside=30, searching_box=3, save=False, path=None, show=True, points=True):
+    def plot_density_self_made(self, nbins_inside=30, searching_box=5, save=False, path=None, show=True, points=True):
         # this is a density function for the plate
         # getting the points
         x = np.array([e.get_x() for e in self.matrix.flatten()])
@@ -443,21 +443,24 @@ class Plate:
                                                                                          4) <= y_check <= round(
                             yi[i][j + 1], 4):
                         data_density[i, j] += 1
+        print(data_density.shape)
         # setting the density plate for the grid
         data_density_plate = np.zeros(
             (xi.shape[0] - 1 - int(outside_grid * 2), xi.shape[1] - 1 - int(outside_grid * 2)))
+        print(data_density_plate.shape)
         # iterating through the density on the plate
-        for i in range(1, len(data_density) - 1):
-            for j in range(1, len(data_density) - 1):
-                data_density_plate[i - 1, j - 1] += data_density[i - 1, j - 1]
-                data_density_plate[i - 1, j - 1] += data_density[i - 1, j]
-                data_density_plate[i - 1, j - 1] += data_density[i - 1, j + 1]
-                data_density_plate[i - 1, j - 1] += data_density[i, j - 1]
-                data_density_plate[i - 1, j - 1] += data_density[i, j]
-                data_density_plate[i - 1, j - 1] += data_density[i, j + 1]
-                data_density_plate[i - 1, j - 1] += data_density[i + 1, j - 1]
-                data_density_plate[i - 1, j - 1] += data_density[i + 1, j]
-                data_density_plate[i - 1, j - 1] += data_density[i + 1, j + 1]
+        for i in range(int(outside_grid), len(data_density) - int(outside_grid)):
+            for j in range(int(outside_grid), len(data_density) - int(outside_grid)):
+                for a in range(1, int(outside_grid)+1):
+                    data_density_plate[i - int(outside_grid), j - int(outside_grid)] += data_density[i - a, j - a]
+                    data_density_plate[i - int(outside_grid), j - int(outside_grid)] += data_density[i - a, j]
+                    data_density_plate[i - int(outside_grid), j - int(outside_grid)] += data_density[i - a, j + a]
+                    data_density_plate[i - int(outside_grid), j - int(outside_grid)] += data_density[i, j - a]
+                    data_density_plate[i - int(outside_grid), j - int(outside_grid)] += data_density[i, j]
+                    data_density_plate[i - int(outside_grid), j - int(outside_grid)] += data_density[i, j + a]
+                    data_density_plate[i - int(outside_grid), j - int(outside_grid)] += data_density[i + a, j - a]
+                    data_density_plate[i - int(outside_grid), j - int(outside_grid)] += data_density[i + a, j]
+                    data_density_plate[i - int(outside_grid), j - int(outside_grid)] += data_density[i + a, j + a]
         # setting the data grid
         xi, yi = np.mgrid[x.min():x.max():(nbins_inside + 1) * 1j, y.min():y.max():(nbins_inside + 1) * 1j]
         # plotting the density of the points
