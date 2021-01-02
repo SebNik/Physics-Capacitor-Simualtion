@@ -786,10 +786,8 @@ class Plate_Capacitor:
         # building the field lines
         field_lines = []
         plotted_lines = 0
-        # getting the density plot data
-        xi, yi, zi, x, y = self.plate_neg.plot_density_cals(nbins=nbins)
-        # preparing the density data smaller
-        zi = 8.85 * 10 ** -12 / zi.mean()
+        # # getting the density plot data
+        # xi, yi, zi, x, y = self.plate_neg.plot_density_cals(nbins=nbins)
         # loading the fake dist in data_plot_density
         if fake_dist:
             data_plot_density, nbins = self.plate_neg.plot_density_cals_fake(path=path_fake_dist)
@@ -805,6 +803,9 @@ class Plate_Capacitor:
             zi = zi.reshape(xi.shape)
             # combing zi in one dimension array
             data_plot_density = self.sumColumn(m=zi)
+            # preparing the density data smaller
+            zi_x = 8.85 * 10 ** -12 / zi.mean()
+            zi_density = zi_x / zi
         # getting the area array
         area_array = data_plot_density * delta_n
         area_array_sum = area_array.sum()
@@ -849,10 +850,10 @@ class Plate_Capacitor:
                         for m in range(xi.shape[1]):
                             # setting up the particle for the negative site
                             p_test_neg = Particle(x=xi[k, m], y=yi[k, m], z=self.plate_neg.z_plane, type_c='-')
-                            p_test_neg.set_charge(charge=zi[k, m])
+                            p_test_neg.set_charge(charge=zi_density[k, m])
                             # setting up the particle for the positive site
                             p_test_pos = Particle(x=xi[k, m], y=yi[k, m], z=self.plate_pos.z_plane, type_c='+')
-                            p_test_pos.set_charge(charge=zi[k, m])
+                            p_test_pos.set_charge(charge=zi_density[k, m])
                             # calculating the force between the particles
                             force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force_q(
                                 particle=p_test_neg)

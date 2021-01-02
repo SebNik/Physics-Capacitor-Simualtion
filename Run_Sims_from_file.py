@@ -20,4 +20,5 @@ if __name__ == "__main__":
             cap.sim(t=0.0000001)
         if bool(row['field_lines']):
             x = [0.015]
-            cap.plot_field_lines_integral_calculation_flatten(num_field_lines=int(row['num_field_lines']), x_plane=x, nbins=row['nbins'], delta_m=0.000004*8)
+            cap.plot_field_lines_integral_calculation_flatten(num_field_lines=50, x_plane=x, nbins=30,
+                                                              delta_m=0.000004 * 25)
