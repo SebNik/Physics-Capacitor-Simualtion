@@ -401,6 +401,76 @@ class Plate:
         # returning the data from excel file
         return df['y'].to_numpy(), int(df['y'].to_numpy().shape[0])
 
+    def plot_density_self_made(self, nbins_inside=4, searching_box=3):
+        # this is a density function for the plate
+        # getting the points
+        x = np.array([e.get_x() for e in self.matrix.flatten()])
+        y = np.array([e.get_y() for e in self.matrix.flatten()])
+        print(x, y)
+        # grid points outside
+        outside_grid = (searching_box - 1) / 2
+        print(outside_grid)
+        # getting the delta
+        delta = self.x_length / ((nbins_inside - 1) + (outside_grid * 2))
+        print(delta)
+        # grid inside the plate
+        xi, yi = np.mgrid[x.min() - (outside_grid * delta):x.max() + (outside_grid * delta):((nbins_inside - 1) + (
+                outside_grid * 2) + 3) * 1j, y.min() - (outside_grid * delta):y.max() + (outside_grid * delta):((
+                                                                                                                        nbins_inside - 1) + (
+                                                                                                                        outside_grid * 2) + 3) * 1j]
+        print(xi)
+        print(yi)
+        data_density = np.zeros((xi.shape[0] - 1, xi.shape[1] - 1))
+
+        for i in range(len(xi) - 1):
+            for j in range(len(yi) - 1):
+                for particle in self.matrix.flatten():
+                    # first finding mirror axis x and y
+                    mirror_axis_x = self._x_length / 2 + self._p1[0]
+                    mirror_axis_y = self._y_length / 2 + self._p1[1]
+                    # modifying the x and y coordinates
+                    # x coordinates
+                    if particle.get_x() < mirror_axis_x:
+                        x_check = particle.get_x() + (1/1000)
+                    elif particle.get_x() > mirror_axis_x:
+                        x_check = particle.get_x() - (1 / 1000)
+                    else:
+                        x_check = particle.get_x()
+                    # y coordinates
+                    if particle.get_y() < mirror_axis_y:
+                        y_check = particle.get_y() + (1 / 1000)
+                    elif particle.get_y() > mirror_axis_y:
+                        y_check = particle.get_y() - (1 / 1000)
+                    else:
+                        y_check = particle.get_y()
+                    if round(xi[i][j], 4) <= x_check <= round(xi[i + 1][j], 4) and round(yi[i][j],4) <= y_check <= round(yi[i][j + 1], 4):
+                        print('Inside ', i, j, round(xi[i][j], 4), round(xi[i + 1][j], 4), round(yi[i][j], 4),
+                              round(yi[i][j + 1], 4), particle.get_x(), particle.get_y())
+                        data_density[i, j] += 1
+
+        print(data_density)
+
+        data_density_plate = np.zeros(
+            (xi.shape[0] - 1 - int(outside_grid * 2), xi.shape[1] - 1 - int(outside_grid * 2)))
+
+        for i in range(1, len(data_density) - 1):
+            for j in range(1, len(data_density) - 1):
+                data_density_plate[i - 1, j - 1] += data_density[i - 1, j - 1]
+                data_density_plate[i - 1, j - 1] += data_density[i - 1, j]
+                data_density_plate[i - 1, j - 1] += data_density[i - 1, j + 1]
+                data_density_plate[i - 1, j - 1] += data_density[i, j - 1]
+                data_density_plate[i - 1, j - 1] += data_density[i, j]
+                data_density_plate[i - 1, j - 1] += data_density[i, j + 1]
+                data_density_plate[i - 1, j - 1] += data_density[i + 1, j - 1]
+                data_density_plate[i - 1, j - 1] += data_density[i + 1, j]
+                data_density_plate[i - 1, j - 1] += data_density[i + 1, j + 1]
+
+        print(data_density_plate)
+
+        plt.scatter(x, y, c='b', alpha=0.5)
+        plt.scatter(xi, yi, c='r', alpha=0.5)
+        plt.show()
+
     def plot_density_distribution(self, nbins=300):
         # plotting the distribution of density
         plt.figure(figsize=(8, 8), dpi=150, facecolor='w', edgecolor='b')
