@@ -460,6 +460,8 @@ class Plate:
                 data_density_plate[i - 1, j - 1] += data_density[i + 1, j + 1]
         # setting the data grid
         xi, yi = np.mgrid[x.min():x.max():(nbins_inside + 1) * 1j, y.min():y.max():(nbins_inside + 1) * 1j]
+        # plotting the density of the points
+        plt.figure(figsize=(6, 5), dpi=100, facecolor='w', edgecolor='b')
         # plotting the grid
         plt.pcolormesh(xi, yi, data_density_plate.reshape(xi.shape), cmap='viridis', shading='auto')
         plt.colorbar()
@@ -469,6 +471,8 @@ class Plate:
             plt.savefig(path, dpi=100)
         if show:
             plt.show()
+        plt.close()
+        plt.clf()
 
     def plot_density_distribution(self, nbins=300):
         # plotting the distribution of density
