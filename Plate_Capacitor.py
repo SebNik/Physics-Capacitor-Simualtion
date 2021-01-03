@@ -812,7 +812,7 @@ class Plate_Capacitor:
             data_plot_density = zi[:, int(len(xi) / 2)]
             print(data_plot_density)
             # preparing the density data smaller
-            zi_x = 8.85 * 10 ** -9 / zi.mean()
+            zi_x = 8.85 * 10 ** -12 / zi.mean()
             zi_density = zi_x / zi
             # saving all the data
             np.savez_compressed(path_field_lines_2d_data + '\\data_plot_density.npz', data_plot_density,
@@ -842,7 +842,7 @@ class Plate_Capacitor:
         # iteration over the different z planes
         for x_off in x_plane:
             # getting the start point on the bottom
-            start_p = np.array([x_off, self._p1[1], self.plate_pos.z_plane])
+            start_p = np.array([x_off, self._p1[1] + (1 / 100000), self.plate_pos.z_plane])
             # now starting to set all the relevant points for sim in field lines
             start_points_list = [start_p]
             for o in range(0, nbins):
@@ -850,6 +850,9 @@ class Plate_Capacitor:
                 delta_in_sector = delta_bins[o]
                 for u in range(points_in_sector):
                     new_point = start_points_list[-1] + np.array([0.0, delta_in_sector, 0.0])
+                    if new_point[1] >= self._p2[1]:
+                        new_point[1] = self._p2[1] - (1 / 100000)
+                        print('jdsjfkasdkjfaödsjfköajsdölfjaödsjfkajsdfjadlsjfasjdkfjasdöljflasdjfkjadskfjöladsjfk')
                     start_points_list.append(new_point)
             print(start_points_list)
             # saving all the data
@@ -860,7 +863,7 @@ class Plate_Capacitor:
                 if logs:
                     print("Starting field line cal: ", start_point_cal)
                 # setting the points data list for this one field line
-                points_data = []
+                points_data = [[start_point_cal, np.array([0.0, 0.0, 0.0])]]
                 # setting count for print out
                 count = 0
                 # setting up and test particle to find line
@@ -909,7 +912,7 @@ class Plate_Capacitor:
                     # if self.plate_neg.z_plane - p_test.get_z() < self.z_plane_diff * 0.1:
                     #     break
                 # setting the points data
-                points_data = np.array(points_data)[1:-1]
+                points_data = np.array(points_data)[:-1]
                 # saving the created data
                 np.savez_compressed(
                     path_field_lines_2d_data + '\\e_field_lines_' + str(start_point_cal).replace(' ', '_').replace('.',
@@ -923,9 +926,9 @@ class Plate_Capacitor:
                 plotted_lines += 1
             # building up the 2D plot
             x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
-            plt.plot(x1, y1, marker='o', c='r')
+            plt.plot(x1, y1, c='r')
             x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
-            plt.plot(x2, y2, marker='o', c='b')
+            plt.plot(x2, y2, c='b')
             # set the right title
             plt.title('Field Lines X_off: ' + str(round(x_off, 3)))
             # saving the image
