@@ -463,6 +463,11 @@ class Plate_Capacitor:
         plt.savefig(self.path + '\\sim.png', dpi=100)
         print('Sim done')
 
+    def write_class_in_pickle(self):
+        # this function saves the class into pickle
+        with open(self.path + '\\' + "class.pickle", "wb") as file_:
+            pickle.dump(self, file_, -1)
+
     def sumColumn(self, m):
         return [sum(col) for col in zip(*m)]
 
@@ -798,16 +803,21 @@ class Plate_Capacitor:
             # delta for big space in which we check for the number density
             delta_n = np.array([self.plate_pos.y_length / nbins])
             # getting the data for the density 2d plot for integral cal
-            xi, yi, zi, x, y = self.plate_pos.plot_density_self_made_cals(nbins_inside=32, searching_box=9)
+            xi, yi, zi, x, y = self.plate_pos.plot_density_self_made_cals(nbins_inside=32, searching_box=17)
             # setting it the right way
             zi = zi.reshape(xi.shape)
             # combing zi in one dimension array
             # data_plot_density = self.sumColumn(m=zi)
-            data_plot_density = zi[:, int(len(xi)/2)]
+            data_plot_density = zi[:, int(len(xi) / 2)]
             print(data_plot_density)
             # preparing the density data smaller
             zi_x = 8.85 * 10 ** -12 / zi.mean()
             zi_density = zi_x / zi
+            # saving all the data
+            np.savez_compressed(path_field_lines_2d_data + '\\data_plot_density.npz', data_plot_density,
+                                chunksize=100)
+            np.savez_compressed(path_field_lines_2d_data + '\\zi_density_charge.npz', zi_density,
+                                chunksize=100)
         # getting the area array
         # area_array = data_plot_density * delta_n
         area_array_sum = data_plot_density.sum()
@@ -816,8 +826,13 @@ class Plate_Capacitor:
         for area in data_plot_density:
             num_field_lines_in_area.append(int(round((area * num_field_lines) / area_array_sum, 0)))
         print(num_field_lines_in_area)
+        # saving the field lines data
+        np.savez_compressed(path_field_lines_2d_data + '\\num_field_lines_in_area.npz', num_field_lines_in_area,
+                            chunksize=100)
+        # plotting the graphics and saving it
         plt.plot(num_field_lines_in_area)
-        plt.show()
+        plt.savefig(path_field_lines_2d+'\\lines_in_bins.png')
+        plt.close()
         # testing the data
         check_real_field_lines = sum(num_field_lines_in_area)
         print(check_real_field_lines)
@@ -836,6 +851,8 @@ class Plate_Capacitor:
                     new_point = start_points_list[-1] + np.array([0.0, delta_in_sector, 0.0])
                     start_points_list.append(new_point)
             print(start_points_list)
+            # saving all the data
+            np.savez_compressed(path_field_lines_2d_data + '\\start_points_list.npz', start_points_list, chunksize=100)
             # iterating over length of plate and number of field lines
             for i in range(0, len(start_points_list)):
                 start_point_cal = start_points_list[i]
@@ -901,7 +918,7 @@ class Plate_Capacitor:
                 field_lines.append(points_data)
                 if plotted_lines != 0 and check_real_field_lines - 1 != plotted_lines:
                     # plotting for the 2d line plot
-                    plt.plot(points_data[:, 2], points_data[:, 1], c='g', linewidth=0.5)
+                    plt.plot(points_data[:, 2], points_data[:, 1], c='g', linewidth=0.25)
                 plotted_lines += 1
             # building up the 2D plot
             x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
@@ -912,7 +929,7 @@ class Plate_Capacitor:
             plt.title('Field Lines X_off: ' + str(round(x_off, 3)))
             # saving the image
             print(plt.axis())
-            plt.savefig(path_field_lines_2d + '\\Field_Lines_X_off_' + str(round(x_off, 3)) + '.png', dpi=150)
+            plt.savefig(path_field_lines_2d + '\\Field_Lines_X_off_' + str(round(x_off, 3)) + '.png', dpi=200)
             # showing the plot if requests
             if show:
                 plt.show()
@@ -961,7 +978,7 @@ class Plate_Capacitor:
         for file in onlyfiles:
             if x_off_prefix in file:
                 # opening the data
-                points_data = np.load(path_field_lines_2d_data+'\\'+file, allow_pickle=True)['arr_0']
+                points_data = np.load(path_field_lines_2d_data + '\\' + file, allow_pickle=True)['arr_0']
                 plt.plot(points_data[:, 2], points_data[:, 1], c='g', linewidth=0.5)
         # building up the 2D plot
         x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
@@ -976,7 +993,6 @@ class Plate_Capacitor:
         plt.show()
         # # set the right title
         # plt.title('Field Lines X_off: ' + str(round(x_off, 3)))
-
 
     def plot_field_lines_static(self, num_field_lines=10):
         # this function will plot a fully static field
