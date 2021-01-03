@@ -798,23 +798,29 @@ class Plate_Capacitor:
             # delta for big space in which we check for the number density
             delta_n = np.array([self.plate_pos.y_length / nbins])
             # getting the data for the density 2d plot for integral cal
-            xi, yi, zi, x, y = self.plate_pos.plot_density_cals(nbins=nbins)
+            xi, yi, zi, x, y = self.plate_pos.plot_density_self_made_cals(nbins_inside=32, searching_box=9)
             # setting it the right way
             zi = zi.reshape(xi.shape)
             # combing zi in one dimension array
-            data_plot_density = self.sumColumn(m=zi)
+            # data_plot_density = self.sumColumn(m=zi)
+            data_plot_density = zi[:, int(len(xi)/2)]
+            print(data_plot_density)
             # preparing the density data smaller
             zi_x = 8.85 * 10 ** -12 / zi.mean()
             zi_density = zi_x / zi
         # getting the area array
-        area_array = data_plot_density * delta_n
-        area_array_sum = area_array.sum()
+        # area_array = data_plot_density * delta_n
+        area_array_sum = data_plot_density.sum()
         # finding out how many field lines per delta_n
         num_field_lines_in_area = []
-        for area in area_array:
-            num_field_lines_in_area.append(int((area * num_field_lines) / area_array_sum) + 1)
+        for area in data_plot_density:
+            num_field_lines_in_area.append(int(round((area * num_field_lines) / area_array_sum, 0)))
+        print(num_field_lines_in_area)
+        plt.plot(num_field_lines_in_area)
+        plt.show()
         # testing the data
         check_real_field_lines = sum(num_field_lines_in_area)
+        print(check_real_field_lines)
         # setting the separated delta for all bins
         delta_bins = delta_n / num_field_lines_in_area
         # iteration over the different z planes
@@ -829,6 +835,7 @@ class Plate_Capacitor:
                 for u in range(points_in_sector):
                     new_point = start_points_list[-1] + np.array([0.0, delta_in_sector, 0.0])
                     start_points_list.append(new_point)
+            print(start_points_list)
             # iterating over length of plate and number of field lines
             for i in range(0, len(start_points_list)):
                 start_point_cal = start_points_list[i]
