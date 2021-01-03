@@ -793,32 +793,25 @@ class Plate_Capacitor:
         plotted_lines = 0
         # # getting the density plot data
         # xi, yi, zi, x, y = self.plate_neg.plot_density_cals(nbins=nbins)
-        # loading the fake dist in data_plot_density
-        if fake_dist:
-            data_plot_density, nbins = self.plate_neg.plot_density_cals_fake(path=path_fake_dist)
-            # RESET delta for big space in which we check for the number density
-            delta_n = np.array([self.plate_pos.y_length / nbins])
-            print(nbins, data_plot_density)
-        else:
-            # delta for big space in which we check for the number density
-            delta_n = np.array([self.plate_pos.y_length / nbins])
-            # getting the data for the density 2d plot for integral cal
-            xi, yi, zi, x, y = self.plate_pos.plot_density_self_made_cals(nbins_inside=nbins,
-                                                                          searching_box=searching_box)
-            # setting it the right way
-            zi = zi.reshape(xi.shape)
-            # combing zi in one dimension array
-            # data_plot_density = self.sumColumn(m=zi)
-            data_plot_density = zi[:, int(len(xi) / 2)]
-            print(data_plot_density)
-            # preparing the density data smaller
-            zi_x = 8.85 * 10 ** -12 / zi.mean()
-            zi_density = zi_x / zi
-            # saving all the data
-            np.savez_compressed(path_field_lines_2d_data + '\\data_plot_density.npz', data_plot_density,
-                                chunksize=100)
-            np.savez_compressed(path_field_lines_2d_data + '\\zi_density_charge.npz', zi_density,
-                                chunksize=100)
+        # delta for big space in which we check for the number density
+        delta_n = np.array([self.plate_pos.y_length / nbins])
+        # getting the data for the density 2d plot for integral cal
+        xi, yi, zi, x, y = self.plate_pos.plot_density_self_made_cals(nbins_inside=nbins,
+                                                                      searching_box=searching_box)
+        # setting it the right way
+        zi = zi.reshape(xi.shape)
+        # combing zi in one dimension array
+        # data_plot_density = self.sumColumn(m=zi)
+        data_plot_density = zi[:, int(len(xi) / 2)]
+        print(data_plot_density)
+        # preparing the density data smaller
+        zi_x = 8.85 * 10 ** -12 / zi.mean()
+        zi_density = zi_x / zi
+        # saving all the data
+        np.savez_compressed(path_field_lines_2d_data + '\\data_plot_density.npz', data_plot_density,
+                            chunksize=100)
+        np.savez_compressed(path_field_lines_2d_data + '\\zi_density_charge.npz', zi_density,
+                            chunksize=100)
         # getting the area array
         # area_array = data_plot_density * delta_n
         area_array_sum = data_plot_density.sum()
@@ -863,7 +856,7 @@ class Plate_Capacitor:
                 if logs:
                     print("Starting field line cal: ", start_point_cal)
                 # setting the points data list for this one field line
-                points_data = [[start_point_cal, np.array([0.0, 0.0, 0.0])]]
+                points_data = [[start_point_cal[0], start_point_cal[1], start_point_cal[2], np.array([0.0, 0.0, 0.0])]]
                 # setting count for print out
                 count = 0
                 # setting up and test particle to find line
