@@ -869,7 +869,7 @@ class Plate_Capacitor:
                     x_new = p_test.get_x() + new_force_vector[0]
                     y_new = p_test.get_y() + new_force_vector[1]
                     z_new = p_test.get_z() + new_force_vector[2]
-                    # moving the particle by the new adjusted force vector
+                    # moving the particle by the new djusted force vector
                     p_test.set_x(x=x_new)
                     p_test.set_y(y=y_new)
                     p_test.set_z(z=z_new)
