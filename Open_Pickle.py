@@ -10,13 +10,13 @@ if __name__ == "__main__":
     # # path open an old pickle file
     # cap = pickle.load(open(path + '\\class.pickle', "rb", -1))
     # cap.set_self_path(path=path)
-    cap = Plate_Capacitor(n_neg=20, n_pos=20, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
+    cap = Plate_Capacitor(n_neg=3, n_pos=3, p1=[0.01, 0.01], p2=[0.02, 0.02], plane_z_pos=[0.001],
                           plane_z_neg=[0.004],
                           random=False, name='Test')
     # cap.sim(end_stop=2e-05, t=0.0000002)
     # cap.plot_field_lines_from_data()
     # cap.plate_neg.plot_density(nbins=30)
-    cap.plate_neg.plot_density_self_made(nbins_inside=32, searching_box=13)
+    cap.plate_neg.plot_density_self_made(nbins_inside=5, searching_box=3)
     # cap.plot_field_lines_integral_calculation_flatten(num_field_lines=50, x_plane=[0.015], nbins=30,
     #                                                   delta_m=0.000004 * 25)
     # cap.plot_field_lines_integral_calculation_flatten(num_field_lines=50, nbins=30, x_plane=[0.015])

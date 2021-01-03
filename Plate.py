@@ -401,8 +401,27 @@ class Plate:
         # returning the data from excel file
         return df['y'].to_numpy(), int(df['y'].to_numpy().shape[0])
 
-    def plot_density_self_made(self, nbins_inside=100, searching_box=19, save=False, path=None, show=True, points=True):
-        # this is a density function for the plate
+    def plot_density_self_made(self, nbins_inside=100, searching_box=19, save=False, path=None, show=True):
+        # this function is plotting the data
+        # plotting the density of the points
+        fig = plt.figure(figsize=(6, 5), dpi=100, facecolor='w', edgecolor='b')
+        # setting up the plot fig
+        ax = fig.add_subplot(1, 1, 1)
+        # getting the data
+        xi, yi, zi, x, y = self.plot_density_self_made_cals(nbins_inside=nbins_inside, searching_box=searching_box)
+        # plotting the grid
+        im = plt.imshow(zi)
+        # showing the color
+        fig.colorbar(im)
+        if save:
+            plt.savefig(path, dpi=100)
+        if show:
+            plt.show()
+        plt.close()
+        plt.clf()
+
+    def plot_density_self_made_cals(self, nbins_inside=100, searching_box=19):
+        # this is a density function for the plate it does the cals
         # getting the points
         x = np.array([e.get_x() for e in self.matrix.flatten()])
         y = np.array([e.get_y() for e in self.matrix.flatten()])
@@ -413,9 +432,12 @@ class Plate:
         # getting the delta
         delta = self.x_length / nbins_inside
         # grid inside the plate
-        xi, yi = np.mgrid[x.min() - (outside_grid * delta):x.max() + (outside_grid * delta):(nbins_inside+1+(outside_grid*2)) * 1j, y.min() - (outside_grid * delta):y.max() + (outside_grid * delta):(nbins_inside+1+(outside_grid*2)) * 1j]
+        xi, yi = np.mgrid[x.min() - (outside_grid * delta):x.max() + (outside_grid * delta):(nbins_inside + 1 + (
+                    outside_grid * 2)) * 1j, y.min() - (outside_grid * delta):y.max() + (outside_grid * delta):(
+                                                                        nbins_inside + 1 + (outside_grid * 2)) * 1j]
         # print(xi)
         # print(yi)
+        # plotting the particles and the
         # plt.scatter(x, y, c='b', alpha=0.5)
         # plt.scatter(xi, yi, c='r', alpha=0.5)
         # plt.show()
@@ -443,8 +465,10 @@ class Plate:
                         y_check = particle.get_y() - (1 / 100000)
                     else:
                         y_check = particle.get_y()
-                    if round(xi[i][j], 4) <= x_check <= round(xi[i + 1][j], 4) and round(yi[i][j],4) <= y_check <= round(yi[i][j + 1], 4):
-                        # print('Inside ', i, j, round(xi[i][j], 4), round(xi[i + 1][j], 4), round(yi[i][j], 4),round(yi[i][j + 1], 4), particle.get_x(), particle.get_y())
+                    if round(xi[i][j], 4) <= x_check <= round(xi[i + 1][j], 4) and round(yi[i][j],
+                                                                                4) <= y_check <= round(yi[i][j + 1], 4):
+                        # print('Inside ', i, j, round(xi[i][j], 4), round(xi[i + 1][j], 4),
+                        # round(yi[i][j], 4),round(yi[i][j + 1], 4), particle.get_x(), particle.get_y())
                         data_density[i, j] += 1
         # print(data_density)
         # setting the density plate for the grid
@@ -456,45 +480,22 @@ class Plate:
             for j in range(len(data_density_plate)):
                 # print(i,j,outside_grid)
                 data_density_plate[i, j] += data_density[i + outside_grid, j + outside_grid]
-                for a in range(1, int(outside_grid+1)):
+                for a in range(1, int(outside_grid + 1)):
                     data_density_plate[i, j] += data_density[i + outside_grid + a, j + outside_grid]
                     data_density_plate[i, j] += data_density[i + outside_grid - a, j + outside_grid]
                     data_density_plate[i, j] += data_density[i + outside_grid, j + outside_grid + a]
                     data_density_plate[i, j] += data_density[i + outside_grid, j + outside_grid - a]
-                    for t in range(1, int(outside_grid+1)):
+                    for t in range(1, int(outside_grid + 1)):
                         # print(a,t)
-                        data_density_plate[i, j] += data_density[i+outside_grid+a, j+outside_grid+t]
-                        data_density_plate[i, j] += data_density[i+outside_grid+a, j+outside_grid-t]
-                        data_density_plate[i, j] += data_density[i+outside_grid-a, j+outside_grid-t]
-                        data_density_plate[i, j] += data_density[i+outside_grid-a, j+outside_grid+t]
+                        data_density_plate[i, j] += data_density[i + outside_grid + a, j + outside_grid + t]
+                        data_density_plate[i, j] += data_density[i + outside_grid + a, j + outside_grid - t]
+                        data_density_plate[i, j] += data_density[i + outside_grid - a, j + outside_grid - t]
+                        data_density_plate[i, j] += data_density[i + outside_grid - a, j + outside_grid + t]
 
-
-
-        # print(data_density_plate.reshape(xi.shape))
         # setting the data grid
-        xi, yi = np.mgrid[x.min():x.max():(nbins_inside + 1) * 1j, y.min():y.max():(nbins_inside + 1) * 1j]
-        # plotting the density of the points
-        fig = plt.figure(figsize=(6, 5), dpi=100, facecolor='w', edgecolor='b')
-        ax = fig.add_subplot(1, 1, 1)
-        # plotting the grid
-        # im = ax.pcolormesh(xi, yi, data_density_plate.reshape(xi.shape), cmap='viridis', shading='auto')
-        im = plt.imshow(data_density_plate)
-        # Major ticks every 20, minor ticks every 5
-        major_ticks = np.linspace(self._p1[0], self.x_length+self._p1[0], 8)
-        print(major_ticks)
-        # for i in major_ticks:
-        #     ax.axhline(y=i, color='r')
-        #     ax.axvline(x=i, color='r')
-        fig.colorbar(im)
-        # if points:
-        #     ax.scatter(x, y, c='r', alpha=0.1)
-        if save:
-            plt.savefig(path, dpi=100)
-        if show:
-            plt.show()
-        plt.close()
-        plt.clf()
-
+        xi, yi = np.mgrid[x.min():x.max():nbins_inside * 1j, y.min():y.max():nbins_inside * 1j]
+        # returning the data
+        return xi, yi, data_density_plate, x, y
 
 
     def plot_density_distribution(self, nbins=300):
