@@ -775,7 +775,7 @@ class Plate_Capacitor:
 
     def plot_field_lines_integral_calculation_flatten(self, num_field_lines=100, delta_m=0.000004, nbins=10,
                                                       x_plane=None, show=False, logs=True, room=False, fake_dist=False,
-                                                      path_fake_dist=None):
+                                                      path_fake_dist=None, searching_box=5):
         # this function is going to build the field lines for the plot
         # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
@@ -803,7 +803,8 @@ class Plate_Capacitor:
             # delta for big space in which we check for the number density
             delta_n = np.array([self.plate_pos.y_length / nbins])
             # getting the data for the density 2d plot for integral cal
-            xi, yi, zi, x, y = self.plate_pos.plot_density_self_made_cals(nbins_inside=32, searching_box=17)
+            xi, yi, zi, x, y = self.plate_pos.plot_density_self_made_cals(nbins_inside=nbins,
+                                                                          searching_box=searching_box)
             # setting it the right way
             zi = zi.reshape(xi.shape)
             # combing zi in one dimension array
@@ -811,7 +812,7 @@ class Plate_Capacitor:
             data_plot_density = zi[:, int(len(xi) / 2)]
             print(data_plot_density)
             # preparing the density data smaller
-            zi_x = 8.85 * 10 ** -12 / zi.mean()
+            zi_x = 8.85 * 10 ** -9 / zi.mean()
             zi_density = zi_x / zi
             # saving all the data
             np.savez_compressed(path_field_lines_2d_data + '\\data_plot_density.npz', data_plot_density,
@@ -831,7 +832,7 @@ class Plate_Capacitor:
                             chunksize=100)
         # plotting the graphics and saving it
         plt.plot(num_field_lines_in_area)
-        plt.savefig(path_field_lines_2d+'\\lines_in_bins.png')
+        plt.savefig(path_field_lines_2d + '\\lines_in_bins.png')
         plt.close()
         # testing the data
         check_real_field_lines = sum(num_field_lines_in_area)
@@ -979,12 +980,12 @@ class Plate_Capacitor:
             if x_off_prefix in file:
                 # opening the data
                 points_data = np.load(path_field_lines_2d_data + '\\' + file, allow_pickle=True)['arr_0']
-                plt.plot(points_data[:, 2], points_data[:, 1], c='g', linewidth=0.5)
+                plt.plot(points_data[:, 2], points_data[:, 1], c='darkgreen', linewidth=0.2)
         # building up the 2D plot
         x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
-        plt.plot(x1, y1, marker='o', c='r')
+        plt.plot(x1, y1, c='r')
         x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
-        plt.plot(x2, y2, marker='o', c='b')
+        plt.plot(x2, y2, c='b')
 
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
         plt.savefig(path_field_lines_2d + '\\Field_Lines_X_off_' + str(round(0.015, 3)) + '.png', dpi=150)
