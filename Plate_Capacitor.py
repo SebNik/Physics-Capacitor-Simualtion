@@ -845,7 +845,6 @@ class Plate_Capacitor:
                     new_point = start_points_list[-1] + np.array([0.0, delta_in_sector, 0.0])
                     if new_point[1] >= self._p2[1]:
                         new_point[1] = self._p2[1] - (1 / 100000)
-                        print('jdsjfkasdkjfaödsjfköajsdölfjaödsjfkajsdfjadlsjfasjdkfjasdöljflasdjfkjadskfjöladsjfk')
                     start_points_list.append(new_point)
             print(start_points_list)
             # saving all the data
@@ -915,7 +914,7 @@ class Plate_Capacitor:
                 field_lines.append(points_data)
                 if plotted_lines != 0 and check_real_field_lines - 1 != plotted_lines:
                     # plotting for the 2d line plot
-                    plt.plot(points_data[:, 2], points_data[:, 1], c='g', linewidth=0.25)
+                    plt.plot(points_data[:, 2], points_data[:, 1], c='darkgreen', linewidth=0.2)
                 plotted_lines += 1
             # building up the 2D plot
             x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
