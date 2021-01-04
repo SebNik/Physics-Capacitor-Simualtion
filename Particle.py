@@ -1,11 +1,10 @@
 # this file is simulating a simple grid model with two parallel capacitors
 # loading in modules
 import uuid
-import math
 import numpy as np
 from scipy.constants import pi
-# physical_constants[name] = (value, unit, uncertainty)
 from scipy.constants import physical_constants as physical_constants
+# USAGE physical_constants[name] = (value, unit, uncertainty)
 
 
 class Particle:
@@ -16,7 +15,7 @@ class Particle:
         self.__x = x
         self.__y = y
         self.__z = z
-        # setting i-hat and ^j
+        # setting i-hat and j-hat
         self._i = 1
         self._j = 1
         self.type = type_c

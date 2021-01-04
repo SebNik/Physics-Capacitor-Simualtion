@@ -108,9 +108,6 @@ class Plate_Capacitor:
         inner_list_neg, inner_dic_neg = self.plate_neg.get_inner_forces_optimised(
             corresponding_particles_information=[corresponding_info_particles_neg,
                                                  corresponding_state_info_particles_neg])
-        inner_list_pos, inner_dic_pos = self.plate_pos.get_inner_forces_optimised(
-            corresponding_particles_information=[corresponding_info_particles_pos,
-                                                 corresponding_state_info_particles_pos])
         # -------------------------- RELEVANT PLANE PARTICLES -------------------------
         # getting forces for each electron with the positive charge and then adding it to inner forces
         for e_n in self.plate_neg.matrix.flatten():
@@ -227,6 +224,7 @@ class Plate_Capacitor:
                 e_test = Particle(x=x[i], y=y[j], z=z_plane, type_c='+')
                 # setting force sum vector
                 sum_forces = np.array([0.0, 0.0, 0.0])
+                sum_forces_num = 0
                 # cal forces between test particle and all real ones
                 # negative plate
                 for e_n in self.plate_neg.matrix.flatten():
@@ -234,22 +232,24 @@ class Plate_Capacitor:
                         force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                             particle=e_n)
                         sum_forces += force_vector
-                    else:
-                        print('Found: ', e_test.get_x(), e_n.get_x(), e_test.get_y(), e_n.get_y(), e_test.get_z(),
-                              e_n.get_z())
+                        sum_forces_num += force
+                    # else:
+                    #     print('Found: ', e_test.get_x(), e_n.get_x(), e_test.get_y(), e_n.get_y(), e_test.get_z(),
+                    #           e_n.get_z())
                 # positive plate
                 for e_p in self.plate_pos.matrix.flatten():
                     if self.same_position_of_particles(e1=e_p, e2=e_test):
                         force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
                             particle=e_p)
                         sum_forces += force_vector
-                    else:
-                        print('Found: ', e_test.get_x(), e_p.get_x(), e_test.get_y(), e_p.get_y(), e_test.get_z(),
-                              e_p.get_z())
+                        sum_forces_num += force
+                    # else:
+                    #     print('Found: ', e_test.get_x(), e_p.get_x(), e_test.get_y(), e_p.get_y(), e_test.get_z(),
+                    #           e_p.get_z())
                 # building forces array
                 forces_results.append([x[i], y[j], z_plane, sum_forces])
                 # cal the electric field on this point
-                e = sum_forces / physical_constants["elementary charge"][0]
+                e = sum_forces_num / physical_constants["elementary charge"][0]
                 array_results.append([x[i], y[j], z_plane, e])
         # setting it to numpy for later
         forces_results = np.array(forces_results)
@@ -364,9 +364,9 @@ class Plate_Capacitor:
             image = array_results[:, 3].reshape(int(len(array_results) / int(resolution)), int(resolution))
             # image plotting in 2d
             fig, ax = plt.subplots()
-            m = ax.imshow(image, vmin=min_v, vmax=max_v,
-                          **{'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta,
-                                        self._p2[1] + delta]})
+            # m = ax.imshow(image, vmin=min_v, vmax=max_v, **{
+            #     'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
+            m = ax.imshow(image, **{'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
             fig.colorbar(m)
             plt.title(str(round(z, 5)) + ' Check: ' + str(int(sum(sum(image)))))
             if show:
