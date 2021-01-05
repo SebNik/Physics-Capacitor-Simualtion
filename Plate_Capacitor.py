@@ -261,6 +261,113 @@ class Plate_Capacitor:
         # returning value
         return array_results, len(array_results), forces_results
 
+    def cal_electric_field_2D_profile(self, x_plane, resolution_x, resolution_y, size=1):
+        # this function is calculating the electric field between the two plates on a plane
+        # setting the numpy spaces for the grid points
+        delta = self.plate_neg.x_length * (size - 1) / 2
+        y = np.linspace(0 - delta, self.plate_neg.x_length + delta, resolution_y) + self._p1[0]
+        z = np.linspace(0, self.z_plane_diff, resolution_x) + self.plate_pos.z_plane
+        # print(y)
+        # print(z)
+        # iterating through the whole cube of data
+        # setting to new data lists
+        array_results = []
+        forces_results = []
+        for i in range(0, resolution_y):
+            # print out status
+            # print('Iteration on biggest list: ', i)
+            for j in range(0, resolution_x):
+                # building mock particle
+                e_test = Particle(x=x_plane, y=y[i], z=z[j], type_c='+')
+                # setting force sum vector
+                sum_forces = np.array([0.0, 0.0, 0.0])
+                sum_forces_num = 0
+                # cal forces between test particle and all real ones
+                # negative plate
+                for e_n in self.plate_neg.matrix.flatten():
+                    if self.same_position_of_particles(e1=e_n, e2=e_test):
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
+                            particle=e_n)
+                        sum_forces += force_vector
+                        sum_forces_num += force
+                    # else:
+                    #     print('Found: ', e_test.get_x(), e_n.get_x(), e_test.get_y(), e_n.get_y(), e_test.get_z(),
+                    #           e_n.get_z())
+                # positive plate
+                for e_p in self.plate_pos.matrix.flatten():
+                    if self.same_position_of_particles(e1=e_p, e2=e_test):
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = e_test.cal_force(
+                            particle=e_p)
+                        sum_forces += force_vector
+                        sum_forces_num += force
+                    # else:
+                    #     print('Found: ', e_test.get_x(), e_p.get_x(), e_test.get_y(), e_p.get_y(), e_test.get_z(),
+                    #           e_p.get_z())
+                # building forces array
+                forces_results.append([x_plane, y[i], z[j], sum_forces])
+                # cal the electric field on this point
+                e = sum_forces_num / physical_constants["elementary charge"][0]
+                array_results.append([x_plane, y[i], z[j], e])
+        # setting it to numpy for later
+        forces_results = np.array(forces_results)
+        # setting array to numpy and sorting it
+        array_results = np.array(array_results)
+        array_results = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
+        array_results = array_results[array_results[:, 1].argsort(kind='mergesort')]
+        array_results = array_results[array_results[:, 0].argsort(kind='mergesort')]
+        # returning value
+        return array_results, len(array_results), forces_results
+
+    def analysis_2d_profile(self, resolution_x=10, resolution_y=50, show=False, x_plane=None, size=1):
+        # this function is going to cal the electric field and other parameters
+        # creating the paths to save
+        if x_plane is None:
+            x_plane = [(self._p2[1] - self._p1[1]) / 2 + self._p1[1]]
+        # print(x_plane)
+        path_field_2d = os.path.abspath(os.path.join(self.path, 'E_Field_2D_Profile'))
+        # create folder for saves
+        if not os.path.isdir(path_field_2d):
+            os.mkdir(path_field_2d)
+        for x in x_plane:
+            # getting the data
+            array_results, length, forces_results = self.cal_electric_field_2D_profile(x_plane=x,
+                                                                                       resolution_x=resolution_x,
+                                                                                       size=size,
+                                                                                       resolution_y=resolution_y)
+            # print(array_results)
+            # print(length)
+            # print(array_results.shape)
+            # plotting the test
+            # print(array_results)
+            # saving the arrays
+            np.savez_compressed(self.path + '\\e_field_array_profile_2d.npz', array_results, chunksize=100)
+            np.savez_compressed(self.path + '\\forces_array_profile_2d.npz', forces_results, chunksize=100)
+            # building the plots
+            # getting max and min for plots
+            max_v = 0.15  # max(array_results[:, 3])
+            min_v = 0.0  # min(array_results[:, 3])
+            # setting legend data
+            delta = self.plate_neg.x_length * (size - 1) / 2
+            # image getting the 2d
+            image = array_results[:, 3].reshape(resolution_y, resolution_x)
+            # image plotting in 2d
+            fig, ax = plt.subplots()
+            # print([self.plate_pos.z_plane, self.plate_neg.z_plane, self._p1[1] - delta, self._p2[1] + delta])
+            # m = ax.imshow(image, vmin=min_v, vmax=max_v, **{
+            #     'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
+            m = ax.imshow(image, **{
+                'extent': [self.plate_pos.z_plane, self.plate_neg.z_plane, self._p1[1] - delta, self._p2[1] + delta]})
+            fig.colorbar(m)
+            plt.title(str(round(x, 5)) + ' Check: ' + str(int(sum(sum(image)))))
+            if show:
+                plt.show()
+            plt.savefig(path_field_2d + '\\E_Field_2D_Profile_' + str(round(x, 5)) + '_Res_X_' + str(
+                resolution_x) + '_Res_Y_' + str(resolution_y) + '.png',
+                        dpi=300)
+            # clearing out memory
+            plt.close()
+            plt.clf()
+
     def analysis(self, resolution_2d=10, resolution_3d=10, show=False, size=1):
         # this function is going to cal the electric field and other parameters
         # creating the paths to save
@@ -366,7 +473,8 @@ class Plate_Capacitor:
             fig, ax = plt.subplots()
             # m = ax.imshow(image, vmin=min_v, vmax=max_v, **{
             #     'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
-            m = ax.imshow(image, **{'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
+            m = ax.imshow(image, **{
+                'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
             fig.colorbar(m)
             plt.title(str(round(z, 5)) + ' Check: ' + str(int(sum(sum(image)))))
             if show:
@@ -966,6 +1074,7 @@ class Plate_Capacitor:
 
     def plot_field_lines_from_data(self, x_off_prefix='e_field_lines_[0_015'):
         # plotting the field lines from the saved data
+        fig = plt.figure(figsize=(6, 5), dpi=300, facecolor='w', edgecolor='b')
         # finding the right path
         path_field_lines_2d_data = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D_DATA'))
         # getting all the files
@@ -992,6 +1101,7 @@ class Plate_Capacitor:
 
     def plot_field_lines_static(self, num_field_lines=10):
         # this function will plot a fully static field
+        fig = plt.figure(figsize=(6, 5), dpi=250, facecolor='w', edgecolor='b')
         # delta to add it up on every iteration
         delta = np.array([0.0, self.plate_pos.y_length / num_field_lines])
         # showing the fieldline
@@ -999,18 +1109,24 @@ class Plate_Capacitor:
         start_point_cal = start_p
         # iterating over length of plate and number of field lines
         for i in range(1, num_field_lines + 2):
-            plt.plot(np.array([start_point_cal[0], self.plate_neg.z_plane]), [start_point_cal[1], start_point_cal[1]],
-                     c='g')
+            if i == num_field_lines:
+                plt.plot(np.array([start_point_cal[0], self.plate_neg.z_plane]),
+                         [start_point_cal[1], start_point_cal[1]],
+                         c='darkgreen', linewidth=1, label='Field lines')
+            else:
+                plt.plot(np.array([start_point_cal[0], self.plate_neg.z_plane]),
+                         [start_point_cal[1], start_point_cal[1]],
+                         c='darkgreen', linewidth=1)
             # setting the new start values for the next list
             start_point_cal = start_p + (delta * i)
         # building up the 2D plot
         x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
-        plt.plot(x1, y1, marker='o', c='r')
+        plt.plot(x1, y1, c='r', label="Positive Plate")
         x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
-        plt.plot(x2, y2, marker='o', c='b')
+        plt.plot(x2, y2, c='b', label='Negative Plate')
         # set the right title
         plt.title('Full static field')
-        plt.axis([0.00030000000000000003, 0.0157, 0.0019876531873855687, 0.028012346812614407])
+        # plt.axis([0.00030000000000000003, 0.0157, 0.0019876531873855687, 0.028012346812614407])
         plt.show()
 
     def plotting_plates_vectors_force(self):
