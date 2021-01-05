@@ -344,29 +344,32 @@ class Plate_Capacitor:
             np.savez_compressed(self.path + '\\forces_array_profile_2d.npz', forces_results, chunksize=100)
             # building the plots
             # getting max and min for plots
-            max_v = 0.15  # max(array_results[:, 3])
-            min_v = 0.0  # min(array_results[:, 3])
+            max_v = 0.04
+            min_v = 0.0
+            max_value = np.linspace(max(array_results[:, 3])/6, max(array_results[:, 3]), 10)
             # setting legend data
             delta = self.plate_neg.x_length * (size - 1) / 2
             # image getting the 2d
             image = array_results[:, 3].reshape(resolution_y, resolution_x)
-            # image plotting in 2d
-            fig, ax = plt.subplots()
-            # print([self.plate_pos.z_plane, self.plate_neg.z_plane, self._p1[1] - delta, self._p2[1] + delta])
-            # m = ax.imshow(image, vmin=min_v, vmax=max_v, **{
-            #     'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
-            m = ax.imshow(image, **{
-                'extent': [self.plate_pos.z_plane, self.plate_neg.z_plane, self._p1[1] - delta, self._p2[1] + delta]})
-            fig.colorbar(m)
-            plt.title(str(round(x, 5)) + ' Check: ' + str(int(sum(sum(image)))))
-            if show:
-                plt.show()
-            plt.savefig(path_field_2d + '\\E_Field_2D_Profile_' + str(round(x, 5)) + '_Res_X_' + str(
-                resolution_x) + '_Res_Y_' + str(resolution_y) + '.png',
-                        dpi=300)
-            # clearing out memory
-            plt.close()
-            plt.clf()
+            for e in max_value:
+                # image plotting in 2d
+                fig, ax = plt.subplots()
+                # print([self.plate_pos.z_plane, self.plate_neg.z_plane, self._p1[1] - delta, self._p2[1] + delta])
+                # m = ax.imshow(image, vmin=min_v, vmax=max_v, **{
+                #     'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
+                m = ax.imshow(image, vmin=min_v, vmax=e, **{
+                    'extent': [self.plate_pos.z_plane, self.plate_neg.z_plane, self._p1[1] - delta, self._p2[1] + delta]})
+                fig.colorbar(m)
+                plt.title(str(round(x, 5)))
+                if show:
+                    plt.show()
+                plt.savefig(path_field_2d + '\\E_Field_2D_Profile_' + str(round(x, 5)) + '_Res_X_' + str(
+                    resolution_x) + '_Res_Y_' + str(resolution_y) + 'V_MAX_'+str(e)+'.png',
+
+                            dpi=300)
+                # clearing out memory
+                plt.close()
+                plt.clf()
 
     def analysis(self, resolution_2d=10, resolution_3d=10, show=False, size=1):
         # this function is going to cal the electric field and other parameters
