@@ -348,8 +348,8 @@ class Plate:
         f_list, f_dic = self.get_inner_forces()
         # print(f_dic)
         for e in self.matrix.flatten():
-            plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0], f_dic[str(e.get_id())][1], hatch='o',
-                       width=0.01)
+            plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0] * 14e21, f_dic[str(e.get_id())][1] * 14e21, hatch='o',
+                       width=0.01, scale=1)
         # getting x,y for particles plot
         x = [e.get_x() for e in self.matrix.flatten()]
         y = [e.get_y() for e in self.matrix.flatten()]
@@ -358,6 +358,45 @@ class Plate:
         # plotting particles
         plt.scatter(x, y, c=color)
         # showing the plot
+        plt.axis([0, 0.03, 0, 0.03])
+
+        plt.show()
+
+    def plotting_every_single_force_vector(self):
+        # plotting all of the force vectors
+        # setting up colors
+        color_list = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'purple', 'cyan']
+        # assigning all the particles their color
+        color_particle = {}
+        c = 0
+        for i in range(len(self.matrix.flatten())):
+            color_particle[self.matrix.flatten()[i].get_id()] = color_list[c]
+            c += 1
+            if c > len(color_list)-1:
+                c = 0
+        # plotting the particles
+        plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
+        # getting x,y for particles plot
+        x = [e.get_x() for e in self.matrix.flatten()]
+        y = [e.get_y() for e in self.matrix.flatten()]
+        # iterating through the particles and plotting them
+        for e in self.matrix.flatten():
+            # plotting the single particle
+            for e_n in self.matrix.flatten():
+                if e_n.get_id() != e.get_id():
+                    force, force_vector, force_vector_x, force_vector_y, force_vector_z = e.cal_force(particle=e_n)
+                    force_vector = force_vector * 14e21
+                    print(force_vector)
+                    plt.quiver(e.get_x(), e.get_y(), force_vector[0], force_vector[1],
+                               color=color_particle[e_n.get_id()], scale=1, width=0.01)
+            plt.scatter(e.get_x(), e.get_y(), c=color_particle[e.get_id()], s=70)
+        # # getting forces data
+        # f_list, f_dic = self.get_inner_forces_optimised()
+        # # print(f_dic)
+        # for e in self.matrix.flatten():
+        #     plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0], f_dic[str(e.get_id())][1], hatch='o',
+        #                width=0.01)
+        plt.axis([0, 0.03, 0, 0.03])
         plt.show()
 
     def plot_matrix_particles_vector_optimised(self):
@@ -433,8 +472,9 @@ class Plate:
         delta = self.x_length / nbins_inside
         # grid inside the plate
         xi, yi = np.mgrid[x.min() - (outside_grid * delta):x.max() + (outside_grid * delta):(nbins_inside + 1 + (
-                    outside_grid * 2)) * 1j, y.min() - (outside_grid * delta):y.max() + (outside_grid * delta):(
-                                                                        nbins_inside + 1 + (outside_grid * 2)) * 1j]
+                outside_grid * 2)) * 1j, y.min() - (outside_grid * delta):y.max() + (outside_grid * delta):(
+                                                                                                                   nbins_inside + 1 + (
+                                                                                                                   outside_grid * 2)) * 1j]
         # print(xi)
         # print(yi)
         # plotting the particles and the
@@ -466,7 +506,8 @@ class Plate:
                     else:
                         y_check = particle.get_y()
                     if round(xi[i][j], 4) <= x_check <= round(xi[i + 1][j], 4) and round(yi[i][j],
-                                                                                4) <= y_check <= round(yi[i][j + 1], 4):
+                                                                                         4) <= y_check <= round(
+                        yi[i][j + 1], 4):
                         # print('Inside ', i, j, round(xi[i][j], 4), round(xi[i + 1][j], 4),
                         # round(yi[i][j], 4),round(yi[i][j + 1], 4), particle.get_x(), particle.get_y())
                         data_density[i, j] += 1
@@ -496,7 +537,6 @@ class Plate:
         xi, yi = np.mgrid[x.min():x.max():nbins_inside * 1j, y.min():y.max():nbins_inside * 1j]
         # returning the data
         return xi, yi, data_density_plate, x, y
-
 
     def plot_density_distribution(self, nbins=300):
         # plotting the distribution of density

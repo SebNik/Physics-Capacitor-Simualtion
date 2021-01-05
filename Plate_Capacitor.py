@@ -261,6 +261,63 @@ class Plate_Capacitor:
         # returning value
         return array_results, len(array_results), forces_results
 
+    def cal_electric_field_2D_self_made_density(self, nbins, searching_box, z_plane, resolution=10, size=1):
+        # this function is calculating the electric field between the two plates on a plane
+        # setting the numpy spaces for the grid points
+        delta = self.plate_neg.x_length * (size - 1) / 2
+        x = np.linspace(0 - delta, self.plate_neg.x_length + delta, resolution) + self._p1[0]
+        y = np.linspace(0 - delta, self.plate_neg.y_length + delta, resolution) + self._p1[1]
+        # getting the data for the density 2d plot for integral cal
+        xi, yi, zi, x, y = self.plate_pos.plot_density_self_made_cals(nbins_inside=nbins,
+                                                                      searching_box=searching_box)
+        # setting it the right way
+        zi = zi.reshape(xi.shape)
+        # preparing the density data smaller
+        zi_x = 8.85 * 10 ** -12 / zi.mean()
+        zi_density = zi_x / zi
+        # iterating through the whole cube of data
+        # setting to new data lists
+        array_results = []
+        forces_results = []
+        for i in range(0, resolution):
+            for j in range(0, resolution):
+                # setting force sum vector
+                sum_forces = np.array([0.0, 0.0, 0.0])
+                sum_forces_num = 0
+                # building mock particle
+                p_test = Particle(x=x[i], y=y[j], z=z_plane, type_c='+')
+                for k in range(xi.shape[0]):
+                    for m in range(xi.shape[1]):
+                        # setting up the particle for the negative site
+                        p_test_neg = Particle(x=xi[k, m], y=yi[k, m], z=self.plate_neg.z_plane, type_c='-')
+                        p_test_neg.set_charge(charge=zi_density[k, m])
+                        # setting up the particle for the positive site
+                        p_test_pos = Particle(x=xi[k, m], y=yi[k, m], z=self.plate_pos.z_plane, type_c='+')
+                        p_test_pos.set_charge(charge=zi_density[k, m])
+                        # calculating the force between the particles
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force_q(
+                            particle=p_test_neg)
+                        sum_forces += force_vector
+                        sum_forces_num += force
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = p_test.cal_force_q(
+                            particle=p_test_pos)
+                        sum_forces += force_vector
+                        sum_forces_num += force
+                        # cal forces between test particle and all real ones
+                forces_results.append([x[i], y[j], z_plane, sum_forces])
+                # cal the electric field on this point
+                e = sum_forces_num / physical_constants["elementary charge"][0]
+                array_results.append([x[i], y[j], z_plane, e])
+        # setting it to numpy for later
+        forces_results = np.array(forces_results)
+        # setting array to numpy and sorting it
+        array_results = np.array(array_results)
+        array_results = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
+        array_results = array_results[array_results[:, 1].argsort(kind='mergesort')]
+        array_results = array_results[array_results[:, 0].argsort(kind='mergesort')]
+        # returning value
+        return array_results, len(array_results), forces_results, zi_density, data_plot_density
+
     def cal_electric_field_2D_profile(self, x_plane, resolution_x, resolution_y, size=1):
         # this function is calculating the electric field between the two plates on a plane
         # setting the numpy spaces for the grid points
@@ -365,9 +422,9 @@ class Plate_Capacitor:
                 if show:
                     plt.show()
                 plt.savefig(path_field_2d + '\\E_Field_2D_Profile_' + str(round(x, 5)) + '_Res_X_' + str(
-                    resolution_x) + '_Res_Y_' + str(resolution_y) + 'V_MAX_' + str(round(e, 2)) + '.png',
+                    resolution_x) + '_Res_Y_' + str(resolution_y) + 'V_MAX_' + str(round(e, 12)) + '.png',
 
-                            dpi=300)
+                            dpi=500)
                 # clearing out memory
                 plt.close()
                 plt.clf()
@@ -386,7 +443,7 @@ class Plate_Capacitor:
         # getting the data
         array_results, length, forces_results = self.cal_electric_field_3d(resolution_2d=resolution_2d,
                                                                            resolution_3d=resolution_3d, size=size)
-        print(array_results)
+        # print(array_results)
         print("Array result shape all 3d: ", array_results.shape)
         # saving the arrays
         np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
@@ -443,7 +500,7 @@ class Plate_Capacitor:
             plt.close()
             plt.clf()
 
-    def analysis_2D(self, resolution=10, show=False, z_plane=None, size=1):
+    def analysis_2D(self, nbins, searching_box, resolution=10, show=False, z_plane=None, size=1):
         # this function is going to cal the electric field and other parameters
         # creating the paths to save
         if z_plane is None:
@@ -454,13 +511,18 @@ class Plate_Capacitor:
             os.mkdir(path_field_2d)
         for z in z_plane:
             # getting the data
-            array_results, length, forces_results = self.cal_electric_field_2D(z_plane=z, resolution=resolution,
-                                                                               size=size)
+            array_results, length, forces_results, zi_density, data_plot_density = self.cal_electric_field_2D_self_made_density(
+                nbins=nbins, searching_box=searching_box, z_plane=z, resolution=resolution, size=size)
             # plotting the test
             # print(array_results)
             # saving the arrays
             np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
             np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
+            # saving all the data
+            np.savez_compressed(self.path + '\\data_plot_density.npz', data_plot_density,
+                                chunksize=100)
+            np.savez_compressed(self.path + '\\zi_density_charge.npz', zi_density,
+                                chunksize=100)
             # building the plots
             # getting max and min for plots
             max_v = 0.15  # max(array_results[:, 3])
@@ -484,7 +546,7 @@ class Plate_Capacitor:
             if show:
                 plt.show()
             plt.savefig(path_field_2d + '\\E_Field_2D_' + str(round(z, 5)) + '_Res_' + str(resolution) + '.png',
-                        dpi=100)
+                        dpi=250)
             # clearing out memory
             plt.close()
             plt.clf()
@@ -1129,7 +1191,7 @@ class Plate_Capacitor:
         x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
         plt.plot(x2, y2, c='b', label='Negative Plate')
         # set the right title
-        plt.title('Full static field')
+        # plt.title('Full static field')
         # plt.axis([0.00030000000000000003, 0.0157, 0.0019876531873855687, 0.028012346812614407])
         plt.show()
 
