@@ -298,7 +298,7 @@ class Plate:
         y = [e.get_y() for e in self.matrix.flatten()]
         color = []
         if type(highlight) == dict:
-            color_list = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+            color_list = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'cyan', 'orangered']
             current_color = -1
             color_relevant_particles = {}
             for p in self.matrix.flatten():
@@ -346,9 +346,11 @@ class Plate:
         plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
         # getting forces data
         f_list, f_dic = self.get_inner_forces()
+        print(f_list)
         # print(f_dic)
+        f = 15e20
         for e in self.matrix.flatten():
-            plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0] * 14e21, f_dic[str(e.get_id())][1] * 14e21, hatch='o',
+            plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0] * f, f_dic[str(e.get_id())][1] * f, hatch='o',
                        width=0.01, scale=1)
         # getting x,y for particles plot
         x = [e.get_x() for e in self.matrix.flatten()]
@@ -359,7 +361,6 @@ class Plate:
         plt.scatter(x, y, c=color)
         # showing the plot
         plt.axis([0, 0.03, 0, 0.03])
-
         plt.show()
 
     def plotting_every_single_force_vector(self):
@@ -615,7 +616,7 @@ if __name__ == "__main__":
     # getting class information
     # print(Plate)
     # setting instance of single plate
-    plate_neg = Plate(n=16, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='-')
+    plate_neg = Plate(n=6, p1=[0, 0, 0], p2=[1, 1, 0], random=False, type='-')
     # printing all information about it
     # print(plate_neg)
     # getting values
@@ -626,7 +627,7 @@ if __name__ == "__main__":
     # print(np.array(plate_neg.get_inner_forces()[0]).mean())
     # plotting inner forces
     # plate_neg.plot_matrix_particles_vector_old()
-    plate_neg.plot_matrix_particles_vector_optimised()
+    # plate_neg.plot_matrix_particles_vector_optimised()
     corresponding_particles, states = plate_neg.find_corresponding_particles()
     for i in corresponding_particles:
         print(i, corresponding_particles[i])

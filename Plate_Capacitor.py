@@ -265,8 +265,8 @@ class Plate_Capacitor:
         # this function is calculating the electric field between the two plates on a plane
         # setting the numpy spaces for the grid points
         delta = self.plate_neg.x_length * (size - 1) / 2
-        x = np.linspace(0 - delta, self.plate_neg.x_length + delta, resolution) + self._p1[0]
-        y = np.linspace(0 - delta, self.plate_neg.y_length + delta, resolution) + self._p1[1]
+        x_p_test = np.linspace(0 - delta, self.plate_neg.x_length + delta, resolution) + self._p1[0]
+        y_p_test = np.linspace(0 - delta, self.plate_neg.y_length + delta, resolution) + self._p1[1]
         # getting the data for the density 2d plot for integral cal
         xi, yi, zi, x, y = self.plate_pos.plot_density_self_made_cals(nbins_inside=nbins,
                                                                       searching_box=searching_box)
@@ -285,7 +285,7 @@ class Plate_Capacitor:
                 sum_forces = np.array([0.0, 0.0, 0.0])
                 sum_forces_num = 0
                 # building mock particle
-                p_test = Particle(x=x[i], y=y[j], z=z_plane, type_c='+')
+                p_test = Particle(x=x_p_test[i], y=y_p_test[j], z=z_plane, type_c='+')
                 for k in range(xi.shape[0]):
                     for m in range(xi.shape[1]):
                         # setting up the particle for the negative site
@@ -304,10 +304,10 @@ class Plate_Capacitor:
                         sum_forces += force_vector
                         sum_forces_num += force
                         # cal forces between test particle and all real ones
-                forces_results.append([x[i], y[j], z_plane, sum_forces])
+                forces_results.append([x_p_test[i], y_p_test[j], z_plane, sum_forces])
                 # cal the electric field on this point
                 e = sum_forces_num / physical_constants["elementary charge"][0]
-                array_results.append([x[i], y[j], z_plane, e])
+                array_results.append([x_p_test[i], y_p_test[j], z_plane, e])
         # setting it to numpy for later
         forces_results = np.array(forces_results)
         # setting array to numpy and sorting it
@@ -316,7 +316,7 @@ class Plate_Capacitor:
         array_results = array_results[array_results[:, 1].argsort(kind='mergesort')]
         array_results = array_results[array_results[:, 0].argsort(kind='mergesort')]
         # returning value
-        return array_results, len(array_results), forces_results, zi_density, data_plot_density
+        return array_results, len(array_results), forces_results, zi_density
 
     def cal_electric_field_2D_profile(self, x_plane, resolution_x, resolution_y, size=1):
         # this function is calculating the electric field between the two plates on a plane
@@ -502,6 +502,10 @@ class Plate_Capacitor:
 
     def analysis_2D(self, nbins, searching_box, resolution=10, show=False, z_plane=None, size=1):
         # this function is going to cal the electric field and other parameters
+        path_e_data_2d = os.path.abspath(os.path.join(self.path, 'E_Field_2D_DATA'))
+        # create folder for saves
+        if not os.path.isdir(path_e_data_2d):
+            os.mkdir(path_e_data_2d)
         # creating the paths to save
         if z_plane is None:
             z_plane = [self.plate_neg.z_plane]
@@ -511,38 +515,27 @@ class Plate_Capacitor:
             os.mkdir(path_field_2d)
         for z in z_plane:
             # getting the data
-            array_results, length, forces_results, zi_density, data_plot_density = self.cal_electric_field_2D_self_made_density(
+            array_results, length, forces_results, zi_density = self.cal_electric_field_2D_self_made_density(
                 nbins=nbins, searching_box=searching_box, z_plane=z, resolution=resolution, size=size)
             # plotting the test
             # print(array_results)
             # saving the arrays
-            np.savez_compressed(self.path + '\\e_field_array.npz', array_results, chunksize=100)
-            np.savez_compressed(self.path + '\\forces_array.npz', forces_results, chunksize=100)
+            np.savez_compressed(path_e_data_2d + '\\e_field_array_z_' + str(z) + '.npz', array_results, chunksize=100)
+            np.savez_compressed(path_e_data_2d + '\\forces_array_z_' + str(z) + '.npz', forces_results, chunksize=100)
             # saving all the data
-            np.savez_compressed(self.path + '\\data_plot_density.npz', data_plot_density,
-                                chunksize=100)
-            np.savez_compressed(self.path + '\\zi_density_charge.npz', zi_density,
+            np.savez_compressed(path_e_data_2d + '\\zi_density_charge.npz', zi_density,
                                 chunksize=100)
             # building the plots
-            # getting max and min for plots
-            max_v = 0.15  # max(array_results[:, 3])
-            min_v = 0.0  # min(array_results[:, 3])
             # setting legend data
             delta = self.plate_neg.x_length * (size - 1) / 2
-            # sorting the array
-            a = array_results[array_results[:, 2].argsort()]  # First sort doesn't need to be stable.
-            a = a[a[:, 1].argsort(kind='mergesort')]
-            a = a[a[:, 0].argsort(kind='mergesort')]
             # image getting the 2d
             image = array_results[:, 3].reshape(int(len(array_results) / int(resolution)), int(resolution))
             # image plotting in 2d
             fig, ax = plt.subplots()
-            # m = ax.imshow(image, vmin=min_v, vmax=max_v, **{
-            #     'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
             m = ax.imshow(image, **{
                 'extent': [self._p1[0] - delta, self._p2[0] + delta, self._p1[1] - delta, self._p2[1] + delta]})
             fig.colorbar(m)
-            plt.title(str(round(z, 5)) + ' Check: ' + str(int(sum(sum(image)))))
+            plt.title(str(round(z, 5)))
             if show:
                 plt.show()
             plt.savefig(path_field_2d + '\\E_Field_2D_' + str(round(z, 5)) + '_Res_' + str(resolution) + '.png',
