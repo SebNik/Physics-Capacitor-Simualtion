@@ -644,13 +644,17 @@ class Plate_Capacitor:
         # # setting up the path
         path_field_lines_2d = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D'))
         path_field_lines_3d = os.path.abspath(os.path.join(self.path, 'Field_Lines_3D'))
+        path_field_lines_2d_data = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D_DATA'))
         # create folder for saves
         if not os.path.isdir(path_field_lines_2d):
             os.mkdir(path_field_lines_2d)
         if not os.path.isdir(path_field_lines_3d):
             os.mkdir(path_field_lines_3d)
+        if not os.path.isdir(path_field_lines_2d_data):
+            os.mkdir(path_field_lines_2d_data)
         # building the field lines
         field_lines = []
+        plotted_lines = 0
         # delta to add it up on every iteration
         delta = np.array([0.0, self.plate_pos.y_length / num_field_lines, 0.0])
         # iteration over the different z planes
@@ -712,28 +716,32 @@ class Plate_Capacitor:
                 points_data = np.array(points_data)[1:-1]
                 # saving the created data
                 np.savez_compressed(
-                    path_field_lines_2d + '\\e_field_lines_' + str(start_point_cal).replace(' ', '_').replace('.',
-                                                                                                              '_') + '.npz',
+                    path_field_lines_2d_data + '\\e_field_lines_' + str(start_point_cal).replace(' ', '_').replace('.',
+                                                                                                                   '_') + '.npz',
                     points_data, chunksize=100)
                 # getting the forces for this particle and
-                # setting the new start values for the next list
-                start_point_cal = start_p + (delta * i)
                 # adding the new filed line in big field lines
                 field_lines.append(points_data)
                 # plotting for the 2d line plot
-                plt.plot(points_data[:, 2], points_data[:, 1], c='g')
+                # plt.plot(points_data[:, 2], points_data[:, 1], c='darkgreen', linewidth=0.2)
+                if plotted_lines != 0 and num_field_lines != plotted_lines:
+                    # plotting for the 2d line plot
+                    plt.plot(points_data[:, 2], points_data[:, 1], c='darkgreen', linewidth=0.2)
+                    print(start_point_cal)
+                plotted_lines += 1
+                # setting the new start values for the next list
+                start_point_cal = start_p + (delta * i)
             # building up the 2D plot
             x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
-            plt.plot(x1, y1, marker='o', c='r')
+            plt.plot(x1, y1, c='r')
             x2, y2 = [self.plate_neg.z_plane, self.plate_neg.z_plane], [self._p1[1], self._p2[1]]
-            plt.plot(x2, y2, marker='o', c='b')
+            plt.plot(x2, y2, c='b')
             # set the right title
-            plt.title('Field Lines No. ' + str(np.where(x_plane == x_off)[0][0]) + ' X_off: ' + str(round(x_off, 3)))
+            plt.title('Field Lines X_off: ' + str(round(x_off, 3)))
             # saving the image
             print(plt.axis())
-            plt.savefig(
-                path_field_lines_2d + '\\Field_Lines_No_' + str(np.where(x_plane == x_off)[0][0]) + '_X_off_' + str(
-                    round(x_off, 3)) + '.png', dpi=100)
+            plt.savefig(path_field_lines_2d + '\\Field_Lines_X_off_' + str(round(x_off, 3)) + '_' + str(
+                num_field_lines) + '.png', dpi=200)
             # showing the plot if requests
             if show:
                 plt.show()
@@ -1259,9 +1267,6 @@ class Plate_Capacitor:
     def p1(self):
         return self._p1
 
-
-# TODO build export function for class
-# TODO replace all x,y,z linespaces with fixed function
 
 if __name__ == "__main__":
     # setting up an instances for test
