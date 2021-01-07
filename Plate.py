@@ -376,28 +376,32 @@ class Plate:
             if c > len(color_list)-1:
                 c = 0
         # plotting the particles
-        plt.figure(figsize=(7, 7), dpi=80, facecolor='w', edgecolor='b')
+        # plt.figure(figsize=(7, 7), dpi=100, facecolor='w', edgecolor='b')
+        # plt.axis([0, 0.03, 0, 0.03])
         # getting x,y for particles plot
         x = [e.get_x() for e in self.matrix.flatten()]
         y = [e.get_y() for e in self.matrix.flatten()]
         # iterating through the particles and plotting them
         for e in self.matrix.flatten():
             # plotting the single particle
+            plt.figure(figsize=(7, 7), dpi=100, facecolor='w', edgecolor='b')
+            # plt.axis([-0.005, 0.035, -0.005, 0.035])
             for e_n in self.matrix.flatten():
                 if e_n.get_id() != e.get_id():
                     force, force_vector, force_vector_x, force_vector_y, force_vector_z = e.cal_force(particle=e_n)
-                    force_vector = force_vector * 14e21
+                    force_vector = force_vector * 4e22
                     print(force_vector)
                     plt.quiver(e.get_x(), e.get_y(), force_vector[0], force_vector[1],
                                color=color_particle[e_n.get_id()], scale=1, width=0.01)
-            plt.scatter(e.get_x(), e.get_y(), c=color_particle[e.get_id()], s=70)
+                # for e in self.matrix.flatten():
+                plt.scatter(e.get_x(), e.get_y(), c=color_particle[e.get_id()], s=100)
+            plt.show()
         # # getting forces data
         # f_list, f_dic = self.get_inner_forces_optimised()
         # # print(f_dic)
         # for e in self.matrix.flatten():
         #     plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0], f_dic[str(e.get_id())][1], hatch='o',
         #                width=0.01)
-        plt.axis([0, 0.03, 0, 0.03])
         plt.show()
 
     def plot_matrix_particles_vector_optimised(self):
