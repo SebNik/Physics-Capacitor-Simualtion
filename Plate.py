@@ -373,7 +373,7 @@ class Plate:
         for i in range(len(self.matrix.flatten())):
             color_particle[self.matrix.flatten()[i].get_id()] = color_list[c]
             c += 1
-            if c > len(color_list)-1:
+            if c > len(color_list) - 1:
                 c = 0
         # plotting the particles
         # plt.figure(figsize=(7, 7), dpi=100, facecolor='w', edgecolor='b')
@@ -383,8 +383,8 @@ class Plate:
         y = [e.get_y() for e in self.matrix.flatten()]
         # iterating through the particles and plotting them
         for e in self.matrix.flatten():
-            for i in range(1,9):
-                c=1
+            for i in range(1, 9):
+                c = 1
                 # plotting the single particle
                 for e_n in self.matrix.flatten():
                     if e_n.get_id() != e.get_id():
@@ -395,7 +395,7 @@ class Plate:
                                    color=color_particle[e_n.get_id()], scale=1, width=0.01)
                     for e in self.matrix.flatten():
                         plt.scatter(e.get_x(), e.get_y(), c=color_particle[e.get_id()], s=100)
-                    if c ==i:
+                    if c == i:
                         plt.show()
                         plt.figure(figsize=(7, 7), dpi=100, facecolor='w', edgecolor='b')
                         plt.axis([-0.005, 0.035, -0.005, 0.035])
@@ -414,7 +414,7 @@ class Plate:
         x = np.array([e.get_x() for e in self.matrix.flatten()])
         y = np.array([e.get_y() for e in self.matrix.flatten()])
         # building the grid
-        xi, yi = np.mgrid[x.min():x.max():grid*1j, y.min():y.max():grid * 1j]
+        xi, yi = np.mgrid[x.min():x.max():grid * 1j, y.min():y.max():grid * 1j]
         print(xi, yi)
         # first finding mirror axis x and y
         mirror_axis_x = self._x_length / 2 + self._p1[0]
@@ -440,7 +440,9 @@ class Plate:
                         y_check = particle.get_y() - (1 / 100000)
                     else:
                         y_check = particle.get_y()
-                    if round(xi[i][j], 4) <= x_check <= round(xi[i + 1][j], 4) and round(yi[i][j],4) <= y_check <= round(yi[i][j + 1], 4):
+                    if round(xi[i][j], 4) <= x_check <= round(xi[i + 1][j], 4) and round(yi[i][j],
+                                                                                         4) <= y_check <= round(
+                        yi[i][j + 1], 4):
                         data_density[i, j] += 1
         print(data_density)
         # adding the plot figures
@@ -497,21 +499,29 @@ class Plate:
         # returning the data from excel file
         return df['y'].to_numpy(), int(df['y'].to_numpy().shape[0])
 
-    def plot_density_self_made(self, nbins_inside=100, searching_box=19, save=False, path=None, show=True):
+    def plot_density_self_made(self, nbins_inside=100, searching_box=19, save=False, path=None, show=True, points=True):
         # this function is plotting the data
         # plotting the density of the points
-        fig = plt.figure(figsize=(6, 5), dpi=100, facecolor='w', edgecolor='b')
+        fig = plt.figure(dpi=100, facecolor='w', edgecolor='b')
         # setting up the plot fig
         ax = fig.add_subplot(1, 1, 1)
         # getting the data
         xi, yi, zi, x, y = self.plot_density_self_made_cals(nbins_inside=nbins_inside, searching_box=searching_box)
         # plotting the grid
-        im = plt.imshow(zi)
+        im = plt.imshow(zi, extent=(self._p1[0], self._p2[0], self._p1[1], self._p2[1]))
         # showing the color
         fig.colorbar(im)
+        if points:
+            # getting x,y for particles plot
+            x = [e.get_x() for e in self.matrix.flatten()]
+            y = [e.get_y() for e in self.matrix.flatten()]
+            color = ['r' if e.get_charge() > 0 else 'b' for e in self.matrix.flatten()]
+            # plotting particles
+            plt.scatter(x, y, c=color, alpha=0.5)
         if save:
             plt.savefig(path, dpi=100)
         if show:
+            plt.axis([0.005, 0.025, 0.005, 0.025])
             plt.show()
         plt.close()
         plt.clf()
@@ -534,10 +544,21 @@ class Plate:
                                                                                                                    outside_grid * 2)) * 1j]
         # print(xi)
         # print(yi)
-        # plotting the particles and the
-        # plt.scatter(x, y, c='b', alpha=0.5)
-        # plt.scatter(xi, yi, c='r', alpha=0.5)
-        # plt.show()
+        # fig = plt.figure(dpi=300, facecolor='w', edgecolor='b')
+        # ax = fig.add_subplot(1, 1, 1)
+        # # plotting the grid
+        # for i in range(len(xi)):
+        #     for j in range(len(yi)):
+        #         plt.hlines(y=yi[i, j], xmin=xi.min(), xmax=xi.max(), colors='black')
+        #         plt.vlines(x=xi[i, j], ymin=yi.min(), ymax=yi.max(), colors='black')
+        # # plotting the particles
+        # # plt.scatter(xi, yi, c='r', alpha=0.5)
+        # plt.scatter(x, y, c='b', s=100)
+        # setting the density plate for the grid
+        data_density_plate = np.zeros(
+            (xi.shape[0] - 1 - int(outside_grid * 2), xi.shape[1] - 1 - int(outside_grid * 2)))
+        outside_grid = int(outside_grid)
+        print(outside_grid)
         # setting the density with zeros
         data_density = np.zeros((xi.shape[0] - 1, xi.shape[1] - 1))
         # iterating through the grid and rectangles
@@ -569,10 +590,6 @@ class Plate:
                         # round(yi[i][j], 4),round(yi[i][j + 1], 4), particle.get_x(), particle.get_y())
                         data_density[i, j] += 1
         # print(data_density)
-        # setting the density plate for the grid
-        data_density_plate = np.zeros(
-            (xi.shape[0] - 1 - int(outside_grid * 2), xi.shape[1] - 1 - int(outside_grid * 2)))
-        outside_grid = int(outside_grid)
         # iterating through the density on the plate
         for i in range(len(data_density_plate)):
             for j in range(len(data_density_plate)):
@@ -589,6 +606,12 @@ class Plate:
                         data_density_plate[i, j] += data_density[i + outside_grid + a, j + outside_grid - t]
                         data_density_plate[i, j] += data_density[i + outside_grid - a, j + outside_grid - t]
                         data_density_plate[i, j] += data_density[i + outside_grid - a, j + outside_grid + t]
+
+        # im = plt.imshow(data_density_plate, extent=(self._p1[0], self._p2[0], self._p1[1], self._p2[1]), alpha=0.5)
+        # # showing the color
+        # fig.colorbar(im)
+        # plt.axis([xi.min() - (1 / 10000), yi.max() + (1 / 10000), xi.min() - (1 / 10000), yi.max() + (1 / 10000)])
+        # plt.show()
 
         # setting the data grid
         xi, yi = np.mgrid[x.min():x.max():nbins_inside * 1j, y.min():y.max():nbins_inside * 1j]
