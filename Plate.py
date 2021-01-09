@@ -348,7 +348,7 @@ class Plate:
         f_list, f_dic = self.get_inner_forces()
         print(f_list)
         # print(f_dic)
-        f = 15e20
+        f = 4e22
         for e in self.matrix.flatten():
             plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0] * f, f_dic[str(e.get_id())][1] * f, hatch='o',
                        width=0.01, scale=1)
@@ -360,7 +360,7 @@ class Plate:
         # plotting particles
         plt.scatter(x, y, c=color)
         # showing the plot
-        plt.axis([0, 0.03, 0, 0.03])
+        plt.axis([-0.02, 0.05, -0.02, 0.05])
         plt.show()
 
     def plotting_every_single_force_vector(self):
@@ -383,19 +383,23 @@ class Plate:
         y = [e.get_y() for e in self.matrix.flatten()]
         # iterating through the particles and plotting them
         for e in self.matrix.flatten():
-            # plotting the single particle
-            plt.figure(figsize=(7, 7), dpi=100, facecolor='w', edgecolor='b')
-            # plt.axis([-0.005, 0.035, -0.005, 0.035])
-            for e_n in self.matrix.flatten():
-                if e_n.get_id() != e.get_id():
-                    force, force_vector, force_vector_x, force_vector_y, force_vector_z = e.cal_force(particle=e_n)
-                    force_vector = force_vector * 4e22
-                    print(force_vector)
-                    plt.quiver(e.get_x(), e.get_y(), force_vector[0], force_vector[1],
-                               color=color_particle[e_n.get_id()], scale=1, width=0.01)
-                # for e in self.matrix.flatten():
-                plt.scatter(e.get_x(), e.get_y(), c=color_particle[e.get_id()], s=100)
-            plt.show()
+            for i in range(1,9):
+                c=1
+                # plotting the single particle
+                for e_n in self.matrix.flatten():
+                    if e_n.get_id() != e.get_id():
+                        force, force_vector, force_vector_x, force_vector_y, force_vector_z = e.cal_force(particle=e_n)
+                        force_vector = force_vector * 4e21
+                        print(force_vector)
+                        plt.quiver(e.get_x(), e.get_y(), force_vector[0], force_vector[1],
+                                   color=color_particle[e_n.get_id()], scale=1, width=0.01)
+                    for e in self.matrix.flatten():
+                        plt.scatter(e.get_x(), e.get_y(), c=color_particle[e.get_id()], s=100)
+                    if c ==i:
+                        plt.show()
+                        plt.figure(figsize=(7, 7), dpi=100, facecolor='w', edgecolor='b')
+                        plt.axis([-0.005, 0.035, -0.005, 0.035])
+                        break
         # # getting forces data
         # f_list, f_dic = self.get_inner_forces_optimised()
         # # print(f_dic)
@@ -403,6 +407,54 @@ class Plate:
         #     plt.quiver(e.get_x(), e.get_y(), f_dic[str(e.get_id())][0], f_dic[str(e.get_id())][1], hatch='o',
         #                width=0.01)
         plt.show()
+
+    def plot_sigma(self, grid):
+        # plotting the sigma data
+        # getting the particles data
+        x = np.array([e.get_x() for e in self.matrix.flatten()])
+        y = np.array([e.get_y() for e in self.matrix.flatten()])
+        # building the grid
+        xi, yi = np.mgrid[x.min():x.max():grid*1j, y.min():y.max():grid * 1j]
+        print(xi, yi)
+        # first finding mirror axis x and y
+        mirror_axis_x = self._x_length / 2 + self._p1[0]
+        mirror_axis_y = self._y_length / 2 + self._p1[1]
+        # setting up the data matrix
+        data_density = np.zeros((xi.shape[0] - 1, xi.shape[1] - 1))
+        # iterating through the data
+        for i in range(len(xi) - 1):
+            for j in range(len(yi) - 1):
+                for particle in self.matrix.flatten():
+                    # modifying the x and y coordinates
+                    # x coordinates
+                    if particle.get_x() < mirror_axis_x:
+                        x_check = particle.get_x() + (1 / 100000)
+                    elif particle.get_x() > mirror_axis_x:
+                        x_check = particle.get_x() - (1 / 100000)
+                    else:
+                        x_check = particle.get_x()
+                    # y coordinates
+                    if particle.get_y() < mirror_axis_y:
+                        y_check = particle.get_y() + (1 / 100000)
+                    elif particle.get_y() > mirror_axis_y:
+                        y_check = particle.get_y() - (1 / 100000)
+                    else:
+                        y_check = particle.get_y()
+                    if round(xi[i][j], 4) <= x_check <= round(xi[i + 1][j], 4) and round(yi[i][j],4) <= y_check <= round(yi[i][j + 1], 4):
+                        data_density[i, j] += 1
+        print(data_density)
+        # adding the plot figures
+        fig = plt.figure(figsize=(6, 5), dpi=100, facecolor='w', edgecolor='b')
+        # setting up the plot fig
+        ax = fig.add_subplot(1, 1, 1)
+        # plotting the grid
+        im = plt.imshow(data_density)
+        # showing the color
+        fig.colorbar(im)
+        # showing the data
+        plt.show()
+        plt.close()
+        plt.clf()
 
     def plot_matrix_particles_vector_optimised(self):
         # plotting the particles and inner force vectors
