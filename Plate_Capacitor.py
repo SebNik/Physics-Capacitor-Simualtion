@@ -1002,7 +1002,8 @@ class Plate_Capacitor:
         np.savez_compressed(path_field_lines_2d_data + '\\num_field_lines_in_area.npz', num_field_lines_in_area,
                             chunksize=100)
         # plotting the graphics and saving it
-        plt.plot(num_field_lines_in_area)
+        sectors_plot = [q for q in range(len(num_field_lines_in_area))]
+        plt.scatter(sectors_plot, num_field_lines_in_area)
         plt.savefig(path_field_lines_2d + '\\lines_in_bins.png')
         plt.close()
         # testing the data
@@ -1025,6 +1026,14 @@ class Plate_Capacitor:
                         new_point[1] = self._p2[1] - (1 / 100000)
                     start_points_list.append(new_point)
             print(start_points_list)
+            # plotting the points list and sector data
+            # start_points_list_plot = np.array(start_points_list)
+            # plt.scatter(start_points_list_plot[:, 1], start_points_list_plot[:, 2], c='r', s=100)
+            # # sector split data
+            # sector_x = np.linspace(self._p1[0], self._p2[0], nbins+1)
+            # for i in sector_x:
+            #     plt.vlines(x=i, ymin=-0.01, ymax=0.01)
+            # plt.show()
             # saving all the data
             np.savez_compressed(path_field_lines_2d_data + '\\start_points_list.npz', start_points_list, chunksize=100)
             # iterating over length of plate and number of field lines

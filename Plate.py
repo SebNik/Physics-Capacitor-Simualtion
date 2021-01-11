@@ -499,7 +499,7 @@ class Plate:
         # returning the data from excel file
         return df['y'].to_numpy(), int(df['y'].to_numpy().shape[0])
 
-    def plot_density_self_made(self, nbins_inside=100, searching_box=19, save=False, path=None, show=True, points=True):
+    def plot_density_self_made(self, nbins_inside=100, searching_box=19, save=False, path=None, show=True, points=False):
         # this function is plotting the data
         # plotting the density of the points
         fig = plt.figure(dpi=100, facecolor='w', edgecolor='b')
@@ -507,6 +507,8 @@ class Plate:
         ax = fig.add_subplot(1, 1, 1)
         # getting the data
         xi, yi, zi, x, y = self.plot_density_self_made_cals(nbins_inside=nbins_inside, searching_box=searching_box)
+        print(xi)
+        print(yi)
         # plotting the grid
         im = plt.imshow(zi, extent=(self._p1[0], self._p2[0], self._p1[1], self._p2[1]))
         # showing the color
@@ -521,7 +523,7 @@ class Plate:
         if save:
             plt.savefig(path, dpi=100)
         if show:
-            plt.axis([0.005, 0.025, 0.005, 0.025])
+            # plt.axis([0.005, 0.025, 0.005, 0.025])
             plt.show()
         plt.close()
         plt.clf()
