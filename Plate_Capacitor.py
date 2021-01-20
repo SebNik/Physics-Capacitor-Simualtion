@@ -1153,7 +1153,7 @@ class Plate_Capacitor:
 
     def plot_field_lines_from_data(self, x_off_prefix='e_field_lines_[0_015'):
         # plotting the field lines from the saved data
-        fig = plt.figure(figsize=(6, 5), dpi=300, facecolor='w', edgecolor='b')
+        fig = plt.figure(figsize=(6, 5), dpi=200, facecolor='w', edgecolor='b')
         # finding the right path
         path_field_lines_2d_data = os.path.abspath(os.path.join(self.path, 'Field_Lines_2D_DATA'))
         # getting all the files
@@ -1163,7 +1163,7 @@ class Plate_Capacitor:
             if x_off_prefix in file:
                 # opening the data
                 points_data = np.load(path_field_lines_2d_data + '\\' + file, allow_pickle=True)['arr_0']
-                plt.plot(points_data[:, 2], points_data[:, 1], c='darkgreen', linewidth=0.2)
+                plt.plot(points_data[:, 2], points_data[:, 1], c='darkgreen', linewidth=0.5)
         # building up the 2D plot
         x1, y1 = [self.plate_pos.z_plane, self.plate_pos.z_plane], [self._p1[1], self._p2[1]]
         plt.plot(x1, y1, c='r')

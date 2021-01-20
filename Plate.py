@@ -509,6 +509,10 @@ class Plate:
         xi, yi, zi, x, y = self.plot_density_self_made_cals(nbins_inside=nbins_inside, searching_box=searching_box)
         print(xi)
         print(yi)
+        # for i in range(len(xi)):
+        #     for j in range(len(yi)):
+        #         plt.hlines(y=yi[i, j], xmin=xi.min(), xmax=xi.max(), colors='black')
+        #         plt.vlines(x=xi[i, j], ymin=yi.min(), ymax=yi.max(), colors='black')
         # plotting the grid
         im = plt.imshow(zi, extent=(self._p1[0], self._p2[0], self._p1[1], self._p2[1]))
         # showing the color
