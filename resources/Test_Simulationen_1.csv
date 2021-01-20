@@ -1,0 +1,3 @@
+name	n_neg	n_pos	p1_x	p1_y	p2_x	p2_y	plane_z_pos	plane_z_neg	random	field_lines	num_field_lines
+Test_0_002_d_16	16	16	0.01	0.01	0.02	0.02	0.001	0.002	False	True	50
+Test_20_normal	20	20	0.01	0.01	0.02	0.02	0.001	0.004	False	True	50

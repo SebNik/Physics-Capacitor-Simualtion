@@ -1,0 +1,1 @@
+{"n_neg": 16, "n_pos": 16, "p1": [0.01, 0.01], "p2": [0.02, 0.02], "plane_pos_z": [0.001], "plane_neg_z": [0.032], "name": "Test_0_032_d_16_nbins_30", "random": false}
